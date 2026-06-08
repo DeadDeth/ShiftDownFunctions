@@ -3,6 +3,7 @@ project(ShiftDownFunctions)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(ShiftDownFunctions main.cpp
+add_executable(ShiftDownFunctions
         ShiftDownFunctions.hpp
-        ShiftDownFunctions.cpp)
+        main.cpp
+)
