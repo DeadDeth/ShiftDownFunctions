@@ -1,17 +1,29 @@
 /*
+    ShiftDownFunctions - C with classes, simple function renderer
+    Author: DeadDeth
+    Repository: https://github.com/DeadDeth/ShiftDownFunctions
+    License: MIT
+
+    This I hope will simplify the process of rendering graphs for someone on bare cpp,
+    No extra libraries needed, all is in one file, easy to get, easy to use <3
+*/
+
+
+/*
     Jak dodać do swojego projektu / How to add to your own project
 
     A. Można pobrać ShiftDownFunctions.hpp i dodać do projektu / Just download the ShiftDownFunctions.hpp file and add to project
 
     B. Dodać to do swojego CMakeLists.txt / Add this to CMakeLists.txt
        Potrzebuje zainstalowanego gita do działania / Needs git to be installed to work
+       Należy dodać to pod "add_executable(...)" / Place it under the "add_executable(...)"
 
     include(FetchContent)
     FetchContent_Declare(ShiftDownFunctions GIT_REPOSITORY https://github.com/DeadDeth/ShiftDownFunctions.git GIT_TAG main)
     FetchContent_MakeAvailable(ShiftDownFunctions)
     target_link_libraries([program name from add_executable()] PRIVATE ShiftDownFunctions)
 
-    To powinno, przynajmniej dla Clion, pobrać wszystko automatycznie z githuba. / This should automatically download the file, at least for Clion, from github.
+    To powinno, przynajmniej dla Clion, pobrać wszystko automatycznie z GitHub. / This should automatically download the file, at least for Clion, from GitHub.
 */
 
 
@@ -271,6 +283,22 @@ int main() {
         funkcji i zdjęć łatwo pójść w gigabajty pamięci RAM, tylko ostrzegam, i przypominam o magicznych delete albo robieniu każdego wykresu w osobnych funkcjach by obiekty ginęły automatycznie,
         wraz z jej końcem (za wyjątkiem modulacji tam zawsze delete), wycieków pamięci nie widziałem ale gwarancji też nie dam więc warto mieć to gdzieś z tyłu głowy.
 
+        Dla poprawnego działania formatu .png na linux potrzeba zainstalować ImageMagick albo FFmpeg na windows jakimś cudem działa powershell script,
+
+        Komendy dla Linuxa dla działania formatowania do .png:
+
+              --- Fedora 43 i podobne ---
+        sudo dnf install ImageMagick ffmpeg
+
+            --- Ubuntu / Debian / Pop!_OS ---
+        sudo apt update
+        sudo apt install imagemagick ffmpeg
+
+            --- Arch Linux / Manjaro ---
+        sudo pacman -S imagemagick ffmpeg
+
+
+        Całość jest na licencji MIT.
 */
 #pragma endregion
 
