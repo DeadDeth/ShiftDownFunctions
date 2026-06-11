@@ -6,6 +6,3 @@ Makefile
 *.ninja
 .ninja_*
 compile_commands.json
-
-*.bmp
-*.png

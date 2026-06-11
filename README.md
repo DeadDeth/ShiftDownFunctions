@@ -40,4 +40,14 @@ On RAM one picture is about 130MB of space, in order to convert it to .png autom
 - **For Arch Linux / Manjaro:** 
   - sudo pacman -S imagemagick ffmpeg
 
-Created by DeadDeth. Licensed under the MIT License.
+## DEMO (96 kHz / 8K)
+
+![ShiftDownFunctions Perfect Interference](assets/ShiftDownFunctions.png)
+
+This plot demonstrates the real-time auto-ranging and sub-pixel precision of the custom rendering pipeline, free from any external graphical dependencies. It shows the **beat interference** of two closely spaced sinusoidal waves ($3\text{ Hz}$ and $4\text{ Hz}$) sampled at a studio-grade **96 kHz** over a 4-second window.
+
+### 🛠️ Technical Insights:
+- **True Physics Over Naive Math:** A simple addition of two $10\text{V}$ waves might naively suggest a clean $20\text{V}$ peak. However, since the phase peaks of $3\text{Hz}$ and $4\text{Hz}$ never perfectly align in time, the internal scanning loop discovered the absolute mathematical maximum at exactly **$19.509\text{V}$**.
+- **Flawless Auto-Scaling:** The engine successfully mapped the resulting $39.018\text{V}$ peak-to-peak arena into 8 perfectly proportional grid steps of **$4.877\text{V}$**, proving the deterministic precision of the float-to-char converter under a heavy load of $384,000$ points drawn via a customized Bresenham's algorithm.
+
+#### Created by DeadDeth. Licensed under the MIT License.
