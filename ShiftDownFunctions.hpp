@@ -4,6 +4,7 @@
     A. Można pobrać ShiftDownFunctions.hpp i dodać do projektu / Just download the ShiftDownFunctions.hpp file and add to project
 
     B. Dodać to do swojego CMakeLists.txt / Add this to CMakeLists.txt
+       Potrzebuje zainstalowanego gita do działania / Needs git to be installed to work
 
     include(FetchContent)
     FetchContent_Declare(ShiftDownFunctions GIT_REPOSITORY https://github.com/DeadDeth/ShiftDownFunctions.git GIT_TAG main)
