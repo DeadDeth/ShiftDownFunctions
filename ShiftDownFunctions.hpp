@@ -37,6 +37,9 @@
 #include <sys/stat.h>
 #endif
 
+#ifndef M_PIf
+#define M_PIf 3.14159265358979323846
+#endif
 
 // predefiniowane kolory jako ARGB
 namespace Colors {
