@@ -1,5 +1,20 @@
-#pragma once
+/*
+    Jak dodać do swojego projektu / How to add to your own project
 
+    A. Można pobrać ShiftDownFunctions.hpp i dodać do projektu / Just download the ShiftDownFunctions.hpp file and add to project
+
+    B. Dodać to do swojego CMakeLists.txt / Add this to CMakeLists.txt
+
+    include(FetchContent)
+    FetchContent_Declare(ShiftDownFunctions GIT_REPOSITORY https://github.com/DeadDeth/ShiftDownFunctions.git GIT_TAG main)
+    FetchContent_MakeAvailable(ShiftDownFunctions)
+    target_link_libraries({PROJECT_NAME} PRIVATE ShiftDownFunctions)
+
+    To powinno, przynajmniej dla Clion, pobrać wszystko automatycznie z githuba. / This should automatically download the file, at least for Clion, from github.
+*/
+
+
+#pragma once
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
