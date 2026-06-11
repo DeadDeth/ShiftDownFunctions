@@ -8,13 +8,8 @@ It does not require any additional libraries, also it should work with Windows, 
 
   ```cmake
   include(FetchContent)
-  FetchContent_Declare(
-      ShiftDownFunctions 
-      GIT_REPOSITORY [https://github.com/DeadDeth/ShiftDownFunctions.git](https://github.com/DeadDeth/ShiftDownFunctions.git) 
-      GIT_TAG main
-  )
+  FetchContent_Declare(ShiftDownFunctions GIT_REPOSITORY https://github.com/DeadDeth/ShiftDownFunctions.git GIT_TAG main)
   FetchContent_MakeAvailable(ShiftDownFunctions)
-  
   # Replace 'YourProgramName' with the target from your add_executable()
   target_link_libraries(YourProgramName PRIVATE ShiftDownFunctions)
 
