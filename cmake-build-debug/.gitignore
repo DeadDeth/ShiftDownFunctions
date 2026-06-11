@@ -1,0 +1,11 @@
+.idea/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+*.ninja
+.ninja_*
+compile_commands.json
+
+*.bmp
+*.png

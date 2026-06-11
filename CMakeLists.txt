@@ -1,9 +1,5 @@
-cmake_minimum_required(VERSION 4.2)
+cmake_minimum_required(VERSION 3.14)
 project(ShiftDownFunctions)
 
-set(CMAKE_CXX_STANDARD 23)
-
-add_executable(ShiftDownFunctions
-        ShiftDownFunctions.hpp
-        main.cpp
-)
+add_library(ShiftDownFunctions INTERFACE)
+target_include_directories(ShiftDownFunctions INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

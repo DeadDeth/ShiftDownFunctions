@@ -10,9 +10,10 @@
 #endif
 
 
-// predefiniowane kolory jako uint32_t, używa się: Colors::RED -> to daje czerwony, czyli po prostu 0xFFFF0000 w hexa-decymalnym ARGB
+// predefiniowane kolory jako ARGB
 namespace Colors {
-
+//  ARGB -> ALPHA, RED, GREEN, BLUE -> 0xAARRGGBB (rozkład w hexa-decymalnym)
+//  Przykład: Colors::RED -> to daje czerwony jako uint32_t, czyli po prostu 0xFFFF0000 w hexa-decymalnym ARGB
 union ARGB {
   uint32_t color{0};
   struct {
@@ -24,7 +25,6 @@ union ARGB {
   constexpr operator uint32_t() const{return color;};
   constexpr ARGB(uint32_t argb) : color(argb) {}
   constexpr ARGB(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : argb{b,g,r,a} {}
-
 };
 // --- PODSTAWOWE ---
 constexpr ARGB RED     = {255, 0, 0};
@@ -83,9 +83,8 @@ constexpr ARGB GLASS_GREEN  = {0, 255, 0, 128};
 
 namespace ShiftDownFunctions
 {
-
-    //region Jak Korzystać
-    /*
+#pragma region Instrukcja obsługi
+/*
 ------------------------------------------------------ KROK 1. Tworzymy funkcje cpp dla wzoru matematycznego naszej funkcji --------------------------------------------------------------------------------------------------------
 
         float nazwa_funkcji_wzoru ([stała referencja obiektu naszej funkcji], [aktualna iteracja 'n' jako uint64_t]], [wartość naszego t dla f(t) albo x dla f(x) jako float]) {
@@ -112,7 +111,7 @@ namespace ShiftDownFunctions
         Function funkcja_sinus_rec(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
         Function funkcja_sinus_tri(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
 
------------------------------------------------------- KROK 3. Modulujemy albo Rysujemy gotowe funkcje --------------------------------------------------------------------------------------------------------
+------------------------------------------------------ KROK 3. Modulujemy, liczmy DFT albo Rysujemy przygotowane funkcje --------------------------------------------------------------------------------------------------------
                                                                                ---- Modulacja ----
                                                       --- Modulowanie funkcji tworzy nowy obiekt i zwraca wskaźnik na niego ---
                                          --- dzieki temu nie trzeba się bać że modulacja zmieni wartości oryginalnej funkcji przed rysowaniem ---
@@ -137,6 +136,13 @@ namespace ShiftDownFunctions
         Function* sin_modulacja_FM_rec = modulate_FM_rec(&funkcja_sinus, 5.0f, 120.0f, 0.f);
         Function* sin_modulacja_FM_tri = modulate_FM_tri(&funkcja_sinus, 5.0f, 120.0f, 0.f);
 
+                                                                                   ---- DFT ----
+                                                                            --- Tworzymy obiekt DFT ---
+        DFT [nazwa_obiektu_dft]([obiekt funkcji do narysowania]);
+
+                                                                                ---- PRZYKŁAD ----
+
+        DFT widmo_sinusa(&funkcja_sinus);
 
                                                                                 ---- Rysowanie ----
                                                                             --- Tworzymy obiekt Graph ---
@@ -151,15 +157,18 @@ namespace ShiftDownFunctions
         Graph graf_sin_modulacja_FM_rec(sin_modulacja_FM_rec, "Modulacja rec, FM", "Czas [s]", "Amplituda [A]");
         Graph graf_sin_modulacja_FM_tri(sin_modulacja_FM_tri, "Modulacja tri, FM", "Czas [s]", "Amplituda [A]");
 
+                                                                            --- Zasada ta sama dla DFT ---
+
+        Graph graf_widma_sinusa(&widmo_sinusa, "Widmo funkcji_sinus", "Częstotliwość [Hz]", "Amplituda [A]");
+
 ---------------------------------------------------------------------------------- KROK 4. DELETE --------------------------------------------------------------------------------------------------------
 
-        Pamiętamy o delete dla każdego wskaźnika w naszych funkcjach
+                                                    !!! Pamiętamy o delete dla każdego obiektu stworzonego przez funkcje modulujące !!!
 
-        delete sin_modulacja_FM_tri;
-        delete sin_modulacja_FM_rec;
-        delete sin_modulacja_PM_saw;
-        delete sin_modulacja_AM_sin;
-
+                                                                            delete sin_modulacja_FM_tri;
+                                                                            delete sin_modulacja_FM_rec;
+                                                                            delete sin_modulacja_PM_saw;
+                                                                            delete sin_modulacja_AM_sin;
 
 ------------------------------------------------------------------------------ PRZYKŁADOWY KOD TESTOWY --------------------------------------------------------------------------------------------------------
 
@@ -177,7 +186,7 @@ float sinus_formula (const ShiftDownFunctions::Function& function_object, uint64
 
 int main() {
 
-    //KROK 2 - tworzenie obiektow funkcji
+    //KROK 2 - tworzenie obiektów funkcji
     ShiftDownFunctions::Function funkcja_sinus(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
     ShiftDownFunctions::Function funkcja_sinus_saw(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
     ShiftDownFunctions::Function funkcja_sinus_rec(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
@@ -189,8 +198,13 @@ int main() {
     ShiftDownFunctions::Function* sin_modulacja_FM_rec = modulate_FM_rec(&funkcja_sinus, 1.0f, 50.0f, 0.f);
     ShiftDownFunctions::Function* sin_modulacja_FM_tri = modulate_FM_tri(&funkcja_sinus, 1.0f, 50.0f, 0.f);
 
+    //KROK 3 - tworzenie dft
+
+    DFT widmo_sinusa(&funkcja_sinus);
+
     //KROK 3 - rysowanie funkcji
     ShiftDownFunctions::Graph graf_sinus(&funkcja_sinus, "funkcja sinus", "Czas [s]", "Amplituda [A]");
+    ShiftDownFunctions::Graph graf_widma_sinusa(&widmo_sinusa, "Widmo funkcji_sinus", "Częstotliwość [Hz]", "Amplituda [A]"); // WIDMO
     ShiftDownFunctions::Graph graf_sin_modulacja_AM_sin(sin_modulacja_AM_sin, "Modulacja sin, AM", "Czas [s]", "Amplituda [A]");
     ShiftDownFunctions::Graph graf_sin_modulacja_PM_saw(sin_modulacja_PM_saw, "Modulacja saw, PM", "Czas [s]", "Amplituda [A]");
     ShiftDownFunctions::Graph graf_sin_modulacja_FM_rec(sin_modulacja_FM_rec, "Modulacja rec, FM", "Czas [s]", "Amplituda [A]");
@@ -214,29 +228,38 @@ int main() {
 }
 
 
------------------------------------------------------------------------------------- UWAGA !!! --------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------ !!! UWAGA !!! --------------------------------------------------------------------------------------------------------
 
         Program automatycznie dokona próby zapisu do PNG i na windows i na linux, jeśli natomiast się nie uda to zachowa zdjęcia we wskazanym folderze jako bmp,
         jeśli lokalizacja folderu nie została wskazana ręcznie, program zapisze to w miejscu gdzie zapisana jest jego binarka. Mogą występować różne fikuśne błędy i bugi, nie wiem nie testowałem
-        w razie co można starać się naprawić błąd samemu, sekcji Font lepiej nie ruszac tam znajduje się czcionka do którą wkleja się w graf, ma wymiary fizyczne 16 x 16 jakby ktoś chciał podmienic
-        natomiast faktyczne litery są 16 x 8, gdzie litera znajduje się z lewej strony tekstury, i taki format musi być zachowany,
+        każdego scenariusza w razie co można starać się naprawić błąd samemu, sekcji Font lepiej nie ruszac tam znajduje się czcionka do którą wkleja się w graf, ma wymiary fizyczne 16 x 16 jakby
+        ktoś chciał podmienic natomiast faktyczne litery są 16 x 8, gdzie litera znajduje się z lewej strony tekstury, i taki format musi być zachowany,
 
-        KOLORY
+        W grafach można modyfikować kolory dla osi, czcionki, tła, wykresu, można podać wartości ARGB jako uint32_t, polecam jako hex w formacie 0xAARRGGBB, albo gotowa sekcja kolorów Colors::[nazwa gotowego koloru jaki tam jest]
+        A-alpha, od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
+        R-czerwony, od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
+        G-zielony, od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
+        B-niebieski od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
+        Przykład: 0xFF7D7D7D lub Colors::GRAY -> daje kolor szary
 
-        W grafach można modyfikować kolory dla osi, czcionki, tła, wykresu, można podać wartości ARGB, polecam jako hex w formacie 0xAARRGGBB,
-        A-alpha,
-        R-czerwony,
-        G-zielony,
-        B-niebieski
+        Wartości na wykresach, czasem Amplituda jest w zakresie od np 1 do -0.984 albo coś około tego, wynika to niestety z akumulacji błędu zmiennoprzecinkowego (IEEE 754, Metody Numeryczne) pewnie da się to ręcznie zabezpieczyć
+        ale nie miałem na to ochoty, więc jeśli komuś przeszkadza można w funkcji rysującej Graph, sekcja values on x i values on y, dodać bramke przed wysłaniem wartości do funkcji float_to_char, która wyrówna wartości
+        do tego co powinno być, problem nie pojawia się zawsze ale czasem, i jest to specyfika działania tego tworu, ja mówie że to funkcjonalność, może kiedyś sam poprawie w wolnym czasie.
 
-        Przykład: 0xFF7D7D7D -> daje szary szary
+        Windows, a Linux. Domyślnie wszystko jest napisane i przetestowane na Linux Fedora 43, działa bez problemu, Na windows też powinno ale nic nie mogę obiecać, niech się cieszą że w ogole mi się chciało o nich pamiętać
+        Zdjęcia są w 8k robione, skalowanie z poziomu systemu nie programu ze względu na dosyć leniwe podejście do statycznie wyliczanych odległości i zależności między elementami wykresu w celu osiągnięcia najbardziej
+        satysfakcjonujących rezultatów, gotowe zdjęcie można już skalować do woli. Pliki .png nie są tragiczne w rozmiarach, wahają się w zależności od wyglądu wykresu, .bmp natomiast to sztywne około 130MB, i uwaga
+        tutaj mówię o miejscu na dysku, w ramie i procesie tworzenia, przekraczamy te 130MB na funkcje, prosty wzór na obliczenia ile to zajmie (mniej wiecej), sama funkcja w sobie to Tc * fs * rozmiar_float (32bity) * 2,
+        bo mamy oś x i y, potem modulacje, dft i inne jako że to osobne obiekty zasada ta sama, renderowanie grafu to zawsze 8K, szerokość * wysokość * rozmiar uint32_t (32bity) co daje około 130MB
+        wiec dla funkcji o czasie Tc = 2 sekundy i fs = 32k mamy 2 * 32k * 2 czyli 128k * 32 co daje 4 096 000 bitów czyli około 0.5MB, dla czasu 4s to już 1MB dla, 10s mamy 5MB i tak dalej, wiec przy renderowaniu kilku
+        funkcji i zdjęć łatwo pójść w gigabajty pamięci RAM, tylko ostrzegam, i przypominam o magicznych delete albo robieniu każdego wykresu w osobnych funkcjach by obiekty ginęły automatycznie,
+        wraz z jej końcem (za wyjątkiem modulacji tam zawsze delete), wycieków pamięci nie widziałem ale gwarancji też nie dam więc warto mieć to gdzieś z tyłu głowy.
 
-    */
-    //endregion
+*/
+#pragma endregion
 
+#pragma region Sekcja czcionki
 
-
-    #pragma region FontSection
 // --- CYFRY (0-9) ---
 constexpr uint64_t font_0[4] = {0x0000000038004400, 0x4400440044004400, 0x4400380000000000, 0x0000000000000000};
 constexpr uint64_t font_1[4] = {0x0000000010003000, 0x1000100010001000, 0x1000380000000000, 0x0000000000000000};
@@ -362,6 +385,7 @@ constexpr uint64_t font_z_kres[4] = {0x0800100000000000, 0x7C00080010002000, 0x4
 constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x40007C0000000000, 0x0000000000000000};
 #pragma endregion
 
+    // Struktura tworząca obiekt funkcji
     struct Function {
         float Tc{0.f}; // czas_całkowity
         float fs{0.f}; // czestotliwosc_probkowania
@@ -393,16 +417,21 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             _mm_free(f_t);
         }
     };
+
+    // Struktura tworząca obiekt DFT na podstawie obiektu funkcji
     struct DFT {
         uint32_t K{0}; // liczba elementów, K = N - 1
+        // Należy pamiętać, że wykresy DFT tworzymy tylko dla połowy wartości, ponieważ druga połowa wartości zawiera
+        // w sobie lustrzane odbicie tej pierwszej, rysowanie jej jest po prostu zbędne i bez sensu, dlatego
+        // funkcja rysująca DFT będzie to robić dla (K - 1) / 2, natomiast liczyć wartości normalnie do K
 
-        // potem nasze 'a' i 'b' dla wzoru Pitagorasa na modulo z
+        // potem nasze 'a' i 'b' dla wzoru Pitagorasa na moduł z
         float* Re = nullptr; // część rzeczywista
         float* Im = nullptr; // część zmyślona :)
 
-        // nasze współrzędne x i y, różnią się względem zwykłej funkcji tylko nazwą, zwykłe (x,y)
-        float* fk = nullptr; // spectrum x
-        float* mod_z = nullptr; // spectrum y
+        // nasze współrzędne x i y, różnią się względem zwykłej funkcji tylko nazwą, zwykłe (x, y)
+        float* fk = nullptr; // spectrum x -> częstotliwość w danym punkcie
+        float* mod_z = nullptr; // spectrum y -> siła sygnału w danej częstotliwości
 
         DFT(const Function* function) {
             K = function->N - 1;
@@ -419,10 +448,10 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 Im[k] = 0;
                 for (uint64_t n = 0; n < K; n++) {
 
-                    //  liczymy ze wzoru zamieniając liczbe eulera na cos([wyrażenie wykładnika e ze wzoru]) + isin([wyrażenie wykładnika e ze wzoru])
+                    //  Liczymy ze wzoru zamieniając liczbe eulera na cos([wyrażenie wykładnika e ze wzoru]) + isin([wyrażenie wykładnika e ze wzoru])
                     //  i mamy: f(x) * cos([wyrażenie wykładnika e ze wzoru]) + i*sin([wyrażenie wykładnika e ze wzoru])
                     //  znak + rozdziela nam liczby Re od Im gdzie nasza liczba zespolona jest po prostu sumą tego, jako że komputer
-                    //  średnio kuma liczby zespolone, a przynajmniej liczbe 'i', to przechowujemy to osobno lub jako jeden struct nazwany np:
+                    //  średnio kuma liczby zespolone, a przynajmniej liczbe 'i', to przechowujemy to osobno lub jako jeden struct nazwany np.
                     //  struct liczba_zespolona {
                     //      float/double Re, Im;
                     //  } ;
@@ -438,18 +467,18 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
             // liczenie |z| - moduł z
             for (uint64_t k = 0; k < K; k++) {
-                // moduł z to jest moc naszej funkcji w danej częstotliwości, to ta wartość daję nam wysokość prążka, a liczmy ją Pitagorasem, gdzie Re i Im służą nam za 'a' i 'b'
+                // moduł z to jest Amplituda naszej funkcji w danej częstotliwości, to ta wartość daję nam wysokość prążka, a liczmy ją Pitagorasem, gdzie Re i Im służą nam za 'a' i 'b'
                 // stąd mamy c^2 = a^2 + b^2, przekształcamy i otrzymujemy c = pierwiastek(a^2 + b^2)
                 mod_z[k] = sqrtf(powf(Re[k], 2) + powf(Im[k], 2));
 
-                // fk to po prostu miejsce na osi x, dla danego moduł z, gdzie oś x to częstotliwość, a nie czas jak w przypadku zwykłej funkcji
+                // fk to po prostu miejsce na osi x, dla danego moduł z gdzie oś x to częstotliwość, a nie czas jak w przypadku zwykłej funkcji
                 fk[k] = static_cast<float>(k) * function->fs / static_cast<float>(K);
             }
 
-            // normalizacja - wymagana aby wykres nie poleciał w kosmos, z powrotem sprowadzamy go do oryginalnej wartości Amplitudy
+            // normalizacja jest wymagana, aby wykres nie poleciał w kosmos, z powrotem sprowadzamy go do oryginalnej wartości Amplitudy
             mod_z[0] /= static_cast<float>(function->N); // stała składowa dzielona przez N
             for (uint64_t k = 1; k < K; k++) {
-                // ja wykonałem normalizacje na zasadzie, podzielenia naszego modułu z, przez połowę wszystkich elementów
+                // ja wykonałem normalizacje na zasadzie, podzielenia naszego modułu z przez połowę wszystkich elementów
                 mod_z[k] /= static_cast<float>(K) / 2.f;
             }
         }
@@ -461,6 +490,8 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             _mm_free(fk);
         }
     };
+
+    // Klasa renderująca wykresy na podstawie podanego obiektu funkcji albo dft
     class Graph {
 
         // colors (kolory)
@@ -523,7 +554,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         // funkcja zmieniająca liczby typu float w tekst z zadaną precyzją
         static char* float_to_char(float number, char* buffer, uint32_t precision = 3) {
 
-        for (int k = 0; k < 8; k++)
+        for (int k = 0; k < 32; k++)
             buffer[k] = '\0';
 
         if (number == 0.0f) {
@@ -1195,7 +1226,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // values on x
             uint32_t segments_count = 8;
 
-            char value[8];
+            char value[32];
             uint32_t skala_textu_value_x = 8;
             uint32_t step_x = ((function_to_render->N) / segments_count);
             for (uint32_t i = 1; i < segments_count; i++) {
@@ -1494,6 +1525,8 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             //math section
 
             uint64_t picture_size = picture_width * picture_height;
+            uint32_t K_render = (dft_to_render->K - 1) / 2;
+
 
             texture = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * picture_size, 32));
             for (uint64_t i = 0; i < picture_size; i++) {
@@ -1503,7 +1536,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             float min_y = std::numeric_limits<float>::max();
             float max_y = std::numeric_limits<float>::lowest();
 
-            for (uint32_t i = 0; i < dft_to_render->K; i++) {
+            for (uint32_t i = 0; i < K_render; i++) {
                 min_y = dft_to_render->mod_z[i] < min_y ? dft_to_render->mod_z[i] : min_y;
                 max_y = dft_to_render->mod_z[i] > max_y ? dft_to_render->mod_z[i] : max_y;
             }
@@ -1517,7 +1550,9 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             uint32_t graph_width = picture_width - padding_left_x - padding_right_x; // 7168px
             uint32_t graph_height = picture_height - padding_top_y - padding_bot_y; // 3552px
 
-            float scale_x = static_cast<float>(graph_width) / (dft_to_render->fk[dft_to_render->K - 1] - dft_to_render->fk[0]);
+
+
+            float scale_x = static_cast<float>(graph_width) / (dft_to_render->fk[K_render] - dft_to_render->fk[0]);
             float scale_y = 0;
             if (max_y == min_y) {
                 scale_y = static_cast<float>(graph_height) / 1.f;
@@ -1526,10 +1561,10 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 scale_y = static_cast<float>(graph_height) / (max_y - min_y);
             }
 
-            int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * dft_to_render->K, 32));
-            int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * dft_to_render->K, 32));
+            int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
+            int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
-            for (uint32_t i = 0; i < dft_to_render->K; i++) {
+            for (uint32_t i = 0; i < K_render; i++) {
                 scaled_x[i] = static_cast<int>(roundf(dft_to_render->fk[i] * scale_x));
                 scaled_y[i] = -(static_cast<int>(roundf(dft_to_render->mod_z[i] * scale_y)));
             }
@@ -1537,7 +1572,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             int int_min_y = std::numeric_limits<int>::max();
             int int_max_y = std::numeric_limits<int>::lowest();
 
-            for (uint32_t i = 0; i < dft_to_render->K; i++) {
+            for (uint32_t i = 0; i < K_render; i++) {
                 int_min_y = scaled_y[i] < int_min_y ? scaled_y[i] : int_min_y;
                 int_max_y = scaled_y[i] > int_max_y ? scaled_y[i] : int_max_y;
             }
@@ -1545,10 +1580,10 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             int offset_x = scaled_x[0] * -1;
             int offset_y = int_min_y * -1;
 
-            auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * dft_to_render->K, 32));
-            auto* scaled_uint_y = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * dft_to_render->K, 32));
+            auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * K_render, 32));
+            auto* scaled_uint_y = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * K_render, 32));
 
-            for (uint32_t i = 0; i < dft_to_render->K; i++) {
+            for (uint32_t i = 0; i < K_render; i++) {
                 scaled_uint_x[i] = scaled_x[i] + offset_x + padding_left_x;
                 scaled_uint_y[i] = scaled_y[i] + offset_y + padding_top_y;
             }
@@ -1658,9 +1693,9 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // values on x
             uint32_t segments_count = 8;
 
-            char value[8];
+            char value[32];
             uint32_t skala_textu_value_x = 8;
-            uint32_t step_x = ((dft_to_render->K) / segments_count);
+            uint32_t step_x = ((K_render) / segments_count);
             for (uint32_t i = 1; i < segments_count; i++) {
                 TextBox value_x(7, 1, background_color);
                 value_x.add_text(float_to_char(dft_to_render->fk[step_x * i], value, 3), font_color);
@@ -1829,7 +1864,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                           16);
             }
             // wykres
-            for (uint32_t i = 0; i < dft_to_render->K - 1; i++) {
+            for (uint32_t i = 0; i < K_render - 1; i++) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
                 draw_line(texture, picture_width, picture_height, scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 8);
             }
@@ -1957,9 +1992,28 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         ~Graph() { _mm_free(texture); };
     };
 
-    #pragma region Modulations
+#pragma region Funkcje modulujące
 
     // dodac funkcje dla haminga i inne bajery z tym zwiazane
+
+    /* Krótkie wprowadzenie co to i po co to.
+
+     Modulacja polega na wsadzeniu sygnału o niskiej częstotliwości do innego sygnału o bardzo
+     wysokiej częstotliwości (tak zwanej nośnej), by móc wysłać go na większe odległości,
+
+     Modulować funkcje modulujemy po 3 wartościach:
+        - Amplitudzie [A] -> AM, podatna na szumy i burze.
+        - Częstotliwości [f] -> FM, odporna na burze,
+        - Fazy [PHI] -> PM, pozwala upchać najwiecej danych w jednym cyklu
+
+    Modulacje zaimplementowane przeze mnie to:
+        - sinusoidalna (SIN) -> fala jest gładka, nie generuje niepotrzebnych zakłócających harmonicznych.
+        - prostokątna (REC) -> głównie dla sygnałów cyfrowych, zamiast fali pracuje bardziej na stanach  jak 0, 1
+        - trójkątna (TRI) i piłokształtna (SAW) -> działa na zasadzie gdzie częstotliwość wchodzi powoli do góry, a potem natychmiast spada do wartości początkowej, stosowane w CRT, radarach FMCW
+
+    W skrócie, mała funkcja pakowana w pociąg, wysyłana w świat, odbierana dekodowana i mamy informacje w niej zawarte setki kilometrów dalej.
+     */
+
     // --- MODULACJA SINUSOIDALNA (SIN) ---
     inline Function* modulate_AM_sin(const Function* ftm, float A, float fs, float PHI) {
 
@@ -1970,6 +2024,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         AM->PHI = PHI;
 
         for (uint64_t t = 0; t < AM->N; t++) {
+            // dodajemy wartości naszej funkcji do amplitudy [A] sygnału
             AM->f_t[t] = (A + ftm->f_t[t]) * sinf(2.f * M_PIf * fs * AM->t[t] + PHI);
         }
 
@@ -1982,7 +2037,9 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         PM->fs = fs;
         PM->PHI = PHI;
 
+
         for (uint64_t t = 0; t < PM->N; t++) {
+            // dodajemy wartości naszej funkcji do fazy [PHI] sygnału
             PM->f_t[t] = A * sinf(2.f * M_PIf * fs * PM->t[t] + ftm->f_t[t] + PHI);
         }
 
@@ -1996,6 +2053,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
         float integral = 0.f;
         for (uint64_t t = 0; t < FM->N; t++) {
+            // wyliczamy całkę (integral) z naszej funkcji, a potem ładujemy do częstotliwości
             integral += ftm->f_t[t] * ftm->Ts;
             FM->f_t[t] = A * sinf(2.f * M_PIf * fs * FM->t[t] + 2.f * M_PIf * integral + PHI);
         }
@@ -2009,9 +2067,10 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         AM->fs = fs;
         AM->PHI = PHI;
         for (uint64_t t = 0; t < AM->N; t++) {
+            // angle to faza, rośnie w nieskończoność, fmodf to modulo dla liczb zmiennoprzecinkowych, kiedy faza dobije 2PI, to resetuje się do 0 i tak w kółko
+            // stąd pojawiają się te kształty, funkcja rośnie, potem obraca się z powrotem na 0
             float angle = fmodf(2.f * M_PIf * fs * AM->t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f)
-                angle += 2.f * M_PIf;
+            if (angle < 0.f) angle += 2.f * M_PIf;
             float carrier = (angle / M_PIf) - 1.f;
             AM->f_t[t] = (A + ftm->f_t[t]) * carrier;
         }
@@ -2024,8 +2083,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         PM->PHI = PHI;
         for (uint64_t t = 0; t < PM->N; t++) {
             float angle = fmodf(2.f * M_PIf * fs * PM->t[t] + ftm->f_t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f)
-                angle += 2.f * M_PIf;
+            if (angle < 0.f) angle += 2.f * M_PIf;
             float carrier = (angle / M_PIf) - 1.f;
             PM->f_t[t] = A * carrier;
         }
@@ -2040,8 +2098,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         for (uint64_t t = 0; t < FM->N; t++) {
             integral += ftm->f_t[t] * ftm->Ts;
             float angle = fmodf(2.f * M_PIf * fs * FM->t[t] + 2.f * M_PIf * integral + PHI, 2.f * M_PIf);
-            if (angle < 0.f)
-                angle += 2.f * M_PIf;
+            if (angle < 0.f) angle += 2.f * M_PIf;
             float carrier = (angle / M_PIf) - 1.f;
             FM->f_t[t] = A * carrier;
         }
@@ -2056,8 +2113,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         AM->PHI = PHI;
         for (uint64_t t = 0; t < AM->N; t++) {
             float angle = fmodf(2.f * M_PIf * fs * AM->t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f)
-                angle += 2.f * M_PIf;
+            if (angle < 0.f) angle += 2.f * M_PIf;
             float carrier = (angle < M_PIf) ? 1.f : -1.f;
             AM->f_t[t] = (A + ftm->f_t[t]) * carrier;
         }
@@ -2070,8 +2126,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         PM->PHI = PHI;
         for (uint64_t t = 0; t < PM->N; t++) {
             float angle = fmodf(2.f * M_PIf * fs * PM->t[t] + ftm->f_t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f)
-                angle += 2.f * M_PIf;
+            if (angle < 0.f) angle += 2.f * M_PIf;
             float carrier = (angle < M_PIf) ? 1.f : -1.f;
             PM->f_t[t] = A * carrier;
         }
@@ -2086,8 +2141,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         for (uint64_t t = 0; t < FM->N; t++) {
             integral += ftm->f_t[t] * ftm->Ts;
             float angle = fmodf(2.f * M_PIf * fs * FM->t[t] + 2.f * M_PIf * integral + PHI, 2.f * M_PIf);
-            if (angle < 0.f)
-                angle += 2.f * M_PIf;
+            if (angle < 0.f) angle += 2.f * M_PIf;
             float carrier = (angle < M_PIf) ? 1.f : -1.f;
             FM->f_t[t] = A * carrier;
         }
@@ -2102,8 +2156,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         AM->PHI = PHI;
         for (uint64_t t = 0; t < AM->N; t++) {
             float angle = fmodf(2.f * M_PIf * fs * AM->t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f)
-                angle += 2.f * M_PIf;
+            if (angle < 0.f) angle += 2.f * M_PIf;
             float carrier = (angle < M_PIf) ? (-1.f + 2.f * angle / M_PIf) : (3.f - 2.f * angle / M_PIf);
             AM->f_t[t] = (A + ftm->f_t[t]) * carrier;
         }
@@ -2116,8 +2169,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         PM->PHI = PHI;
         for (uint64_t t = 0; t < PM->N; t++) {
             float angle = fmodf(2.f * M_PIf * fs * PM->t[t] + ftm->f_t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f)
-                angle += 2.f * M_PIf;
+            if (angle < 0.f) angle += 2.f * M_PIf;
             float carrier = (angle < M_PIf) ? (-1.f + 2.f * angle / M_PIf) : (3.f - 2.f * angle / M_PIf);
             PM->f_t[t] = A * carrier;
         }
@@ -2132,12 +2184,12 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         for (uint64_t t = 0; t < FM->N; t++) {
             integral += ftm->f_t[t] * ftm->Ts;
             float angle = fmodf(2.f * M_PIf * fs * FM->t[t] + 2.f * M_PIf * integral + PHI, 2.f * M_PIf);
-            if (angle < 0.f)
-                angle += 2.f * M_PIf;
+            if (angle < 0.f) angle += 2.f * M_PIf;
             float carrier = (angle < M_PIf) ? (-1.f + 2.f * angle / M_PIf) : (3.f - 2.f * angle / M_PIf);
             FM->f_t[t] = A * carrier;
         }
         return FM;
     }
 #pragma endregion
+
 } // namespace ShiftDownFunctions
