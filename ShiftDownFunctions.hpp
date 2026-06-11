@@ -1107,7 +1107,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
     public:
         // ten konstruktor odpowiada za generowanie dla funkcji normalnych
-        Graph(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF000000, uint32_t line_color = 0xFF00FF00, uint32_t axis_color = 0xFFFFFFFF, uint32_t grid_color = 0xFF7D7D7D, uint32_t font_color = 0xFFFFFFFF, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
+        Graph(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
 
             uint64_t picture_size = picture_width * picture_height;
 
@@ -1564,7 +1564,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             _mm_free(scaled_uint_y);
         }
         // a ten dla funkcji po DFT,
-        Graph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF000000, uint32_t line_color = 0xFF00FF00, uint32_t axis_color = 0xFFFFFFFF, uint32_t grid_color = 0xFF7D7D7D, uint32_t font_color = 0xFFFFFFFF, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
+        Graph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
 
             //math section
 
