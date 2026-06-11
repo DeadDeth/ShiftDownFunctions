@@ -8,7 +8,7 @@
     include(FetchContent)
     FetchContent_Declare(ShiftDownFunctions GIT_REPOSITORY https://github.com/DeadDeth/ShiftDownFunctions.git GIT_TAG main)
     FetchContent_MakeAvailable(ShiftDownFunctions)
-    target_link_libraries({PROJECT_NAME} PRIVATE ShiftDownFunctions)
+    target_link_libraries([program name from add_executable()]PRIVATE ShiftDownFunctions)
 
     To powinno, przynajmniej dla Clion, pobrać wszystko automatycznie z githuba. / This should automatically download the file, at least for Clion, from github.
 */
