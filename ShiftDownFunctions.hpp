@@ -1395,13 +1395,12 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
             // values on x
             uint32_t segments_count = 8;
-
+            uint32_t steps_x = function_to_render->N / (float)segments_count;
             char value[32];
             uint32_t skala_textu_value_x = 8 / divider;
-            uint32_t step_x = ((function_to_render->N - 1) / segments_count);
             for (uint32_t i = 1; i < segments_count; i++) {
                 TextBox value_x(7, 1, background_color);
-                value_x.add_text(float_to_char(function_to_render->t[step_x * i], value, 3), font_color);
+                value_x.add_text(float_to_char(function_to_render->Tc * (float)i, value, 3), font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -1422,7 +1421,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                     for (uint32_t x = 0; x < value_x.texture_width; x++) {
                         for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                                texture[(sx + pozycja_x + scaled_uint_x[step_x * i] +
+                                texture[(sx + pozycja_x + scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)] +
                                          ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) -
                                         center] = value_x.texture[x + (y * value_x.texture_width)];
                             }
@@ -1433,7 +1432,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 }
             }
             TextBox value_x(7, 1, background_color);
-            value_x.add_text(float_to_char(function_to_render->t[step_x * segments_count], value, 3),
+            value_x.add_text(float_to_char(function_to_render->Tc, value, 3),
                              font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
@@ -1454,7 +1453,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 for (uint32_t x = 0; x < value_x.texture_width; x++) {
                     for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                         for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                            texture[(sx + pozycja_x + scaled_uint_x[step_x * segments_count] + ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) - center] = value_x.texture[x + (y * value_x.texture_width)];
+                            texture[(sx + pozycja_x + scaled_uint_x[function_to_render->N-1] + ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) - center] = value_x.texture[x + (y * value_x.texture_width)];
                         }
                     }
                     pozycja_x += skala_textu_value_x;
@@ -1534,11 +1533,10 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
             // grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
-                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / divider);
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], 0 + padding_top_y, grid_color, 16 / divider);
             }
-            draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
-                      picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count], 0 + padding_top_y,
+            draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render->N - 1],
+                      picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[function_to_render->N - 1], 0 + padding_top_y,
                       grid_color, 16 / divider);
 
             // grid on y
