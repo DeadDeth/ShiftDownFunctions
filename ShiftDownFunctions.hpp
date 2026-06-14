@@ -1540,7 +1540,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
-                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16);
+                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / (picture_size_index * 2));
             }
             draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count - 1],
                       picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count - 1], 0 + padding_top_y,
