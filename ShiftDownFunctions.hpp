@@ -472,9 +472,9 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         }
     };
 
-    // Struktura tworząca obiekt DFT na podstawie obiektu funkcji
+    // Struktura tworząca obiekt DFT na podstawie obiektu funkcji, teraz jest FFT, znacznie szybsze, nie warto DFT dotykać
     struct DFT {
-        uint64_t K{0}; // liczba elementów, K = N - 1
+        uint64_t K{0}; // liczba elementów, K = N - 1, ale ze względu na różne rzeczy później w kodzie u mnie jest K = N, potem uwzględniane jest K = N - 1
         // Należy pamiętać, że wykresy DFT tworzymy tylko dla połowy wartości, ponieważ druga połowa wartości zawiera
         // w sobie lustrzane odbicie tej pierwszej, rysowanie jej jest po prostu zbędne i bez sensu, dlatego
         // funkcja rysująca DFT będzie to robić dla (K - 1) / 2, natomiast liczyć wartości normalnie do K
@@ -490,13 +490,13 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         DFT(const Function* function) {
             if (function->N == 1) return; // value N == 1 would give K == 0 so there is nothing to do
 
-            K = function->N - 1;
+            K = function->N;
 
-            Re = static_cast<float*>(_mm_malloc(sizeof(float) * (function->N - 1), 32));
-            Im = static_cast<float*>(_mm_malloc(sizeof(float) * (function->N - 1), 32));
+            Re = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+            Im = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
 
-            mod_z = static_cast<float*>(_mm_malloc(sizeof(float) * (function->N - 1), 32));
-            fk = static_cast<float*>(_mm_malloc(sizeof(float) * (function->N - 1), 32));
+            mod_z = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+            fk = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
 
             // liczenie dft
             for (uint64_t k = 0; k < K; k++) {
@@ -546,7 +546,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             _mm_free(fk);
         }
     };
-
+    // Szybsze DFT, dużo szybsze, n*log(n) do n^2 , zalecane
     struct FFT {
 
         uint64_t K{0};
@@ -561,7 +561,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
             if (function->N == 1) return; // value N == 1 would give K == 0 so there is nothing to do
 
-            K = function->N - 1;
+            K = function->N;
 
             uint32_t old_k = K;
             uint32_t bits_shift = 0;
@@ -635,12 +635,12 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                     }
                 }
             }
-            for (uint64_t k = 0; k < K / 2; k++) {
+            for (uint64_t k = 0; k <= K / 2; k++) {
                 mod_z[k] = sqrtf((Re[k] * Re[k]) + (Im[k] * Im[k]));
                 fk[k] = static_cast<float>(k) * function->fs / static_cast<float>(K);
             }
             mod_z[0] /= static_cast<float>(function->N);
-            for (uint64_t k = 1; k < K / 2; k++) {
+            for (uint64_t k = 1; k <= K / 2; k++) {
                 mod_z[k] /= static_cast<float>(K) / 2.f;
             }
         }
@@ -1236,6 +1236,8 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         Graph(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
 
             uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
+            uint32_t divider = picture_size_index * 2;
+            if (divider == 0) divider = 1;
 
             texture = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * picture_size, 32));
             for (uint64_t i = 0; i < picture_size; i++) {
@@ -1250,11 +1252,11 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 max_y = function_to_render->f_t[i] > max_y ? function_to_render->f_t[i] : max_y;
             }
 
-            uint32_t padding_left_x = 736 / (picture_size_index * 2);
-            uint32_t padding_right_x = 384 / (picture_size_index * 2);
+            uint32_t padding_left_x = 736 / divider;
+            uint32_t padding_right_x = 384 / divider;
 
-            uint32_t padding_top_y = 256 / (picture_size_index * 2);
-            uint32_t padding_bot_y = 512 / (picture_size_index * 2);
+            uint32_t padding_top_y = 256 / divider;
+            uint32_t padding_bot_y = 512 / divider;
 
             uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
             uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
@@ -1304,7 +1306,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             TextBox name(end, 1, background_color);
             name.add_text(name_label, font_color);
 
-            uint32_t skala_textu_name = 16 / (picture_size_index * 2);
+            uint32_t skala_textu_name = 16 / divider;
             uint32_t center = name.texture_width * skala_textu_name / 2;
 
             uint32_t pozycja_y = 0;
@@ -1313,9 +1315,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 for (uint32_t x = 0; x < name.texture_width; x++) {
                     for (uint32_t sy = 0; sy < skala_textu_name; sy++) {
                         for (uint32_t sx = 0; sx < skala_textu_name; sx++) {
-                            texture[(sx + pozycja_x + padding_left_x + (graph_width / 2) +
-                                     ((sy + pozycja_y) * picture_width[picture_size_index])) -
-                                    center] = name.texture[x + (y * name.texture_width)];
+                            texture[(sx + pozycja_x + padding_left_x + (graph_width / 2) + ((sy + pozycja_y) * picture_width[picture_size_index])) - center] = name.texture[x + (y * name.texture_width)];
                         }
                     }
                     pozycja_x += skala_textu_name;
@@ -1343,7 +1343,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 }
             }
 
-            uint32_t skala_textu_os_y = 16 / (picture_size_index * 2);
+            uint32_t skala_textu_os_y = 16 / divider;
             pozycja_y = 0;
             center = rotated_height * skala_textu_os_y / 2;
 
@@ -1372,7 +1372,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             TextBox os_x(end, 1, background_color);
             os_x.add_text(x_label, font_color);
 
-            uint32_t skala_textu_os_x = 16 / (picture_size_index * 2);
+            uint32_t skala_textu_os_x = 16 / divider;
             center = os_x.texture_width * skala_textu_os_x / 2;
 
             pozycja_y = 0;
@@ -1397,8 +1397,8 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             uint32_t segments_count = 8;
 
             char value[32];
-            uint32_t skala_textu_value_x = 8 / (picture_size_index * 2);
-            uint32_t step_x = ((function_to_render->N) / segments_count);
+            uint32_t skala_textu_value_x = 8 / divider;
+            uint32_t step_x = ((function_to_render->N - 1) / segments_count);
             for (uint32_t i = 1; i < segments_count; i++) {
                 TextBox value_x(7, 1, background_color);
                 value_x.add_text(float_to_char(function_to_render->t[step_x * i], value, 3), font_color);
@@ -1423,7 +1423,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                         for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
                                 texture[(sx + pozycja_x + scaled_uint_x[step_x * i] +
-                                         ((sy + pozycja_y + padding_top_y + graph_height + 64) * picture_width[picture_size_index])) -
+                                         ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) -
                                         center] = value_x.texture[x + (y * value_x.texture_width)];
                             }
                         }
@@ -1433,7 +1433,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 }
             }
             TextBox value_x(7, 1, background_color);
-            value_x.add_text(float_to_char(function_to_render->t[step_x * segments_count - 1], value, 3),
+            value_x.add_text(float_to_char(function_to_render->t[step_x * segments_count], value, 3),
                              font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
@@ -1454,9 +1454,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 for (uint32_t x = 0; x < value_x.texture_width; x++) {
                     for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                         for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                            texture[(sx + pozycja_x + scaled_uint_x[step_x * segments_count - 1] +
-                                     ((sy + pozycja_y + padding_top_y + graph_height + 64) * picture_width[picture_size_index])) -
-                                    center] = value_x.texture[x + (y * value_x.texture_width)];
+                            texture[(sx + pozycja_x + scaled_uint_x[step_x * segments_count] + ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) - center] = value_x.texture[x + (y * value_x.texture_width)];
                         }
                     }
                     pozycja_x += skala_textu_value_x;
@@ -1466,7 +1464,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
             // values y
             uint32_t kurwa_zmienna = graph_height / segments_count;
-            uint32_t skala_textu_value_y = 8 / (picture_size_index * 2);
+            uint32_t skala_textu_value_y = 8 / divider;
             float step_y = (max_y - min_y) / static_cast<float>(segments_count);
 
             for (uint32_t i = 0; i < segments_count; i++) {
@@ -1492,7 +1490,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                     for (uint32_t x = 0; x < value_y.texture_width; x++) {
                         for (uint32_t sy = 0; sy < skala_textu_value_y; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_y; sx++) {
-                                texture[(padding_left_x + sx + pozycja_x - center - 64) +
+                                texture[(padding_left_x + sx + pozycja_x - center - (64 / divider)) +
                                         ((padding_top_y + sy + pozycja_y + (kurwa_zmienna * i) -
                                           ((value_y.texture_height * skala_textu_value_y) / 3)) *
                                          picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
@@ -1526,10 +1524,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 for (uint32_t x = 0; x < value_y.texture_width; x++) {
                     for (uint32_t sy = 0; sy < skala_textu_value_y; sy++) {
                         for (uint32_t sx = 0; sx < skala_textu_value_y; sx++) {
-                            texture[(padding_left_x + sx + pozycja_x - center - 64) +
-                                    ((padding_top_y + sy + pozycja_y + graph_height -
-                                      ((value_y.texture_height * skala_textu_value_y) / 3)) *
-                                     picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
+                            texture[(padding_left_x + sx + pozycja_x - center - (64 / divider)) + ((padding_top_y + sy + pozycja_y + graph_height - ((value_y.texture_height * skala_textu_value_y) / 3)) * picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
                         }
                     }
                     pozycja_x += skala_textu_value_y;
@@ -1540,37 +1535,37 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
-                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / (picture_size_index * 2));
+                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / divider);
             }
-            draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count - 1],
-                      picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count - 1], 0 + padding_top_y,
-                      grid_color, 16 / (picture_size_index * 2));
+            draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
+                      picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count], 0 + padding_top_y,
+                      grid_color, 16 / divider);
 
             // grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
-                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / (picture_size_index * 2));
+                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / divider);
             }
             draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
-                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / (picture_size_index * 2));
+                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / divider);
 
 
             // os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
 
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / (picture_size_index * 2));
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / divider);
             }
             // os y
             if (scaled_x[0] <= 0) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                           picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
-                          16 / (picture_size_index * 2));
+                          16 / divider);
             }
             // wykres
             for (uint32_t i = 0; i < function_to_render->N - 1; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i],
-                          scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, 8 / (picture_size_index * 2));
+                          scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, 8 / divider);
             }
 
 
@@ -1693,9 +1688,10 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         Graph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
 
             //math section
-
             uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
-            uint32_t K_render = (dft_to_render->K - 1) / 2;
+            uint32_t divider = picture_size_index * 2;
+            if (divider == 0) divider = 1;
+            uint32_t K_render = (dft_to_render->K / 2) + 1;
 
 
             texture = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * picture_size, 32));
@@ -1711,18 +1707,18 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 max_y = dft_to_render->mod_z[i] > max_y ? dft_to_render->mod_z[i] : max_y;
             }
 
-            uint32_t padding_left_x = 736 / (picture_size_index * 2);
-            uint32_t padding_right_x = 384 / (picture_size_index * 2);
+            uint32_t padding_left_x = 736 / divider;
+            uint32_t padding_right_x = 384 / divider;
 
-            uint32_t padding_top_y = 256 / (picture_size_index * 2);
-            uint32_t padding_bot_y = 512 / (picture_size_index * 2);
+            uint32_t padding_top_y = 256 / divider;
+            uint32_t padding_bot_y = 512 / divider;
 
             uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
             uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
 
 
-            float scale_x = static_cast<float>(graph_width) / (dft_to_render->fk[K_render] - dft_to_render->fk[0]);
+            float scale_x = static_cast<float>(graph_width) / (dft_to_render->fk[K_render - 1] - dft_to_render->fk[0]);
             float scale_y = 0;
             if (max_y == min_y) {
                 scale_y = static_cast<float>(graph_height) / 1.f;
@@ -1772,7 +1768,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             TextBox name(end, 1, background_color);
             name.add_text(name_label, font_color);
 
-            uint32_t skala_textu_name = 16 / (picture_size_index * 2);
+            uint32_t skala_textu_name = 16 / divider;
             center = name.texture_width * skala_textu_name / 2;
 
             for (uint32_t y = 0; y < name.texture_height; y++) {
@@ -1810,7 +1806,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 }
             }
 
-            uint32_t skala_textu_os_y = 16 / (picture_size_index * 2);
+            uint32_t skala_textu_os_y = 16 / divider;
             pozycja_y = 0;
             center = rotated_height * skala_textu_os_y / 2;
 
@@ -1839,7 +1835,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             TextBox os_x(end, 1, background_color);
             os_x.add_text(x_label, font_color);
 
-            uint32_t skala_textu_os_x = 16 / (picture_size_index * 2);
+            uint32_t skala_textu_os_x = 16 / divider;
             center = os_x.texture_width * skala_textu_os_x / 2;
 
             pozycja_y = 0;
@@ -1864,8 +1860,8 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             uint32_t segments_count = 8;
 
             char value[32];
-            uint32_t skala_textu_value_x = 8 / (picture_size_index * 2);
-            uint32_t step_x = ((K_render) / segments_count);
+            uint32_t skala_textu_value_x = 8 / divider;
+            uint32_t step_x = (K_render - 1) / segments_count;
             for (uint32_t i = 1; i < segments_count; i++) {
                 TextBox value_x(7, 1, background_color);
                 value_x.add_text(float_to_char(dft_to_render->fk[step_x * i], value, 3), font_color);
@@ -1890,7 +1886,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                         for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
                                 texture[(sx + pozycja_x + scaled_uint_x[step_x * i] +
-                                         ((sy + pozycja_y + padding_top_y + graph_height + 64) * picture_width[picture_size_index])) -
+                                         ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) -
                                         center] = value_x.texture[x + (y * value_x.texture_width)];
                             }
                         }
@@ -1900,7 +1896,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 }
             }
             TextBox value_x(7, 1, background_color);
-            value_x.add_text(float_to_char(dft_to_render->fk[step_x * segments_count - 1], value, 3),
+            value_x.add_text(float_to_char(dft_to_render->fk[step_x * segments_count], value, 3),
                              font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
@@ -1921,8 +1917,8 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 for (uint32_t x = 0; x < value_x.texture_width; x++) {
                     for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                         for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                            texture[(sx + pozycja_x + scaled_uint_x[step_x * segments_count - 1] +
-                                     ((sy + pozycja_y + padding_top_y + graph_height + 64) * picture_width[picture_size_index])) -
+                            texture[(sx + pozycja_x + scaled_uint_x[step_x * segments_count] +
+                                     ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) -
                                     center] = value_x.texture[x + (y * value_x.texture_width)];
                         }
                     }
@@ -1934,7 +1930,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // values y
             uint32_t kurwa_zmienna = graph_height / segments_count;
 
-            uint32_t skala_textu_value_y = 8 / (picture_size_index * 2);
+            uint32_t skala_textu_value_y = 8 / divider;
             float step_y = (max_y - min_y) / static_cast<float>(segments_count);
 
             for (uint32_t i = 0; i < segments_count; i++) {
@@ -1960,7 +1956,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                     for (uint32_t x = 0; x < value_y.texture_width; x++) {
                         for (uint32_t sy = 0; sy < skala_textu_value_y; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_y; sx++) {
-                                texture[(padding_left_x + sx + pozycja_x - center - 64) +
+                                texture[(padding_left_x + sx + pozycja_x - center - (64 / divider)) +
                                         ((padding_top_y + sy + pozycja_y + (kurwa_zmienna * i) -
                                           ((value_y.texture_height * skala_textu_value_y) / 3)) *
                                          picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
@@ -1994,7 +1990,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 for (uint32_t x = 0; x < value_y.texture_width; x++) {
                     for (uint32_t sy = 0; sy < skala_textu_value_y; sy++) {
                         for (uint32_t sx = 0; sx < skala_textu_value_y; sx++) {
-                            texture[(padding_left_x + sx + pozycja_x - center - 64) +
+                            texture[(padding_left_x + sx + pozycja_x - center - (64 / divider)) +
                                     ((padding_top_y + sy + pozycja_y + graph_height -
                                       ((value_y.texture_height * skala_textu_value_y) / 3)) *
                                      picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
@@ -2008,35 +2004,35 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
-                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / (picture_size_index * 2));
+                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / divider);
             }
-            draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count - 1],
-                      picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count - 1], 0 + padding_top_y,
-                      grid_color, 16 / (picture_size_index * 2));
+            draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
+                      picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count], 0 + padding_top_y,
+                      grid_color, 16 / divider);
 
             // grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
-                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / (picture_size_index * 2));
+                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / divider);
             }
             draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
-                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / (picture_size_index * 2));
+                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / divider);
 
             // os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / (picture_size_index * 2));
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / divider);
             }
             // os y
             if (scaled_x[0] <= 0) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                 picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
-                          16 / (picture_size_index * 2));
+                          16 / divider);
             }
             // wykres
-            for (uint32_t i = 0; i < K_render - 1; i++) {
+            for (uint32_t i = 0; i < K_render; i++) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 8 / (picture_size_index * 2));
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 8 / divider);
             }
 
 
@@ -2162,7 +2158,9 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             //math section
 
             uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
-            uint32_t K_render = (fft_to_render->K - 1) / 2;
+            uint32_t divider = picture_size_index * 2;
+            if (divider == 0) divider = 1;
+            uint32_t K_render = (fft_to_render->K / 2) + 1;
 
 
             texture = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * picture_size, 32));
@@ -2178,18 +2176,18 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 max_y = fft_to_render->mod_z[i] > max_y ? fft_to_render->mod_z[i] : max_y;
             }
 
-            uint32_t padding_left_x = 736 / (picture_size_index * 2); //736
-            uint32_t padding_right_x = 384 / (picture_size_index * 2); //384
+            uint32_t padding_left_x = 736 / divider; //736
+            uint32_t padding_right_x = 384 / divider; //384
 
-            uint32_t padding_top_y = 256 / (picture_size_index * 2); //256
-            uint32_t padding_bot_y = 512 / (picture_size_index * 2); //512
+            uint32_t padding_top_y = 256 / divider; //256
+            uint32_t padding_bot_y = 512 / divider; //512
 
             uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
             uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
 
 
-            float scale_x = static_cast<float>(graph_width) / (fft_to_render->fk[K_render] - fft_to_render->fk[0]);
+            float scale_x = static_cast<float>(graph_width) / (fft_to_render->fk[K_render - 1] - fft_to_render->fk[0]);
             float scale_y = 0;
             if (max_y == min_y) {
                 scale_y = static_cast<float>(graph_height) / 1.f;
@@ -2239,7 +2237,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             TextBox name(end, 1, background_color);
             name.add_text(name_label, font_color);
 
-            uint32_t skala_textu_name = 16 / (picture_size_index * 2);
+            uint32_t skala_textu_name = 16 / divider;
             center = name.texture_width * skala_textu_name / 2;
 
             for (uint32_t y = 0; y < name.texture_height; y++) {
@@ -2277,7 +2275,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 }
             }
 
-            uint32_t skala_textu_os_y = 16 / (picture_size_index * 2);
+            uint32_t skala_textu_os_y = 16 / divider;
             pozycja_y = 0;
             center = rotated_height * skala_textu_os_y / 2;
 
@@ -2306,7 +2304,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             TextBox os_x(end, 1, background_color);
             os_x.add_text(x_label, font_color);
 
-            uint32_t skala_textu_os_x = 16 / (picture_size_index * 2);
+            uint32_t skala_textu_os_x = 16 / divider;
             center = os_x.texture_width * skala_textu_os_x / 2;
 
             pozycja_y = 0;
@@ -2331,8 +2329,8 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             uint32_t segments_count = 8;
 
             char value[32];
-            uint32_t skala_textu_value_x = 8 / (picture_size_index * 2);
-            uint32_t step_x = ((K_render) / segments_count);
+            uint32_t skala_textu_value_x = 8 / divider;
+            uint32_t step_x = ((K_render - 1) / segments_count);
             for (uint32_t i = 1; i < segments_count; i++) {
                 TextBox value_x(7, 1, background_color);
                 value_x.add_text(float_to_char(fft_to_render->fk[step_x * i], value, 3), font_color);
@@ -2356,9 +2354,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                     for (uint32_t x = 0; x < value_x.texture_width; x++) {
                         for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                                texture[(sx + pozycja_x + scaled_uint_x[step_x * i] +
-                                         ((sy + pozycja_y + padding_top_y + graph_height + 64) * picture_width[picture_size_index])) -
-                                        center] = value_x.texture[x + (y * value_x.texture_width)];
+                                texture[(sx + pozycja_x + scaled_uint_x[step_x * i] + ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) - center] = value_x.texture[x + (y * value_x.texture_width)];
                             }
                         }
                         pozycja_x += skala_textu_value_x;
@@ -2367,7 +2363,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 }
             }
             TextBox value_x(7, 1, background_color);
-            value_x.add_text(float_to_char(fft_to_render->fk[step_x * segments_count - 1], value, 3),
+            value_x.add_text(float_to_char(fft_to_render->fk[step_x * segments_count], value, 3),
                              font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
@@ -2388,8 +2384,8 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 for (uint32_t x = 0; x < value_x.texture_width; x++) {
                     for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                         for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                            texture[(sx + pozycja_x + scaled_uint_x[step_x * segments_count - 1] +
-                                     ((sy + pozycja_y + padding_top_y + graph_height + 64) * picture_width[picture_size_index])) -
+                            texture[(sx + pozycja_x + scaled_uint_x[step_x * segments_count] +
+                                     ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) -
                                     center] = value_x.texture[x + (y * value_x.texture_width)];
                         }
                     }
@@ -2401,7 +2397,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // values y
             uint32_t kurwa_zmienna = graph_height / segments_count;
 
-            uint32_t skala_textu_value_y = 8 / (picture_size_index * 2);
+            uint32_t skala_textu_value_y = 8 / divider;
             float step_y = (max_y - min_y) / static_cast<float>(segments_count);
 
             for (uint32_t i = 0; i < segments_count; i++) {
@@ -2427,7 +2423,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                     for (uint32_t x = 0; x < value_y.texture_width; x++) {
                         for (uint32_t sy = 0; sy < skala_textu_value_y; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_y; sx++) {
-                                texture[(padding_left_x + sx + pozycja_x - center - 64) +
+                                texture[(padding_left_x + sx + pozycja_x - center - (64 / divider)) +
                                         ((padding_top_y + sy + pozycja_y + (kurwa_zmienna * i) -
                                           ((value_y.texture_height * skala_textu_value_y) / 3)) *
                                          picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
@@ -2461,10 +2457,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 for (uint32_t x = 0; x < value_y.texture_width; x++) {
                     for (uint32_t sy = 0; sy < skala_textu_value_y; sy++) {
                         for (uint32_t sx = 0; sx < skala_textu_value_y; sx++) {
-                            texture[(padding_left_x + sx + pozycja_x - center - 64) +
-                                    ((padding_top_y + sy + pozycja_y + graph_height -
-                                      ((value_y.texture_height * skala_textu_value_y) / 3)) *
-                                     picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
+                            texture[(padding_left_x + sx + pozycja_x - center - (64 / divider)) + ((padding_top_y + sy + pozycja_y + graph_height - ((value_y.texture_height * skala_textu_value_y) / 3)) * picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
                         }
                     }
                     pozycja_x += skala_textu_value_y;
@@ -2475,35 +2468,35 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
-                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / (picture_size_index * 2));
+                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / divider);
             }
-            draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count - 1],
-                      picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count - 1], 0 + padding_top_y,
-                      grid_color, 16 / (picture_size_index * 2));
+            draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
+                      picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count], 0 + padding_top_y,
+                      grid_color, 16 / divider);
 
             // grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
-                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / (picture_size_index * 2));
+                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / divider);
             }
             draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
-                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / (picture_size_index * 2));
+                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / divider);
 
             // os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / (picture_size_index * 2));
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / divider);
             }
             // os y
             if (scaled_x[0] <= 0) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                 picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
-                          16 / (picture_size_index * 2));
+                          16 / divider);
             }
             // wykres
-            for (uint32_t i = 0; i < K_render - 1; i++) {
+            for (uint32_t i = 0; i < K_render; i++) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 8 / (picture_size_index * 2));
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 8 / divider);
             }
 
 
@@ -2582,7 +2575,6 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 fclose(f);
 #ifdef __linux__
                 chmod(filepath, 0666);
-                return;
 #endif
 
                 std::string bmp_path(filepath);
