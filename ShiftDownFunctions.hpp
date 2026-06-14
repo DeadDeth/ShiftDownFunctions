@@ -1544,33 +1544,33 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             }
             draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count - 1],
                       picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count - 1], 0 + padding_top_y,
-                      grid_color, 16);
+                      grid_color, 16 / (picture_size_index * 2));
 
             // grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
-                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16);
+                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / (picture_size_index * 2));
             }
             draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
-                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16);
+                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / (picture_size_index * 2));
 
 
             // os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
 
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16);
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / (picture_size_index * 2));
             }
             // os y
             if (scaled_x[0] <= 0) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                           picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
-                          16);
+                          16 / (picture_size_index * 2));
             }
             // wykres
             for (uint32_t i = 0; i < function_to_render->N - 1; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i],
-                          scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, 8);
+                          scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, 8 / (picture_size_index * 2));
             }
 
 
@@ -2008,35 +2008,35 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
-                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16);
+                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / (picture_size_index * 2));
             }
             draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count - 1],
                       picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count - 1], 0 + padding_top_y,
-                      grid_color, 16);
+                      grid_color, 16 / (picture_size_index * 2));
 
             // grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
-                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16);
+                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / (picture_size_index * 2));
             }
             draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
-                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16);
+                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / (picture_size_index * 2));
 
             // os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16);
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / (picture_size_index * 2));
             }
             // os y
             if (scaled_x[0] <= 0) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                 picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
-                          16);
+                          16 / (picture_size_index * 2));
             }
             // wykres
             for (uint32_t i = 0; i < K_render - 1; i++) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 8);
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 8 / (picture_size_index * 2));
             }
 
 
@@ -2475,35 +2475,35 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
-                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16);
+                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / (picture_size_index * 2));
             }
             draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count - 1],
                       picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count - 1], 0 + padding_top_y,
-                      grid_color, 16);
+                      grid_color, 16 / (picture_size_index * 2));
 
             // grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
-                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16);
+                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / (picture_size_index * 2));
             }
             draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
-                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16);
+                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / (picture_size_index * 2));
 
             // os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16);
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / (picture_size_index * 2));
             }
             // os y
             if (scaled_x[0] <= 0) {
                 draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                 picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
-                          16);
+                          16 / (picture_size_index * 2));
             }
             // wykres
             for (uint32_t i = 0; i < K_render - 1; i++) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 8);
+                draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 8 / (picture_size_index * 2));
             }
 
 
