@@ -4661,4 +4661,39 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
     }
 #pragma endregion
 
+#pragma region Funkcje kodujące
+
+    struct alignas(64) HammingCoder {
+
+        uint64_t m = 0;
+        uint64_t n = 0;
+
+
+        uint8_t* coded_bits = nullptr; // ostatni index tablicy to 0xD i oznacza on koniec bufora, iteracja do coded_bits[i] == 0xD;
+
+        HammingCoder(const uint8_t* bits_to_code, uint64_t m = 4) : m(m){
+        {
+            uint64_t temp = m;
+            while (temp != 0) {
+                temp >>= 1;
+                n++;
+            }
+            // 2^n >= n + m + 1 // warunek
+            // n = n + m // rachunek
+            n = (n + ((1<<n) < (n + m + 1) ? 1 : 0)) + m;
+        }
+
+
+            for (uint64_t i = 1; bits_to_code[i] != 0xD; i++) {
+                uint8_t value = i & (1 << (i - 1)) == 0 ? 0 : bits_to_code[i];
+            }
+
+        }
+        ~HammingCoder() {
+            _mm_free(coded_bits);
+        }
+    };
+
+#pragma endregion
+
 } // namespace ShiftDownFunctions
