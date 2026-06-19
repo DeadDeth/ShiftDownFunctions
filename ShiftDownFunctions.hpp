@@ -41,10 +41,6 @@
 #define M_PIf 3.14159265358979323846
 #endif
 
-
-// Dodac skalowanie rozmiaru lini i marginesu automatycnego z rozdiałką, zmina rozdiałki działa bez problemu
-
-
 // predefiniowane kolory jako ARGB
 namespace Colors {
 //  ARGB -> ALPHA, RED, GREEN, BLUE -> 0xAARRGGBB (rozkład w hexa-decymalnym)
@@ -116,8 +112,138 @@ constexpr ARGB GLASS_BLUE   = {0, 0, 255, 128};
 constexpr ARGB GLASS_GREEN  = {0, 255, 0, 128};
 }
 
-namespace ShiftDownFunctions
-{
+// predefiniowana czcionka
+namespace ShiftDownFonts {
+#pragma region Sekcja czcionki
+        // --- CYFRY (0-9) ---
+    constexpr uint64_t font_0[4] = {0x0000000038004400, 0x4400440044004400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_1[4] = {0x0000000010003000, 0x1000100010001000, 0x1000380000000000, 0x0000000000000000};
+    constexpr uint64_t font_2[4] = {0x0000000038004400, 0x0400080010002000, 0x40007C0000000000, 0x0000000000000000};
+    constexpr uint64_t font_3[4] = {0x0000000038004400, 0x0400180004000400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_4[4] = {0x0000000008001800, 0x280048007C000800, 0x0800080000000000, 0x0000000000000000};
+    constexpr uint64_t font_5[4] = {0x000000007C004000, 0x4000780004000400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_6[4] = {0x0000000018002000, 0x4000780044004400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_7[4] = {0x000000007C000400, 0x0800100020002000, 0x2000200000000000, 0x0000000000000000};
+    constexpr uint64_t font_8[4] = {0x0000000038004400, 0x4400380044004400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_9[4] = {0x0000000038004400, 0x440044003C000400, 0x0800300000000000, 0x0000000000000000};
+
+        // --- ZNAKI SPECJALNE I MATEMATYKA ---
+    constexpr uint64_t font_Space[4] = {0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Exclam[4] = {0x0000100010001000, 0x1000100000001000, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_At[4] = {0x0000000038004400, 0x540054005C004000, 0x3800000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Hash[4] = {0x0000000024002400, 0x7E0024007E002400, 0x2400000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Dollar[4] = {0x0000100038005000, 0x3800140038001000, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Percent[4] = {0x0000000062006400, 0x0800100026004600, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Caret[4] = {0x0000100028004400, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Ampers[4] = {0x0000000030004800, 0x3000640048003400, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Star[4] = {0x0000000010005400, 0x3800540010000000, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_ParenL[4] = {0x0000100020004000, 0x4000400040004000, 0x4000200010000000, 0x0000000000000000};
+    constexpr uint64_t font_ParenR[4] = {0x0000080004000200, 0x0200020002000200, 0x0200040008000000, 0x0000000000000000};
+    constexpr uint64_t font_Minus[4] = {0x0000000000000000, 0x0000380000000000, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Under[4] = {0x0000000000000000, 0x0000000000000000, 0x000000007E000000, 0x0000000000000000};
+    constexpr uint64_t font_Plus[4] = {0x0000000000000000, 0x080008003E000800, 0x0800000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Equals[4] = {0x0000000000000000, 0x00003E0000003E00, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_BracketL[4] = {0x0000300020002000, 0x2000200020002000, 0x2000300000000000, 0x0000000000000000};
+    constexpr uint64_t font_BracketR[4] = {0x00000C0004000400, 0x0400040004000400, 0x04000C0000000000, 0x0000000000000000};
+    constexpr uint64_t font_BraceL[4] = {0x0000180010001000, 0x2000100010001800, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_BraceR[4] = {0x0000180008000800, 0x0400080008001800, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Pipe[4] = {0x0000100010001000, 0x1000100010001000, 0x1000100000000000, 0x0000000000000000};
+    constexpr uint64_t font_Backsl[4] = {0x0000400040002000, 0x2000100010000800, 0x0800000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Colon[4] = {0x0000000000000000, 0x1800000000001800, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Semic[4] = {0x0000000000000000, 0x1800000000001800, 0x1000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Quote[4] = {0x0000240024000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Apostr[4] = {0x0000180018000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Less[4] = {0x0000000000000800, 0x1000200010000800, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Greater[4] = {0x0000000000002000, 0x1000080010002000, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Comma[4] = {0x0000000000000000, 0x0000000000000000, 0x0000180010000000, 0x0000000000000000};
+    constexpr uint64_t font_Dot[4] = {0x0000000000000000, 0x0000000000000000, 0x0000180000000000, 0x0000000000000000};
+    constexpr uint64_t font_Slash[4] = {0x0000020004000400, 0x0800080010001000, 0x2000200040000000, 0x0000000000000000};
+    constexpr uint64_t font_Question[4] = {0x0000380044000400, 0x0800100000001000, 0x0000000000000000, 0x0000000000000000};
+    constexpr uint64_t font_Tilde[4] = {0x0000000034005800, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000};
+
+        // --- DUŻE LITERY (A-Z) ---
+    constexpr uint64_t font_A[4] = {0x0000000010002800, 0x440044007C004400, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_B[4] = {0x0000000078002400, 0x2400380024002400, 0x2400780000000000, 0x0000000000000000};
+    constexpr uint64_t font_C[4] = {0x0000000038004400, 0x4000400040004000, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_D[4] = {0x0000000078002400, 0x2200220022002200, 0x2400780000000000, 0x0000000000000000};
+    constexpr uint64_t font_E[4] = {0x000000007C004000, 0x4000780040004000, 0x40007C0000000000, 0x0000000000000000};
+    constexpr uint64_t font_F[4] = {0x000000007C004000, 0x4000780040004000, 0x4000400000000000, 0x0000000000000000};
+    constexpr uint64_t font_G[4] = {0x0000000038004400, 0x400040004C004400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_H[4] = {0x0000000044004400, 0x44007C0044004400, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_I[4] = {0x0000000038001000, 0x1000100010001000, 0x1000380000000000, 0x0000000000000000};
+    constexpr uint64_t font_J[4] = {0x000000000C000400, 0x0400040004000400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_K[4] = {0x0000000044004800, 0x5000600050004800, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_L[4] = {0x0000000040004000, 0x4000400040004000, 0x40007C0000000000, 0x0000000000000000};
+    constexpr uint64_t font_M[4] = {0x0000000044006C00, 0x5400540044004400, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_N[4] = {0x0000000044006400, 0x54004C0044004400, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_O[4] = {0x0000000038004400, 0x4400440044004400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_P[4] = {0x0000000078004400, 0x4400440078004000, 0x4000400000000000, 0x0000000000000000};
+    constexpr uint64_t font_Q[4] = {0x0000000038004400, 0x4400440044005400, 0x4800340000000000, 0x0000000000000000};
+    constexpr uint64_t font_R[4] = {0x0000000078004400, 0x4400440078005000, 0x4800440000000000, 0x0000000000000000};
+    constexpr uint64_t font_S[4] = {0x0000000038004400, 0x4000380004000400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_T[4] = {0x000000007C001000, 0x1000100010001000, 0x1000100000000000, 0x0000000000000000};
+    constexpr uint64_t font_U[4] = {0x0000000044004400, 0x4400440044004400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_V[4] = {0x0000000044004400, 0x4400440028002800, 0x1000100000000000, 0x0000000000000000};
+    constexpr uint64_t font_W[4] = {0x0000000044004400, 0x4400540054005400, 0x2800280000000000, 0x0000000000000000};
+    constexpr uint64_t font_X[4] = {0x0000000044004400, 0x2800100010002800, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_Y[4] = {0x0000000044004400, 0x4400280010001000, 0x1000100000000000, 0x0000000000000000};
+    constexpr uint64_t font_Z[4] = {0x000000007C000400, 0x0800100020004000, 0x40007C0000000000, 0x0000000000000000};
+
+        // --- MAŁE LITERY (a-z) ---
+    constexpr uint64_t font_a[4] = {0x0000000000000000, 0x380004003C004400, 0x44003C0000000000, 0x0000000000000000};
+    constexpr uint64_t font_b[4] = {0x0000000040004000, 0x5800640044004400, 0x6400580000000000, 0x0000000000000000};
+    constexpr uint64_t font_c[4] = {0x0000000000000000, 0x3800440040004000, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_d[4] = {0x0000000004000400, 0x34004C0044004400, 0x4C00340000000000, 0x0000000000000000};
+    constexpr uint64_t font_e[4] = {0x0000000000000000, 0x380044007C004000, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_f[4] = {0x000000001C002000, 0x7800200020002000, 0x2000200000000000, 0x0000000000000000};
+    constexpr uint64_t font_g[4] = {0x0000000000000000, 0x34004C0044004400, 0x4C00340004003800, 0x0000000000000000};
+    constexpr uint64_t font_h[4] = {0x0000000040004000, 0x5800640044004400, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_i[4] = {0x0000000010000000, 0x3000100010001000, 0x1000380000000000, 0x0000000000000000};
+    constexpr uint64_t font_j[4] = {0x0000080000001800, 0x0800080008000800, 0x0800080008003000, 0x0000000000000000};
+    constexpr uint64_t font_k[4] = {0x0000000040004000, 0x4400480070004800, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_l[4] = {0x0000000030001000, 0x1000100010001000, 0x10000C0000000000, 0x0000000000000000};
+    constexpr uint64_t font_m[4] = {0x0000000000000000, 0x6800540054005400, 0x5400540000000000, 0x0000000000000000};
+    constexpr uint64_t font_n[4] = {0x0000000000000000, 0x5800640044004400, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_o[4] = {0x0000000000000000, 0x3800440044004400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_p[4] = {0x0000000000000000, 0x5800640044004400, 0x6400580040004000, 0x0000000000000000};
+    constexpr uint64_t font_q[4] = {0x0000000000000000, 0x34004C0044004400, 0x4C00340004000400, 0x0000000000000000};
+    constexpr uint64_t font_r[4] = {0x0000000000000000, 0x5C00600040004000, 0x4000400000000000, 0x0000000000000000};
+    constexpr uint64_t font_s[4] = {0x0000000000000000, 0x3C00400038000400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_t[4] = {0x0000000020002000, 0x7800200020002000, 0x2400180000000000, 0x0000000000000000};
+    constexpr uint64_t font_u[4] = {0x0000000000000000, 0x4400440044004400, 0x4C00340000000000, 0x0000000000000000};
+    constexpr uint64_t font_v[4] = {0x0000000000000000, 0x4400440044002800, 0x2800100000000000, 0x0000000000000000};
+    constexpr uint64_t font_w[4] = {0x0000000000000000, 0x4400440054005400, 0x5400280000000000, 0x0000000000000000};
+    constexpr uint64_t font_x[4] = {0x0000000000000000, 0x4400280010001000, 0x2800440000000000, 0x0000000000000000};
+    constexpr uint64_t font_y[4] = {0x0000000000000000, 0x4400440044004C00, 0x3400040004003800, 0x0000000000000000};
+    constexpr uint64_t font_z[4] = {0x0000000000000000, 0x7C00080010002000, 0x40007C0000000000, 0x0000000000000000};
+
+        // --- POLSKIE ZNAKI (Duże) ---
+    constexpr uint64_t font_A_pl[4] = {0x0000000010002800, 0x440044007C004400, 0x4400440008001000, 0x0000000000000000};
+    constexpr uint64_t font_C_pl[4] = {0x0800100038004400, 0x4000400040004000, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_E_pl[4] = {0x000000007C004000, 0x4000780040004000, 0x40007C0008001000, 0x0000000000000000};
+    constexpr uint64_t font_L_pl[4] = {0x0000000040004000, 0x4000400070004000, 0x40007C0000000000, 0x0000000000000000};
+    constexpr uint64_t font_N_pl[4] = {0x0800100044006400, 0x54004C0044004400, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_O_pl[4] = {0x0800100038004400, 0x4400440044004400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_S_pl[4] = {0x0800100038004400, 0x4000380004000400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_Z_kres[4] = {0x080010007C000400, 0x0800100020004000, 0x40007C0000000000, 0x0000000000000000};
+    constexpr uint64_t font_Z_krop[4] = {0x100000007C000400, 0x0800100020004000, 0x40007C0000000000, 0x0000000000000000};
+
+    // --- POLSKIE ZNAKI (Małe) ---
+    constexpr uint64_t font_a_pl[4] = {0x0000000000000000, 0x380004003C004400, 0x44003C0008001000, 0x0000000000000000};
+    constexpr uint64_t font_c_pl[4] = {0x0800100000000000, 0x3800440040004000, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_e_pl[4] = {0x0000000000000000, 0x380044007C004000, 0x4400380008001000, 0x0000000000000000};
+    constexpr uint64_t font_l_pl[4] = {0x0000000030001000, 0x1000100070001000, 0x10000C0000000000, 0x0000000000000000};
+    constexpr uint64_t font_n_pl[4] = {0x0800100000000000, 0x5800640044004400, 0x4400440000000000, 0x0000000000000000};
+    constexpr uint64_t font_o_pl[4] = {0x0800100000000000, 0x3800440044004400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_s_pl[4] = {0x0800100000000000, 0x3C00400038000400, 0x4400380000000000, 0x0000000000000000};
+    constexpr uint64_t font_z_kres[4] = {0x0800100000000000, 0x7C00080010002000, 0x40007C0000000000, 0x0000000000000000};
+    constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x40007C0000000000, 0x0000000000000000};
+#pragma endregion
+}
+
+
+// właściwa biblioteka
+namespace ShiftDownFunctions {
 #pragma region Instrukcja obsługi
 /*
 ------------------------------------------------------ KROK 1. Tworzymy funkcje cpp dla wzoru matematycznego naszej funkcji --------------------------------------------------------------------------------------------------------
@@ -309,132 +435,7 @@ int main() {
 */
 #pragma endregion
 
-#pragma region Sekcja czcionki
-
-// --- CYFRY (0-9) ---
-constexpr uint64_t font_0[4] = {0x0000000038004400, 0x4400440044004400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_1[4] = {0x0000000010003000, 0x1000100010001000, 0x1000380000000000, 0x0000000000000000};
-constexpr uint64_t font_2[4] = {0x0000000038004400, 0x0400080010002000, 0x40007C0000000000, 0x0000000000000000};
-constexpr uint64_t font_3[4] = {0x0000000038004400, 0x0400180004000400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_4[4] = {0x0000000008001800, 0x280048007C000800, 0x0800080000000000, 0x0000000000000000};
-constexpr uint64_t font_5[4] = {0x000000007C004000, 0x4000780004000400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_6[4] = {0x0000000018002000, 0x4000780044004400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_7[4] = {0x000000007C000400, 0x0800100020002000, 0x2000200000000000, 0x0000000000000000};
-constexpr uint64_t font_8[4] = {0x0000000038004400, 0x4400380044004400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_9[4] = {0x0000000038004400, 0x440044003C000400, 0x0800300000000000, 0x0000000000000000};
-
-// --- ZNAKI SPECJALNE I MATEMATYKA ---
-constexpr uint64_t font_Space[4] = {0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Exclam[4] = {0x0000100010001000, 0x1000100000001000, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_At[4] = {0x0000000038004400, 0x540054005C004000, 0x3800000000000000, 0x0000000000000000};
-constexpr uint64_t font_Hash[4] = {0x0000000024002400, 0x7E0024007E002400, 0x2400000000000000, 0x0000000000000000};
-constexpr uint64_t font_Dollar[4] = {0x0000100038005000, 0x3800140038001000, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Percent[4] = {0x0000000062006400, 0x0800100026004600, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Caret[4] = {0x0000100028004400, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Ampers[4] = {0x0000000030004800, 0x3000640048003400, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Star[4] = {0x0000000010005400, 0x3800540010000000, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_ParenL[4] = {0x0000100020004000, 0x4000400040004000, 0x4000200010000000, 0x0000000000000000};
-constexpr uint64_t font_ParenR[4] = {0x0000080004000200, 0x0200020002000200, 0x0200040008000000, 0x0000000000000000};
-constexpr uint64_t font_Minus[4] = {0x0000000000000000, 0x0000380000000000, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Under[4] = {0x0000000000000000, 0x0000000000000000, 0x000000007E000000, 0x0000000000000000};
-constexpr uint64_t font_Plus[4] = {0x0000000000000000, 0x080008003E000800, 0x0800000000000000, 0x0000000000000000};
-constexpr uint64_t font_Equals[4] = {0x0000000000000000, 0x00003E0000003E00, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_BracketL[4] = {0x0000300020002000, 0x2000200020002000, 0x2000300000000000, 0x0000000000000000};
-constexpr uint64_t font_BracketR[4] = {0x00000C0004000400, 0x0400040004000400, 0x04000C0000000000, 0x0000000000000000};
-constexpr uint64_t font_BraceL[4] = {0x0000180010001000, 0x2000100010001800, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_BraceR[4] = {0x0000180008000800, 0x0400080008001800, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Pipe[4] = {0x0000100010001000, 0x1000100010001000, 0x1000100000000000, 0x0000000000000000};
-constexpr uint64_t font_Backsl[4] = {0x0000400040002000, 0x2000100010000800, 0x0800000000000000, 0x0000000000000000};
-constexpr uint64_t font_Colon[4] = {0x0000000000000000, 0x1800000000001800, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Semic[4] = {0x0000000000000000, 0x1800000000001800, 0x1000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Quote[4] = {0x0000240024000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Apostr[4] = {0x0000180018000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Less[4] = {0x0000000000000800, 0x1000200010000800, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Greater[4] = {0x0000000000002000, 0x1000080010002000, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Comma[4] = {0x0000000000000000, 0x0000000000000000, 0x0000180010000000, 0x0000000000000000};
-constexpr uint64_t font_Dot[4] = {0x0000000000000000, 0x0000000000000000, 0x0000180000000000, 0x0000000000000000};
-constexpr uint64_t font_Slash[4] = {0x0000020004000400, 0x0800080010001000, 0x2000200040000000, 0x0000000000000000};
-constexpr uint64_t font_Question[4] = {0x0000380044000400, 0x0800100000001000, 0x0000000000000000, 0x0000000000000000};
-constexpr uint64_t font_Tilde[4] = {0x0000000034005800, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000};
-
-// --- DUŻE LITERY (A-Z) ---
-constexpr uint64_t font_A[4] = {0x0000000010002800, 0x440044007C004400, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_B[4] = {0x0000000078002400, 0x2400380024002400, 0x2400780000000000, 0x0000000000000000};
-constexpr uint64_t font_C[4] = {0x0000000038004400, 0x4000400040004000, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_D[4] = {0x0000000078002400, 0x2200220022002200, 0x2400780000000000, 0x0000000000000000};
-constexpr uint64_t font_E[4] = {0x000000007C004000, 0x4000780040004000, 0x40007C0000000000, 0x0000000000000000};
-constexpr uint64_t font_F[4] = {0x000000007C004000, 0x4000780040004000, 0x4000400000000000, 0x0000000000000000};
-constexpr uint64_t font_G[4] = {0x0000000038004400, 0x400040004C004400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_H[4] = {0x0000000044004400, 0x44007C0044004400, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_I[4] = {0x0000000038001000, 0x1000100010001000, 0x1000380000000000, 0x0000000000000000};
-constexpr uint64_t font_J[4] = {0x000000000C000400, 0x0400040004000400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_K[4] = {0x0000000044004800, 0x5000600050004800, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_L[4] = {0x0000000040004000, 0x4000400040004000, 0x40007C0000000000, 0x0000000000000000};
-constexpr uint64_t font_M[4] = {0x0000000044006C00, 0x5400540044004400, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_N[4] = {0x0000000044006400, 0x54004C0044004400, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_O[4] = {0x0000000038004400, 0x4400440044004400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_P[4] = {0x0000000078004400, 0x4400440078004000, 0x4000400000000000, 0x0000000000000000};
-constexpr uint64_t font_Q[4] = {0x0000000038004400, 0x4400440044005400, 0x4800340000000000, 0x0000000000000000};
-constexpr uint64_t font_R[4] = {0x0000000078004400, 0x4400440078005000, 0x4800440000000000, 0x0000000000000000};
-constexpr uint64_t font_S[4] = {0x0000000038004400, 0x4000380004000400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_T[4] = {0x000000007C001000, 0x1000100010001000, 0x1000100000000000, 0x0000000000000000};
-constexpr uint64_t font_U[4] = {0x0000000044004400, 0x4400440044004400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_V[4] = {0x0000000044004400, 0x4400440028002800, 0x1000100000000000, 0x0000000000000000};
-constexpr uint64_t font_W[4] = {0x0000000044004400, 0x4400540054005400, 0x2800280000000000, 0x0000000000000000};
-constexpr uint64_t font_X[4] = {0x0000000044004400, 0x2800100010002800, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_Y[4] = {0x0000000044004400, 0x4400280010001000, 0x1000100000000000, 0x0000000000000000};
-constexpr uint64_t font_Z[4] = {0x000000007C000400, 0x0800100020004000, 0x40007C0000000000, 0x0000000000000000};
-
-// --- MAŁE LITERY (a-z) ---
-constexpr uint64_t font_a[4] = {0x0000000000000000, 0x380004003C004400, 0x44003C0000000000, 0x0000000000000000};
-constexpr uint64_t font_b[4] = {0x0000000040004000, 0x5800640044004400, 0x6400580000000000, 0x0000000000000000};
-constexpr uint64_t font_c[4] = {0x0000000000000000, 0x3800440040004000, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_d[4] = {0x0000000004000400, 0x34004C0044004400, 0x4C00340000000000, 0x0000000000000000};
-constexpr uint64_t font_e[4] = {0x0000000000000000, 0x380044007C004000, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_f[4] = {0x000000001C002000, 0x7800200020002000, 0x2000200000000000, 0x0000000000000000};
-constexpr uint64_t font_g[4] = {0x0000000000000000, 0x34004C0044004400, 0x4C00340004003800, 0x0000000000000000};
-constexpr uint64_t font_h[4] = {0x0000000040004000, 0x5800640044004400, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_i[4] = {0x0000000010000000, 0x3000100010001000, 0x1000380000000000, 0x0000000000000000};
-constexpr uint64_t font_j[4] = {0x0000080000001800, 0x0800080008000800, 0x0800080008003000, 0x0000000000000000};
-constexpr uint64_t font_k[4] = {0x0000000040004000, 0x4400480070004800, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_l[4] = {0x0000000030001000, 0x1000100010001000, 0x10000C0000000000, 0x0000000000000000};
-constexpr uint64_t font_m[4] = {0x0000000000000000, 0x6800540054005400, 0x5400540000000000, 0x0000000000000000};
-constexpr uint64_t font_n[4] = {0x0000000000000000, 0x5800640044004400, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_o[4] = {0x0000000000000000, 0x3800440044004400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_p[4] = {0x0000000000000000, 0x5800640044004400, 0x6400580040004000, 0x0000000000000000};
-constexpr uint64_t font_q[4] = {0x0000000000000000, 0x34004C0044004400, 0x4C00340004000400, 0x0000000000000000};
-constexpr uint64_t font_r[4] = {0x0000000000000000, 0x5C00600040004000, 0x4000400000000000, 0x0000000000000000};
-constexpr uint64_t font_s[4] = {0x0000000000000000, 0x3C00400038000400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_t[4] = {0x0000000020002000, 0x7800200020002000, 0x2400180000000000, 0x0000000000000000};
-constexpr uint64_t font_u[4] = {0x0000000000000000, 0x4400440044004400, 0x4C00340000000000, 0x0000000000000000};
-constexpr uint64_t font_v[4] = {0x0000000000000000, 0x4400440044002800, 0x2800100000000000, 0x0000000000000000};
-constexpr uint64_t font_w[4] = {0x0000000000000000, 0x4400440054005400, 0x5400280000000000, 0x0000000000000000};
-constexpr uint64_t font_x[4] = {0x0000000000000000, 0x4400280010001000, 0x2800440000000000, 0x0000000000000000};
-constexpr uint64_t font_y[4] = {0x0000000000000000, 0x4400440044004C00, 0x3400040004003800, 0x0000000000000000};
-constexpr uint64_t font_z[4] = {0x0000000000000000, 0x7C00080010002000, 0x40007C0000000000, 0x0000000000000000};
-
-// --- POLSKIE ZNAKI (Duże) ---
-constexpr uint64_t font_A_pl[4] = {0x0000000010002800, 0x440044007C004400, 0x4400440008001000, 0x0000000000000000};
-constexpr uint64_t font_C_pl[4] = {0x0800100038004400, 0x4000400040004000, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_E_pl[4] = {0x000000007C004000, 0x4000780040004000, 0x40007C0008001000, 0x0000000000000000};
-constexpr uint64_t font_L_pl[4] = {0x0000000040004000, 0x4000400070004000, 0x40007C0000000000, 0x0000000000000000};
-constexpr uint64_t font_N_pl[4] = {0x0800100044006400, 0x54004C0044004400, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_O_pl[4] = {0x0800100038004400, 0x4400440044004400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_S_pl[4] = {0x0800100038004400, 0x4000380004000400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_Z_kres[4] = {0x080010007C000400, 0x0800100020004000, 0x40007C0000000000, 0x0000000000000000};
-constexpr uint64_t font_Z_krop[4] = {0x100000007C000400, 0x0800100020004000, 0x40007C0000000000, 0x0000000000000000};
-
-// --- POLSKIE ZNAKI (Małe) ---
-constexpr uint64_t font_a_pl[4] = {0x0000000000000000, 0x380004003C004400, 0x44003C0008001000, 0x0000000000000000};
-constexpr uint64_t font_c_pl[4] = {0x0800100000000000, 0x3800440040004000, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_e_pl[4] = {0x0000000000000000, 0x380044007C004000, 0x4400380008001000, 0x0000000000000000};
-constexpr uint64_t font_l_pl[4] = {0x0000000030001000, 0x1000100070001000, 0x10000C0000000000, 0x0000000000000000};
-constexpr uint64_t font_n_pl[4] = {0x0800100000000000, 0x5800640044004400, 0x4400440000000000, 0x0000000000000000};
-constexpr uint64_t font_o_pl[4] = {0x0800100000000000, 0x3800440044004400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_s_pl[4] = {0x0800100000000000, 0x3C00400038000400, 0x4400380000000000, 0x0000000000000000};
-constexpr uint64_t font_z_kres[4] = {0x0800100000000000, 0x7C00080010002000, 0x40007C0000000000, 0x0000000000000000};
-constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x40007C0000000000, 0x0000000000000000};
-#pragma endregion
+#pragma region Sekcja tworzenia
 
     // Struktura tworząca obiekt funkcji
     struct Function {
@@ -658,15 +659,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
     // Klasa renderująca wykresy na podstawie podanego obiektu funkcji albo dft
     class Graph {
 
-        // colors (kolory)
-        uint32_t bg; // background (tło)
-        uint32_t lc; // line (kolor linii wykresu)
-        uint32_t ac; // axis (osie)
-        uint32_t gc; // grid (siatka)
-        uint32_t fc; // font (czcionka)
-
         uint32_t* texture = nullptr;
-
         // index:
         // 0 = 8k
         // 1 = 4k
@@ -822,296 +815,295 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
     void add_text(const char* text, uint32_t font_color) {
         uint64_t i = 0;
         while (text[i] != '\0') {
-
             const uint64_t* current_font_data = nullptr;
             auto letter = static_cast<unsigned char>(text[i]);
 
             if (letter < 0x80) {
                 switch (letter) {
                 case 'A':
-                    current_font_data = font_A;
+                    current_font_data = ShiftDownFonts::font_A;
                     break;
                 case 'B':
-                    current_font_data = font_B;
+                    current_font_data = ShiftDownFonts::font_B;
                     break;
                 case 'C':
-                    current_font_data = font_C;
+                    current_font_data = ShiftDownFonts::font_C;
                     break;
                 case 'D':
-                    current_font_data = font_D;
+                    current_font_data = ShiftDownFonts::font_D;
                     break;
                 case 'E':
-                    current_font_data = font_E;
+                    current_font_data = ShiftDownFonts::font_E;
                     break;
                 case 'F':
-                    current_font_data = font_F;
+                    current_font_data = ShiftDownFonts::font_F;
                     break;
                 case 'G':
-                    current_font_data = font_G;
+                    current_font_data = ShiftDownFonts::font_G;
                     break;
                 case 'H':
-                    current_font_data = font_H;
+                    current_font_data = ShiftDownFonts::font_H;
                     break;
                 case 'I':
-                    current_font_data = font_I;
+                    current_font_data = ShiftDownFonts::font_I;
                     break;
                 case 'J':
-                    current_font_data = font_J;
+                    current_font_data = ShiftDownFonts::font_J;
                     break;
                 case 'K':
-                    current_font_data = font_K;
+                    current_font_data = ShiftDownFonts::font_K;
                     break;
                 case 'L':
-                    current_font_data = font_L;
+                    current_font_data = ShiftDownFonts::font_L;
                     break;
                 case 'M':
-                    current_font_data = font_M;
+                    current_font_data = ShiftDownFonts::font_M;
                     break;
                 case 'N':
-                    current_font_data = font_N;
+                    current_font_data = ShiftDownFonts::font_N;
                     break;
                 case 'O':
-                    current_font_data = font_O;
+                    current_font_data = ShiftDownFonts::font_O;
                     break;
                 case 'P':
-                    current_font_data = font_P;
+                    current_font_data = ShiftDownFonts::font_P;
                     break;
                 case 'Q':
-                    current_font_data = font_Q;
+                    current_font_data = ShiftDownFonts::font_Q;
                     break;
                 case 'R':
-                    current_font_data = font_R;
+                    current_font_data = ShiftDownFonts::font_R;
                     break;
                 case 'S':
-                    current_font_data = font_S;
+                    current_font_data = ShiftDownFonts::font_S;
                     break;
                 case 'T':
-                    current_font_data = font_T;
+                    current_font_data = ShiftDownFonts::font_T;
                     break;
                 case 'U':
-                    current_font_data = font_U;
+                    current_font_data = ShiftDownFonts::font_U;
                     break;
                 case 'V':
-                    current_font_data = font_V;
+                    current_font_data = ShiftDownFonts::font_V;
                     break;
                 case 'W':
-                    current_font_data = font_W;
+                    current_font_data = ShiftDownFonts::font_W;
                     break;
                 case 'X':
-                    current_font_data = font_X;
+                    current_font_data = ShiftDownFonts::font_X;
                     break;
                 case 'Y':
-                    current_font_data = font_Y;
+                    current_font_data = ShiftDownFonts::font_Y;
                     break;
                 case 'Z':
-                    current_font_data = font_Z;
+                    current_font_data = ShiftDownFonts::font_Z;
                     break;
                 case 'a':
-                    current_font_data = font_a;
+                    current_font_data = ShiftDownFonts::font_a;
                     break;
                 case 'b':
-                    current_font_data = font_b;
+                    current_font_data = ShiftDownFonts::font_b;
                     break;
                 case 'c':
-                    current_font_data = font_c;
+                    current_font_data = ShiftDownFonts::font_c;
                     break;
                 case 'd':
-                    current_font_data = font_d;
+                    current_font_data = ShiftDownFonts::font_d;
                     break;
                 case 'e':
-                    current_font_data = font_e;
+                    current_font_data = ShiftDownFonts::font_e;
                     break;
                 case 'f':
-                    current_font_data = font_f;
+                    current_font_data = ShiftDownFonts::font_f;
                     break;
                 case 'g':
-                    current_font_data = font_g;
+                    current_font_data = ShiftDownFonts::font_g;
                     break;
                 case 'h':
-                    current_font_data = font_h;
+                    current_font_data = ShiftDownFonts::font_h;
                     break;
                 case 'i':
-                    current_font_data = font_i;
+                    current_font_data = ShiftDownFonts::font_i;
                     break;
                 case 'j':
-                    current_font_data = font_j;
+                    current_font_data = ShiftDownFonts::font_j;
                     break;
                 case 'k':
-                    current_font_data = font_k;
+                    current_font_data = ShiftDownFonts::font_k;
                     break;
                 case 'l':
-                    current_font_data = font_l;
+                    current_font_data = ShiftDownFonts::font_l;
                     break;
                 case 'm':
-                    current_font_data = font_m;
+                    current_font_data = ShiftDownFonts::font_m;
                     break;
                 case 'n':
-                    current_font_data = font_n;
+                    current_font_data = ShiftDownFonts::font_n;
                     break;
                 case 'o':
-                    current_font_data = font_o;
+                    current_font_data = ShiftDownFonts::font_o;
                     break;
                 case 'p':
-                    current_font_data = font_p;
+                    current_font_data = ShiftDownFonts::font_p;
                     break;
                 case 'q':
-                    current_font_data = font_q;
+                    current_font_data = ShiftDownFonts::font_q;
                     break;
                 case 'r':
-                    current_font_data = font_r;
+                    current_font_data = ShiftDownFonts::font_r;
                     break;
                 case 's':
-                    current_font_data = font_s;
+                    current_font_data = ShiftDownFonts::font_s;
                     break;
                 case 't':
-                    current_font_data = font_t;
+                    current_font_data = ShiftDownFonts::font_t;
                     break;
                 case 'u':
-                    current_font_data = font_u;
+                    current_font_data = ShiftDownFonts::font_u;
                     break;
                 case 'v':
-                    current_font_data = font_v;
+                    current_font_data = ShiftDownFonts::font_v;
                     break;
                 case 'w':
-                    current_font_data = font_w;
+                    current_font_data = ShiftDownFonts::font_w;
                     break;
                 case 'x':
-                    current_font_data = font_x;
+                    current_font_data = ShiftDownFonts::font_x;
                     break;
                 case 'y':
-                    current_font_data = font_y;
+                    current_font_data = ShiftDownFonts::font_y;
                     break;
                 case 'z':
-                    current_font_data = font_z;
+                    current_font_data = ShiftDownFonts::font_z;
                     break;
                 case '0':
-                    current_font_data = font_0;
+                    current_font_data = ShiftDownFonts::font_0;
                     break;
                 case '1':
-                    current_font_data = font_1;
+                    current_font_data = ShiftDownFonts::font_1;
                     break;
                 case '2':
-                    current_font_data = font_2;
+                    current_font_data = ShiftDownFonts::font_2;
                     break;
                 case '3':
-                    current_font_data = font_3;
+                    current_font_data = ShiftDownFonts::font_3;
                     break;
                 case '4':
-                    current_font_data = font_4;
+                    current_font_data = ShiftDownFonts::font_4;
                     break;
                 case '5':
-                    current_font_data = font_5;
+                    current_font_data = ShiftDownFonts::font_5;
                     break;
                 case '6':
-                    current_font_data = font_6;
+                    current_font_data = ShiftDownFonts::font_6;
                     break;
                 case '7':
-                    current_font_data = font_7;
+                    current_font_data = ShiftDownFonts::font_7;
                     break;
                 case '8':
-                    current_font_data = font_8;
+                    current_font_data = ShiftDownFonts::font_8;
                     break;
                 case '9':
-                    current_font_data = font_9;
+                    current_font_data = ShiftDownFonts::font_9;
                     break;
                 case ' ':
-                    current_font_data = font_Space;
+                    current_font_data = ShiftDownFonts::font_Space;
                     break;
                 case '!':
-                    current_font_data = font_Exclam;
+                    current_font_data = ShiftDownFonts::font_Exclam;
                     break;
                 case '@':
-                    current_font_data = font_At;
+                    current_font_data = ShiftDownFonts::font_At;
                     break;
                 case '#':
-                    current_font_data = font_Hash;
+                    current_font_data = ShiftDownFonts::font_Hash;
                     break;
                 case '$':
-                    current_font_data = font_Dollar;
+                    current_font_data = ShiftDownFonts::font_Dollar;
                     break;
                 case '%':
-                    current_font_data = font_Percent;
+                    current_font_data = ShiftDownFonts::font_Percent;
                     break;
                 case '^':
-                    current_font_data = font_Caret;
+                    current_font_data = ShiftDownFonts::font_Caret;
                     break;
                 case '&':
-                    current_font_data = font_Ampers;
+                    current_font_data = ShiftDownFonts::font_Ampers;
                     break;
                 case '*':
-                    current_font_data = font_Star;
+                    current_font_data = ShiftDownFonts::font_Star;
                     break;
                 case '(':
-                    current_font_data = font_ParenL;
+                    current_font_data = ShiftDownFonts::font_ParenL;
                     break;
                 case ')':
-                    current_font_data = font_ParenR;
+                    current_font_data = ShiftDownFonts::font_ParenR;
                     break;
                 case '-':
-                    current_font_data = font_Minus;
+                    current_font_data = ShiftDownFonts::font_Minus;
                     break;
                 case '_':
-                    current_font_data = font_Under;
+                    current_font_data = ShiftDownFonts::font_Under;
                     break;
                 case '+':
-                    current_font_data = font_Plus;
+                    current_font_data = ShiftDownFonts::font_Plus;
                     break;
                 case '=':
-                    current_font_data = font_Equals;
+                    current_font_data = ShiftDownFonts::font_Equals;
                     break;
                 case '[':
-                    current_font_data = font_BracketL;
+                    current_font_data = ShiftDownFonts::font_BracketL;
                     break;
                 case ']':
-                    current_font_data = font_BracketR;
+                    current_font_data = ShiftDownFonts::font_BracketR;
                     break;
                 case '{':
-                    current_font_data = font_BraceL;
+                    current_font_data = ShiftDownFonts::font_BraceL;
                     break;
                 case '}':
-                    current_font_data = font_BraceR;
+                    current_font_data = ShiftDownFonts::font_BraceR;
                     break;
                 case '|':
-                    current_font_data = font_Pipe;
+                    current_font_data = ShiftDownFonts::font_Pipe;
                     break;
                 case '\\':
-                    current_font_data = font_Backsl;
+                    current_font_data = ShiftDownFonts::font_Backsl;
                     break;
                 case ':':
-                    current_font_data = font_Colon;
+                    current_font_data = ShiftDownFonts::font_Colon;
                     break;
                 case ';':
-                    current_font_data = font_Semic;
+                    current_font_data = ShiftDownFonts::font_Semic;
                     break;
                 case '"':
-                    current_font_data = font_Quote;
+                    current_font_data = ShiftDownFonts::font_Quote;
                     break;
                 case '\'':
-                    current_font_data = font_Apostr;
+                    current_font_data = ShiftDownFonts::font_Apostr;
                     break;
                 case '<':
-                    current_font_data = font_Less;
+                    current_font_data = ShiftDownFonts::font_Less;
                     break;
                 case '>':
-                    current_font_data = font_Greater;
+                    current_font_data = ShiftDownFonts::font_Greater;
                     break;
                 case ',':
-                    current_font_data = font_Comma;
+                    current_font_data = ShiftDownFonts::font_Comma;
                     break;
                 case '.':
-                    current_font_data = font_Dot;
+                    current_font_data = ShiftDownFonts::font_Dot;
                     break;
                 case '/':
-                    current_font_data = font_Slash;
+                    current_font_data = ShiftDownFonts::font_Slash;
                     break;
                 case '?':
-                    current_font_data = font_Question;
+                    current_font_data = ShiftDownFonts::font_Question;
                     break;
                 case '~':
-                    current_font_data = font_Tilde;
+                    current_font_data = ShiftDownFonts::font_Tilde;
                     break;
                 default:
-                    current_font_data = font_Question;
+                    current_font_data = ShiftDownFonts::font_Question;
                     break;
                 }
                 i++;
@@ -1123,67 +1115,67 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
                 switch ((letter << 8) | letter_second_part) {
                 case 0xC484:
-                    current_font_data = font_A_pl;
+                    current_font_data = ShiftDownFonts::font_A_pl;
                     break;
                 case 0xC486:
-                    current_font_data = font_C_pl;
+                    current_font_data = ShiftDownFonts::font_C_pl;
                     break;
                 case 0xC498:
-                    current_font_data = font_E_pl;
+                    current_font_data = ShiftDownFonts::font_E_pl;
                     break;
                 case 0xC581:
-                    current_font_data = font_L_pl;
+                    current_font_data = ShiftDownFonts::font_L_pl;
                     break;
                 case 0xC583:
-                    current_font_data = font_N_pl;
+                    current_font_data = ShiftDownFonts::font_N_pl;
                     break;
                 case 0xC393:
-                    current_font_data = font_O_pl;
+                    current_font_data = ShiftDownFonts::font_O_pl;
                     break;
                 case 0xC59A:
-                    current_font_data = font_S_pl;
+                    current_font_data = ShiftDownFonts::font_S_pl;
                     break;
                 case 0xC5B9:
-                    current_font_data = font_Z_kres;
+                    current_font_data = ShiftDownFonts::font_Z_kres;
                     break;
                 case 0xC5BB:
-                    current_font_data = font_Z_krop;
+                    current_font_data = ShiftDownFonts::font_Z_krop;
                     break;
                 case 0xC485:
-                    current_font_data = font_a_pl;
+                    current_font_data = ShiftDownFonts::font_a_pl;
                     break;
                 case 0xC487:
-                    current_font_data = font_c_pl;
+                    current_font_data = ShiftDownFonts::font_c_pl;
                     break;
                 case 0xC499:
-                    current_font_data = font_e_pl;
+                    current_font_data = ShiftDownFonts::font_e_pl;
                     break;
                 case 0xC582:
-                    current_font_data = font_l_pl;
+                    current_font_data = ShiftDownFonts::font_l_pl;
                     break;
                 case 0xC584:
-                    current_font_data = font_n_pl;
+                    current_font_data = ShiftDownFonts::font_n_pl;
                     break;
                 case 0xC3B3:
-                    current_font_data = font_o_pl;
+                    current_font_data = ShiftDownFonts::font_o_pl;
                     break;
                 case 0xC59B:
-                    current_font_data = font_s_pl;
+                    current_font_data = ShiftDownFonts::font_s_pl;
                     break;
                 case 0xC5BA:
-                    current_font_data = font_z_kres;
+                    current_font_data = ShiftDownFonts::font_z_kres;
                     break;
                 case 0xC5BC:
-                    current_font_data = font_z_krop;
+                    current_font_data = ShiftDownFonts::font_z_krop;
                     break;
                 default:
-                    current_font_data = font_Question;
+                    current_font_data = ShiftDownFonts::font_Question;
                     break;
                 }
                 i += 2;
             }
             else {
-                current_font_data = font_Question;
+                current_font_data = ShiftDownFonts::font_Question;
                 i++;
             }
 
@@ -1233,7 +1225,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
     public:
         // ten konstruktor odpowiada za generowanie dla funkcji normalnych
-        Graph(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
+        Graph(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) {
 
             uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
             uint32_t divider = picture_size_index * 2;
@@ -1661,7 +1653,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                     "  ffmpeg -y -i \"" + bmp_path + "\" \"" + png_path + "\" && rm \"" + bmp_path + "\"; "
                     "fi";
 
-                int unused_linux = std::system(linux_cmd.c_str());
+                //int unused_linux = std::system(linux_cmd.c_str());
 #elif defined(_WIN32) || defined(__NT__)
 
                 std::string win_cmd =
@@ -1676,14 +1668,13 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                 int unused_win = std::system(win_cmd.c_str());
 #endif
             }
-
             _mm_free(scaled_y);
             _mm_free(scaled_x);
             _mm_free(scaled_uint_x);
             _mm_free(scaled_uint_y);
         }
         // a ten dla funkcji po DFT,
-        Graph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
+        Graph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) {
 
             //math section
             uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
@@ -2129,7 +2120,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                     "  ffmpeg -y -i \"" + bmp_path + "\" \"" + png_path + "\" && rm \"" + bmp_path + "\"; "
                     "fi";
 
-                int unused_linux = std::system(linux_cmd.c_str());
+                //int unused_linux = std::system(linux_cmd.c_str());
 #elif defined(_WIN32) || defined(__NT__)
 
                 std::string win_cmd =
@@ -2151,7 +2142,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             _mm_free(scaled_uint_y);
         }
         //  ten dla fft
-        Graph(const FFT* fft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
+        Graph(const FFT* fft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) {
 
             //math section
 
@@ -2593,7 +2584,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                     "  ffmpeg -y -i \"" + bmp_path + "\" \"" + png_path + "\" && rm \"" + bmp_path + "\"; "
                     "fi";
 
-                int unused_linux = std::system(linux_cmd.c_str());
+                //int unused_linux = std::system(linux_cmd.c_str());
 #elif defined(_WIN32) || defined(__NT__)
 
                 std::string win_cmd =
@@ -2618,16 +2609,8 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         ~Graph() { _mm_free(texture); };
     };
 
-
     // to samo co Graph ale pozwala nakładać na siebie wykresy. Skalowanie odbywa się względem pierwszego dodanego wykresu oddanie A, B nie wygeneruje tego samego co B, A
-    class MultiGraph {
-        // colors (kolory)
-        uint32_t bg; // background (tło)
-        uint32_t lc; // line (kolor linii wykresu)
-        uint32_t ac; // axis (osie)
-        uint32_t gc; // grid (siatka)
-        uint32_t fc; // font (czcionka)
-
+    class GraphMulti {
         uint32_t* texture = nullptr;
         // index:
         // 0 = 8k
@@ -2802,289 +2785,289 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             if (letter < 0x80) {
                 switch (letter) {
                 case 'A':
-                    current_font_data = font_A;
+                    current_font_data = ShiftDownFonts::font_A;
                     break;
                 case 'B':
-                    current_font_data = font_B;
+                    current_font_data = ShiftDownFonts::font_B;
                     break;
                 case 'C':
-                    current_font_data = font_C;
+                    current_font_data = ShiftDownFonts::font_C;
                     break;
                 case 'D':
-                    current_font_data = font_D;
+                    current_font_data = ShiftDownFonts::font_D;
                     break;
                 case 'E':
-                    current_font_data = font_E;
+                    current_font_data = ShiftDownFonts::font_E;
                     break;
                 case 'F':
-                    current_font_data = font_F;
+                    current_font_data = ShiftDownFonts::font_F;
                     break;
                 case 'G':
-                    current_font_data = font_G;
+                    current_font_data = ShiftDownFonts::font_G;
                     break;
                 case 'H':
-                    current_font_data = font_H;
+                    current_font_data = ShiftDownFonts::font_H;
                     break;
                 case 'I':
-                    current_font_data = font_I;
+                    current_font_data = ShiftDownFonts::font_I;
                     break;
                 case 'J':
-                    current_font_data = font_J;
+                    current_font_data = ShiftDownFonts::font_J;
                     break;
                 case 'K':
-                    current_font_data = font_K;
+                    current_font_data = ShiftDownFonts::font_K;
                     break;
                 case 'L':
-                    current_font_data = font_L;
+                    current_font_data = ShiftDownFonts::font_L;
                     break;
                 case 'M':
-                    current_font_data = font_M;
+                    current_font_data = ShiftDownFonts::font_M;
                     break;
                 case 'N':
-                    current_font_data = font_N;
+                    current_font_data = ShiftDownFonts::font_N;
                     break;
                 case 'O':
-                    current_font_data = font_O;
+                    current_font_data = ShiftDownFonts::font_O;
                     break;
                 case 'P':
-                    current_font_data = font_P;
+                    current_font_data = ShiftDownFonts::font_P;
                     break;
                 case 'Q':
-                    current_font_data = font_Q;
+                    current_font_data = ShiftDownFonts::font_Q;
                     break;
                 case 'R':
-                    current_font_data = font_R;
+                    current_font_data = ShiftDownFonts::font_R;
                     break;
                 case 'S':
-                    current_font_data = font_S;
+                    current_font_data = ShiftDownFonts::font_S;
                     break;
                 case 'T':
-                    current_font_data = font_T;
+                    current_font_data = ShiftDownFonts::font_T;
                     break;
                 case 'U':
-                    current_font_data = font_U;
+                    current_font_data = ShiftDownFonts::font_U;
                     break;
                 case 'V':
-                    current_font_data = font_V;
+                    current_font_data = ShiftDownFonts::font_V;
                     break;
                 case 'W':
-                    current_font_data = font_W;
+                    current_font_data = ShiftDownFonts::font_W;
                     break;
                 case 'X':
-                    current_font_data = font_X;
+                    current_font_data = ShiftDownFonts::font_X;
                     break;
                 case 'Y':
-                    current_font_data = font_Y;
+                    current_font_data = ShiftDownFonts::font_Y;
                     break;
                 case 'Z':
-                    current_font_data = font_Z;
+                    current_font_data = ShiftDownFonts::font_Z;
                     break;
                 case 'a':
-                    current_font_data = font_a;
+                    current_font_data = ShiftDownFonts::font_a;
                     break;
                 case 'b':
-                    current_font_data = font_b;
+                    current_font_data = ShiftDownFonts::font_b;
                     break;
                 case 'c':
-                    current_font_data = font_c;
+                    current_font_data = ShiftDownFonts::font_c;
                     break;
                 case 'd':
-                    current_font_data = font_d;
+                    current_font_data = ShiftDownFonts::font_d;
                     break;
                 case 'e':
-                    current_font_data = font_e;
+                    current_font_data = ShiftDownFonts::font_e;
                     break;
                 case 'f':
-                    current_font_data = font_f;
+                    current_font_data = ShiftDownFonts::font_f;
                     break;
                 case 'g':
-                    current_font_data = font_g;
+                    current_font_data = ShiftDownFonts::font_g;
                     break;
                 case 'h':
-                    current_font_data = font_h;
+                    current_font_data = ShiftDownFonts::font_h;
                     break;
                 case 'i':
-                    current_font_data = font_i;
+                    current_font_data = ShiftDownFonts::font_i;
                     break;
                 case 'j':
-                    current_font_data = font_j;
+                    current_font_data = ShiftDownFonts::font_j;
                     break;
                 case 'k':
-                    current_font_data = font_k;
+                    current_font_data = ShiftDownFonts::font_k;
                     break;
                 case 'l':
-                    current_font_data = font_l;
+                    current_font_data = ShiftDownFonts::font_l;
                     break;
                 case 'm':
-                    current_font_data = font_m;
+                    current_font_data = ShiftDownFonts::font_m;
                     break;
                 case 'n':
-                    current_font_data = font_n;
+                    current_font_data = ShiftDownFonts::font_n;
                     break;
                 case 'o':
-                    current_font_data = font_o;
+                    current_font_data = ShiftDownFonts::font_o;
                     break;
                 case 'p':
-                    current_font_data = font_p;
+                    current_font_data = ShiftDownFonts::font_p;
                     break;
                 case 'q':
-                    current_font_data = font_q;
+                    current_font_data = ShiftDownFonts::font_q;
                     break;
                 case 'r':
-                    current_font_data = font_r;
+                    current_font_data = ShiftDownFonts::font_r;
                     break;
                 case 's':
-                    current_font_data = font_s;
+                    current_font_data = ShiftDownFonts::font_s;
                     break;
                 case 't':
-                    current_font_data = font_t;
+                    current_font_data = ShiftDownFonts::font_t;
                     break;
                 case 'u':
-                    current_font_data = font_u;
+                    current_font_data = ShiftDownFonts::font_u;
                     break;
                 case 'v':
-                    current_font_data = font_v;
+                    current_font_data = ShiftDownFonts::font_v;
                     break;
                 case 'w':
-                    current_font_data = font_w;
+                    current_font_data = ShiftDownFonts::font_w;
                     break;
                 case 'x':
-                    current_font_data = font_x;
+                    current_font_data = ShiftDownFonts::font_x;
                     break;
                 case 'y':
-                    current_font_data = font_y;
+                    current_font_data = ShiftDownFonts::font_y;
                     break;
                 case 'z':
-                    current_font_data = font_z;
+                    current_font_data = ShiftDownFonts::font_z;
                     break;
                 case '0':
-                    current_font_data = font_0;
+                    current_font_data = ShiftDownFonts::font_0;
                     break;
                 case '1':
-                    current_font_data = font_1;
+                    current_font_data = ShiftDownFonts::font_1;
                     break;
                 case '2':
-                    current_font_data = font_2;
+                    current_font_data = ShiftDownFonts::font_2;
                     break;
                 case '3':
-                    current_font_data = font_3;
+                    current_font_data = ShiftDownFonts::font_3;
                     break;
                 case '4':
-                    current_font_data = font_4;
+                    current_font_data = ShiftDownFonts::font_4;
                     break;
                 case '5':
-                    current_font_data = font_5;
+                    current_font_data = ShiftDownFonts::font_5;
                     break;
                 case '6':
-                    current_font_data = font_6;
+                    current_font_data = ShiftDownFonts::font_6;
                     break;
                 case '7':
-                    current_font_data = font_7;
+                    current_font_data = ShiftDownFonts::font_7;
                     break;
                 case '8':
-                    current_font_data = font_8;
+                    current_font_data = ShiftDownFonts::font_8;
                     break;
                 case '9':
-                    current_font_data = font_9;
+                    current_font_data = ShiftDownFonts::font_9;
                     break;
                 case ' ':
-                    current_font_data = font_Space;
+                    current_font_data = ShiftDownFonts::font_Space;
                     break;
                 case '!':
-                    current_font_data = font_Exclam;
+                    current_font_data = ShiftDownFonts::font_Exclam;
                     break;
                 case '@':
-                    current_font_data = font_At;
+                    current_font_data = ShiftDownFonts::font_At;
                     break;
                 case '#':
-                    current_font_data = font_Hash;
+                    current_font_data = ShiftDownFonts::font_Hash;
                     break;
                 case '$':
-                    current_font_data = font_Dollar;
+                    current_font_data = ShiftDownFonts::font_Dollar;
                     break;
                 case '%':
-                    current_font_data = font_Percent;
+                    current_font_data = ShiftDownFonts::font_Percent;
                     break;
                 case '^':
-                    current_font_data = font_Caret;
+                    current_font_data = ShiftDownFonts::font_Caret;
                     break;
                 case '&':
-                    current_font_data = font_Ampers;
+                    current_font_data = ShiftDownFonts::font_Ampers;
                     break;
                 case '*':
-                    current_font_data = font_Star;
+                    current_font_data = ShiftDownFonts::font_Star;
                     break;
                 case '(':
-                    current_font_data = font_ParenL;
+                    current_font_data = ShiftDownFonts::font_ParenL;
                     break;
                 case ')':
-                    current_font_data = font_ParenR;
+                    current_font_data = ShiftDownFonts::font_ParenR;
                     break;
                 case '-':
-                    current_font_data = font_Minus;
+                    current_font_data = ShiftDownFonts::font_Minus;
                     break;
                 case '_':
-                    current_font_data = font_Under;
+                    current_font_data = ShiftDownFonts::font_Under;
                     break;
                 case '+':
-                    current_font_data = font_Plus;
+                    current_font_data = ShiftDownFonts::font_Plus;
                     break;
                 case '=':
-                    current_font_data = font_Equals;
+                    current_font_data = ShiftDownFonts::font_Equals;
                     break;
                 case '[':
-                    current_font_data = font_BracketL;
+                    current_font_data = ShiftDownFonts::font_BracketL;
                     break;
                 case ']':
-                    current_font_data = font_BracketR;
+                    current_font_data = ShiftDownFonts::font_BracketR;
                     break;
                 case '{':
-                    current_font_data = font_BraceL;
+                    current_font_data = ShiftDownFonts::font_BraceL;
                     break;
                 case '}':
-                    current_font_data = font_BraceR;
+                    current_font_data = ShiftDownFonts::font_BraceR;
                     break;
                 case '|':
-                    current_font_data = font_Pipe;
+                    current_font_data = ShiftDownFonts::font_Pipe;
                     break;
                 case '\\':
-                    current_font_data = font_Backsl;
+                    current_font_data = ShiftDownFonts::font_Backsl;
                     break;
                 case ':':
-                    current_font_data = font_Colon;
+                    current_font_data = ShiftDownFonts::font_Colon;
                     break;
                 case ';':
-                    current_font_data = font_Semic;
+                    current_font_data = ShiftDownFonts::font_Semic;
                     break;
                 case '"':
-                    current_font_data = font_Quote;
+                    current_font_data = ShiftDownFonts::font_Quote;
                     break;
                 case '\'':
-                    current_font_data = font_Apostr;
+                    current_font_data = ShiftDownFonts::font_Apostr;
                     break;
                 case '<':
-                    current_font_data = font_Less;
+                    current_font_data = ShiftDownFonts::font_Less;
                     break;
                 case '>':
-                    current_font_data = font_Greater;
+                    current_font_data = ShiftDownFonts::font_Greater;
                     break;
                 case ',':
-                    current_font_data = font_Comma;
+                    current_font_data = ShiftDownFonts::font_Comma;
                     break;
                 case '.':
-                    current_font_data = font_Dot;
+                    current_font_data = ShiftDownFonts::font_Dot;
                     break;
                 case '/':
-                    current_font_data = font_Slash;
+                    current_font_data = ShiftDownFonts::font_Slash;
                     break;
                 case '?':
-                    current_font_data = font_Question;
+                    current_font_data = ShiftDownFonts::font_Question;
                     break;
                 case '~':
-                    current_font_data = font_Tilde;
+                    current_font_data = ShiftDownFonts::font_Tilde;
                     break;
                 default:
-                    current_font_data = font_Question;
+                    current_font_data = ShiftDownFonts::font_Question;
                     break;
                 }
                 i++;
@@ -3096,67 +3079,67 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
                 switch ((letter << 8) | letter_second_part) {
                 case 0xC484:
-                    current_font_data = font_A_pl;
+                    current_font_data = ShiftDownFonts::font_A_pl;
                     break;
                 case 0xC486:
-                    current_font_data = font_C_pl;
+                    current_font_data = ShiftDownFonts::font_C_pl;
                     break;
                 case 0xC498:
-                    current_font_data = font_E_pl;
+                    current_font_data = ShiftDownFonts::font_E_pl;
                     break;
                 case 0xC581:
-                    current_font_data = font_L_pl;
+                    current_font_data = ShiftDownFonts::font_L_pl;
                     break;
                 case 0xC583:
-                    current_font_data = font_N_pl;
+                    current_font_data = ShiftDownFonts::font_N_pl;
                     break;
                 case 0xC393:
-                    current_font_data = font_O_pl;
+                    current_font_data = ShiftDownFonts::font_O_pl;
                     break;
                 case 0xC59A:
-                    current_font_data = font_S_pl;
+                    current_font_data = ShiftDownFonts::font_S_pl;
                     break;
                 case 0xC5B9:
-                    current_font_data = font_Z_kres;
+                    current_font_data = ShiftDownFonts::font_Z_kres;
                     break;
                 case 0xC5BB:
-                    current_font_data = font_Z_krop;
+                    current_font_data = ShiftDownFonts::font_Z_krop;
                     break;
                 case 0xC485:
-                    current_font_data = font_a_pl;
+                    current_font_data = ShiftDownFonts::font_a_pl;
                     break;
                 case 0xC487:
-                    current_font_data = font_c_pl;
+                    current_font_data = ShiftDownFonts::font_c_pl;
                     break;
                 case 0xC499:
-                    current_font_data = font_e_pl;
+                    current_font_data = ShiftDownFonts::font_e_pl;
                     break;
                 case 0xC582:
-                    current_font_data = font_l_pl;
+                    current_font_data = ShiftDownFonts::font_l_pl;
                     break;
                 case 0xC584:
-                    current_font_data = font_n_pl;
+                    current_font_data = ShiftDownFonts::font_n_pl;
                     break;
                 case 0xC3B3:
-                    current_font_data = font_o_pl;
+                    current_font_data = ShiftDownFonts::font_o_pl;
                     break;
                 case 0xC59B:
-                    current_font_data = font_s_pl;
+                    current_font_data = ShiftDownFonts::font_s_pl;
                     break;
                 case 0xC5BA:
-                    current_font_data = font_z_kres;
+                    current_font_data = ShiftDownFonts::font_z_kres;
                     break;
                 case 0xC5BC:
-                    current_font_data = font_z_krop;
+                    current_font_data = ShiftDownFonts::font_z_krop;
                     break;
                 default:
-                    current_font_data = font_Question;
+                    current_font_data = ShiftDownFonts::font_Question;
                     break;
                 }
                 i += 2;
             }
             else {
-                current_font_data = font_Question;
+                current_font_data = ShiftDownFonts::font_Question;
                 i++;
             }
 
@@ -3206,7 +3189,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
     public:
 
-        MultiGraph(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
+        GraphMulti(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) {
             this->file_path = file_path;
             this->name_label = name_label;
             //math section
@@ -3547,7 +3530,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             _mm_free(scaled_uint_y);
         }
         // a ten dla funkcji po DFT,
-        MultiGraph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
+        GraphMulti(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) {
             this->file_path = file_path;
             this->name_label = name_label;
             //math section
@@ -3904,7 +3887,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             _mm_free(scaled_uint_y);
         }
         //  ten dla fft
-        MultiGraph(const FFT* fft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) : bg(background_color), lc(line_color), ac(axis_color), gc(grid_color), fc(font_color) {
+        GraphMulti(const FFT* fft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = 0xFF0B0C10, uint32_t line_color = 0xFF66FCF1, uint32_t axis_color = 0xFF455A64, uint32_t grid_color = 0xFF1F2833, uint32_t font_color = 0xFFC5C6C7, const char* file_path = nullptr) {
             this->file_path = file_path;
             this->name_label = name_label;
             //math section
@@ -4256,7 +4239,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             _mm_free(scaled_uint_y);
         }
 
-        ~MultiGraph() { _mm_free(texture); };
+        ~GraphMulti() { _mm_free(texture); };
         // tego używamy, aby dodać funkcję do wykresu
         void add(const Function* function_to_render, uint32_t line_color = 0xFF66FCF1) {
             // wykres
@@ -4348,7 +4331,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
         }
 
         // to zapisuje przygotowany multi grapg na dysk jako zdjęcie
-        void GenerateMultiGraph() {
+        void GenerateGraphMulti() {
             // bmp save
             char filepath[256] = {0};
 
@@ -4443,7 +4426,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
                     "  ffmpeg -y -i \"" + bmp_path + "\" \"" + png_path + "\" && rm \"" + bmp_path + "\"; "
                     "fi";
 
-                int unused_linux = std::system(linux_cmd.c_str());
+                //int unused_linux = std::system(linux_cmd.c_str());
 #elif defined(_WIN32) || defined(__NT__)
 
                 std::string win_cmd =
@@ -4460,6 +4443,7 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             }
         }
     };
+#pragma endregion
 
 #pragma region Funkcje modulujące
 
@@ -4667,11 +4651,10 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
 
         uint64_t m = 0;
         uint64_t n = 0;
-
-
         uint8_t* coded_bits = nullptr; // ostatni index tablicy to 0xD i oznacza on koniec bufora, iteracja do coded_bits[i] == 0xD;
 
         HammingCoder(const uint8_t* bits_to_code, uint64_t m = 4) : m(m){
+            uint64_t size = 0;
         {
             uint64_t temp = m;
             while (temp != 0) {
@@ -4681,13 +4664,52 @@ constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x4
             // 2^n >= n + m + 1 // warunek
             // n = n + m // rachunek
             n = (n + ((1<<n) < (n + m + 1) ? 1 : 0)) + m;
-        }
 
+            uint64_t frame_size = 0;
 
-            for (uint64_t i = 1; bits_to_code[i] != 0xD; i++) {
-                uint8_t value = i & (1 << (i - 1)) == 0 ? 0 : bits_to_code[i];
+            for (uint64_t i = 0; bits_to_code[i] != 0xD; i++) {
+                size++;
+                frame_size += (i % m == 0);
             }
+            frame_size = (frame_size + (frame_size * m < size != 0)) * n;
 
+            // + 2 bo index 0 jest pusty oraz 0xD jako znak konca bufora
+            coded_bits = (uint8_t*)_mm_malloc(sizeof(uint8_t) * frame_size + 2, 64);
+                std::cout << "Frame size = " << frame_size << std::endl;
+                std::cout << "Malloc size = " << sizeof(uint8_t) * frame_size + 2 << std::endl;
+            coded_bits[frame_size + 1] = 0xD;
+            for (uint64_t i = 1; coded_bits[i] != 0xD; i++) coded_bits[i] = 0;
+            coded_bits[0] = n - m;
+        }
+            // kodowanie po przez xorowanie
+            uint64_t frame_count = (((size % m) == 0) ? (size / m) : ((size / m) + 1));
+            uint64_t bits_to_code_index = 0;
+
+            for (uint64_t j = 0; j < frame_count; j++) {
+                uint64_t offset = n * j;
+                uint64_t parity_bits_count = 0;
+                for (uint64_t i = 1; i <= n; i++) {
+                    coded_bits[i + offset] = (i & (1 << (parity_bits_count))) == 0 ? (bits_to_code_index++, bits_to_code[bits_to_code_index - 1]) : (parity_bits_count++,0);
+                }
+
+                for (uint64_t k = 0; coded_bits[0]; k++) {
+                    for (uint64_t d = 1; d <= n; d++) {
+                        coded_bits[offset + (1 << k)] = (((d + offset) & (1<<k)) == 0) ? (coded_bits[offset + (1 << k)] ^ coded_bits[offset + d]) : coded_bits[offset + (1 << k)];
+                    }
+                }
+
+            }
+            int i = 1;
+            while (coded_bits[i] != 0xD) {
+                if (i % 8 == 0 && i != 0) std::cout << " ";
+                printf("%b", coded_bits[i]);
+                i++;
+            }
+            std::cout << std::endl;
+            std::cout << "Iteracje: " << i << std::endl;
+            printf("%08b\n", coded_bits[i]);
+            printf("%08b", 0xD);
+            std::cout << std::endl;
         }
         ~HammingCoder() {
             _mm_free(coded_bits);
