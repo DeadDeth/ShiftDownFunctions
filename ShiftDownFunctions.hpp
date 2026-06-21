@@ -4447,8 +4447,6 @@ int main() {
 
 #pragma region Funkcje modulujące
 
-    // dodac funkcje dla haminga i inne bajery z tym zwiazane
-
     /* Krótkie wprowadzenie co to i po co to.
 
      Modulacja polega na wsadzeniu sygnału o niskiej częstotliwości do innego sygnału o bardzo
@@ -4643,18 +4641,156 @@ int main() {
         }
         return FM;
     }
+
+
+
+    // --- MODULACJA/DEMODULACJA CYFROWA ---
+    inline Function* modulate_ASK(const uint8_t* bits, float bitrate, float A_HIGH, float A_LOW, float f, float fs, float PHI = 0.f) {
+        uint64_t bit_count = 0;
+        while (bits[bit_count] != 0xD) {
+            bit_count++;
+        }
+        float Tc = static_cast<float>(bit_count) / bitrate;
+        auto* ASK = new Function(Tc, fs, f, PHI, A_HIGH, [](const Function&, uint64_t, float) -> float {
+            return 0.f;
+        });
+
+        for (uint64_t n = 0; n < ASK->N; n++) {
+            uint64_t current_bit = static_cast<uint64_t>(ASK->t[n] * bitrate);
+            if (current_bit >= bit_count) current_bit = bit_count - 1;
+            float bit_val = (bits[current_bit] > 0) ? A_HIGH : A_LOW;
+            ASK->f_t[n] = bit_val * sinf(2.f * M_PIf * f * ASK->t[n] + PHI);
+        }
+        return ASK;
+    }
+    inline Function* modulate_PSK(const uint8_t* bits, float bitrate, float A, float f, float fs, float PHI_HIGH, float PHI_LOW, float PHI = 0.f) {
+        uint64_t bit_count = 0;
+        while (bits[bit_count] != 0xD) {
+            bit_count++;
+        }
+        float Tc = static_cast<float>(bit_count) / bitrate;
+        auto* PSK = new Function(Tc, fs, f, PHI, A, [](const Function&, uint64_t, float) -> float {
+            return 0.f;
+        });
+
+        for (uint64_t n = 0; n < PSK->N; n++) {
+            uint64_t current_bit = static_cast<uint64_t>(PSK->t[n] * bitrate);
+            if (current_bit >= bit_count) current_bit = bit_count - 1;
+            float phi_current = (bits[current_bit] > 0) ? PHI_HIGH : PHI_LOW;
+            PSK->f_t[n] = A * sinf(2.f * M_PIf * f * PSK->t[n] + phi_current);
+        }
+        return PSK;
+    }
+    inline Function* modulate_FSK(const uint8_t* bits, float bitrate, float A, float f_HIGH, float f_LOW, float fs, float PHI = 0.f) {
+        uint64_t bit_count = 0;
+        while (bits[bit_count] != 0xD) {
+            bit_count++;
+        }
+        float Tc = static_cast<float>(bit_count) / bitrate;
+        auto* FSK = new Function(Tc, fs, f_HIGH, PHI, A, [](const Function&, uint64_t, float) -> float {
+            return 0.f;
+        });
+
+        for (uint64_t n = 0; n < FSK->N; n++) {
+            uint64_t current_bit = static_cast<uint64_t>(FSK->t[n] * bitrate);
+            if (current_bit >= bit_count) current_bit = bit_count - 1;
+            float f_current = (bits[current_bit] > 0) ? f_HIGH : f_LOW;
+            FSK->f_t[n] = A * sinf(2.f * M_PIf * f_current * FSK->t[n] + PHI);
+        }
+        return FSK;
+    }
+
+
+    inline uint8_t* demodulate_ASK(const Function* sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW) {
+    uint64_t bit_count = static_cast<uint64_t>(sig->Tc * bitrate + 0.1f);
+    uint64_t samples_per_bit = static_cast<uint64_t>(sig->fs / bitrate);
+
+    uint8_t* demod_bits = (uint8_t*)_mm_malloc(bit_count + 1, 64);
+
+    float threshold = 0.25f * (A_HIGH + A_LOW) * static_cast<float>(samples_per_bit);
+
+    for (uint64_t b = 0; b < bit_count; b++) {
+        float sum = 0.f;
+        for (uint64_t s = 0; s < samples_per_bit; s++) {
+            uint64_t n = b * samples_per_bit + s;
+            if (n >= sig->N) break;
+            sum += sig->f_t[n] * sinf(2.f * M_PIf * f_carrier * sig->t[n]);
+        }
+        demod_bits[b] = (sum > threshold) ? 1 : 0;
+    }
+    demod_bits[bit_count] = 0xD;
+    return demod_bits;
+}
+    inline uint8_t* demodulate_PSK(const Function* sig, float bitrate, float f_carrier, float PHI_HIGH, float PHI_LOW) {
+    uint64_t bit_count = static_cast<uint64_t>(sig->Tc * bitrate + 0.1f);
+    uint64_t samples_per_bit = static_cast<uint64_t>(sig->fs / bitrate);
+
+    uint8_t* demod_bits = (uint8_t*)_mm_malloc(bit_count + 1, 64);
+
+    for (uint64_t b = 0; b < bit_count; b++) {
+        float sum_high = 0.f;
+        float sum_low = 0.f;
+        for (uint64_t s = 0; s < samples_per_bit; s++) {
+            uint64_t n = b * samples_per_bit + s;
+            if (n >= sig->N) break;
+            sum_high += sig->f_t[n] * sinf(2.f * M_PIf * f_carrier * sig->t[n] + PHI_HIGH);
+            sum_low  += sig->f_t[n] * sinf(2.f * M_PIf * f_carrier * sig->t[n] + PHI_LOW);
+        }
+        demod_bits[b] = (sum_high > sum_low) ? 1 : 0;
+    }
+    demod_bits[bit_count] = 0xD;
+    return demod_bits;
+}
+    inline uint8_t* demodulate_FSK(const Function* sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f) {
+    uint64_t bit_count = static_cast<uint64_t>(sig->Tc * bitrate + 0.1f);
+    uint64_t samples_per_bit = static_cast<uint64_t>(sig->fs / bitrate);
+
+    uint8_t* demod_bits = (uint8_t*)_mm_malloc(bit_count + 1, 64);
+
+    for (uint64_t b = 0; b < bit_count; b++) {
+        float sum_high = 0.f;
+        float sum_low = 0.f;
+        for (uint64_t s = 0; s < samples_per_bit; s++) {
+            uint64_t n = b * samples_per_bit + s;
+            if (n >= sig->N) break;
+            sum_high += sig->f_t[n] * sinf(2.f * M_PIf * f_HIGH * sig->t[n] + PHI);
+            sum_low  += sig->f_t[n] * sinf(2.f * M_PIf * f_LOW * sig->t[n] + PHI);
+        }
+        demod_bits[b] = (sum_high > sum_low) ? 1 : 0;
+    }
+    demod_bits[bit_count] = 0xD;
+    return demod_bits;
+}
+
+
 #pragma endregion
 
 #pragma region Funkcje kodujące
 
     struct alignas(64) HammingCoder {
 
-        uint64_t m = 0;
         uint64_t n = 0;
         uint8_t* coded_bits = nullptr; // ostatni index tablicy to 0xD i oznacza on koniec bufora, iteracja do coded_bits[i] == 0xD;
 
-        HammingCoder(const uint8_t* bits_to_code, uint64_t m = 4) : m(m){
+        HammingCoder(const void* Word_to_code, uint64_t m = 4) {
+
+            char* word_to_code = (char*)Word_to_code;
+
             uint64_t size = 0;
+            while (word_to_code[size] != '\0') {
+                size++;
+            }
+            size = size * 8;
+            uint8_t* bits_to_code = (uint8_t*)_mm_malloc((sizeof(uint8_t) * size) + 1, 64);
+            bits_to_code[size] = 0xD;
+            for (uint64_t i = 0; word_to_code[i] != '\0'; i++) {
+                uint64_t offset = i * 8;
+                for (uint8_t j = 0; j < 8; j++) {
+                    bits_to_code[7 + offset - j] = (word_to_code[i] & (1<<j)) > 0 ;
+                }
+            }
+
+            size = 0;
         {
             uint64_t temp = m;
             while (temp != 0) {
@@ -4675,12 +4811,11 @@ int main() {
 
             // + 2 bo index 0 jest pusty oraz 0xD jako znak konca bufora
             coded_bits = (uint8_t*)_mm_malloc(sizeof(uint8_t) * frame_size + 2, 64);
-                std::cout << "Frame size = " << frame_size << std::endl;
-                std::cout << "Malloc size = " << sizeof(uint8_t) * frame_size + 2 << std::endl;
             coded_bits[frame_size + 1] = 0xD;
             for (uint64_t i = 1; coded_bits[i] != 0xD; i++) coded_bits[i] = 0;
             coded_bits[0] = n - m;
         }
+
             // kodowanie po przez xorowanie
             uint64_t frame_count = (((size % m) == 0) ? (size / m) : ((size / m) + 1));
             uint64_t bits_to_code_index = 0;
@@ -4692,30 +4827,76 @@ int main() {
                     coded_bits[i + offset] = (i & (1 << (parity_bits_count))) == 0 ? (bits_to_code_index++, bits_to_code[bits_to_code_index - 1]) : (parity_bits_count++,0);
                 }
 
-                for (uint64_t k = 0; coded_bits[0]; k++) {
+                for (uint64_t k = 0; k < coded_bits[0]; k++) {
                     for (uint64_t d = 1; d <= n; d++) {
-                        coded_bits[offset + (1 << k)] = (((d + offset) & (1<<k)) == 0) ? (coded_bits[offset + (1 << k)] ^ coded_bits[offset + d]) : coded_bits[offset + (1 << k)];
+                        coded_bits[offset + (1 << k)] = ((d & (1<<k)) != 0) ? (coded_bits[offset + (1 << k)] ^ coded_bits[offset + d]) : coded_bits[offset + (1 << k)];
                     }
                 }
-
             }
-            int i = 1;
-            while (coded_bits[i] != 0xD) {
-                if (i % 8 == 0 && i != 0) std::cout << " ";
-                printf("%b", coded_bits[i]);
-                i++;
-            }
-            std::cout << std::endl;
-            std::cout << "Iteracje: " << i << std::endl;
-            printf("%08b\n", coded_bits[i]);
-            printf("%08b", 0xD);
-            std::cout << std::endl;
         }
         ~HammingCoder() {
             _mm_free(coded_bits);
         }
     };
 
+    struct alignas(64) HammingDecoder{
+
+        uint8_t* decoded_bits = nullptr;
+
+        HammingDecoder(uint8_t* bits_to_decode, uint64_t m = 4) {
+            // zakladamy że bits_to_decode zaczynaja sie od idx[1] i koncza formulka 0xD
+            uint64_t n = 0;
+
+            // zanjdoywanie dlugosci ramki i tak dalej
+            uint64_t temp = m;
+            while (temp != 0) {
+                temp >>= 1;
+                n++;
+            }
+            n = (n + ((1<<n) < (n + m + 1) ? 1 : 0)) + m;
+
+            //alokacja rozmiaru dekodowanych bitow
+            uint64_t size = 0;
+            for (uint64_t i = 1; bits_to_decode[i] != 0xD; i++) {
+                size++;
+            }
+            // alokuje pamiec dla ilosci tego ile mam bajtow, do tego dodaje jeszcze telemetrie, 8 bajtow, i do tego dodaje jeszcze 1 bajt znaku konca
+            uint64_t frame_count = (size + n - 1) / n;
+            uint64_t malloc_size = ((frame_count * m) / 8) + 6;
+            decoded_bits = (uint8_t*)_mm_malloc(sizeof(uint8_t) * malloc_size, 64);
+            for (uint64_t i = 0; i < malloc_size; i++) {
+                decoded_bits[i] = 0;
+            }
+
+            // ----
+
+            // dekodowanie
+
+            uint64_t decoded_bits_index_global = 4;
+            uint64_t decoded_bits_index_local = 0;
+            float errors = 0;
+
+            for (uint64_t j = 0; j < frame_count; j++) {
+                uint64_t offset = n * j;
+                uint64_t Z = 0;
+                uint64_t parity_bits_count = 0;
+                for (uint64_t i = 1; i <= n; i++) {
+                    Z = bits_to_decode[offset + i] > 0 ? Z^i : Z;
+                    decoded_bits[decoded_bits_index_global] = (i & (1 << parity_bits_count)) != 0 ? (parity_bits_count++, decoded_bits[decoded_bits_index_global]) : (decoded_bits_index_local++, decoded_bits[decoded_bits_index_global] | (bits_to_decode[offset + i] << (8 - decoded_bits_index_local)));
+                    decoded_bits_index_local = decoded_bits_index_local == 8 ? (decoded_bits_index_global++, 0) : decoded_bits_index_local;
+                }
+                //naprawa zepsutego bitu
+                uint64_t err_bit = m * j + Z - 2 - (63 - __builtin_clzll(Z));
+                errors = ((Z & (Z - 1)) == 0) ? errors : (decoded_bits[4 + (err_bit >> 3)] ^= 1 << (7 - (err_bit & 7)), errors + 1);
+            }
+            errors = errors / (float)size;
+            *(reinterpret_cast<float*>(decoded_bits)) = errors;
+            decoded_bits[malloc_size - 1] = '\0';
+        }
+        ~HammingDecoder() {
+            _mm_free(decoded_bits);
+        }
+    };
 #pragma endregion
 
 } // namespace ShiftDownFunctions
