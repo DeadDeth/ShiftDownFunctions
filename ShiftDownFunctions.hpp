@@ -115,7 +115,6 @@ constexpr ARGB GLASS_RED    = {255, 0, 0, 128};     // #FF000080
 constexpr ARGB GLASS_BLUE   = {0, 0, 255, 128};     // #0000FF80
 constexpr ARGB GLASS_GREEN  = {0, 255, 0, 128};     // #00FF0080
 }
-
 // predefiniowana czcionka
 namespace ShiftDownFonts {
 #pragma region Sekcja czcionki
@@ -248,124 +247,187 @@ namespace ShiftDownFonts {
 // właściwa biblioteka
 namespace ShiftDownFunctions {
 
-    namespace ShiftDownFunctionsColorThemes {
-
-        inline uint32_t global_theme_BackGround_color = 0xFF0B0C10; // Ciemny wpadający w szary
-        inline uint32_t global_theme_Line_color       = 0xFF66FCF1; // Jasny Cyjan/Aqua
-        inline uint32_t global_theme_Axis_color       = 0xFF455A64; // Zgaszony stalowy
-        inline uint32_t global_theme_Grid_color       = 0xFF1F2833; // Ciemniejszy stalowy
-        inline uint32_t global_theme_Font_color       = 0xFFC5C6C7; // Szaro-biały
-
-        // ==========================================================
-        // 1. KLASYKI I UŻYTECZNE
-        // ==========================================================
-
-        inline void ShiftDownOriginal() {
-            global_theme_BackGround_color = 0xFF0B0C10;
-            global_theme_Line_color       = 0xFF66FCF1;
-            global_theme_Axis_color       = 0xFF455A64;
-            global_theme_Grid_color       = 0xFF1F2833;
-            global_theme_Font_color       = 0xFFC5C6C7;
-        }
-
-        inline void ShiftDownLight() {
-            global_theme_BackGround_color = 0xFFFFFFFF; // Czysta biel
-            global_theme_Line_color       = 0xFF003366; // Głęboki granat (Navy)
-            global_theme_Axis_color       = 0xFF000000; // Czysta czerń
-            global_theme_Grid_color       = 0xFFE0E0E0; // Bardzo jasny szary
-            global_theme_Font_color       = 0xFF000000; // Czysta czerń
-        }
-
-        inline void ShiftDownDark() {
-            global_theme_BackGround_color = 0xFF1E1E2E; // Głęboki fioletowo-szary
-            global_theme_Line_color       = 0xFFC678DD; // Neonowy pastelowy fiolet
-            global_theme_Axis_color       = 0xFFABB2BF; // Popielaty
-            global_theme_Grid_color       = 0xFF313244; // Podbity tła
-            global_theme_Font_color       = 0xFFE5C07B; // Piaskowy żółty
-        }
-
-        // ==========================================================
-        // 2. NOWOŚCI PRO: DATA SCIENCE & DESIGN
-        // ==========================================================
-
-        inline void ShiftDownMinimal() {
-            global_theme_BackGround_color = 0xFFFAFAFA; // Złamana biel
-            global_theme_Line_color       = 0xFF1A73E8; // Niebieski Google
-            global_theme_Axis_color       = 0xFF5F6368; // Szary tekstowy
-            global_theme_Grid_color       = 0xFFF1F3F4; // Prawie niewidoczna siatka
-            global_theme_Font_color       = 0xFF202124; // Ciemnoszary czcionki
-        }
-
-        inline void ShiftDownSolarizedDark() {
-            global_theme_BackGround_color = 0xFF002B36; // Ciemny turkusowy
-            global_theme_Line_color       = 0xFF2AA198; // Cyjanowy
-            global_theme_Axis_color       = 0xFF839496; // Szary Solarized
-            global_theme_Grid_color       = 0xFF073642; // Tło podbite
-            global_theme_Font_color       = 0xFFB58900; // Żółty kursor
-        }
-
-        // ==========================================================
-        // 3. ESTETYCZNE / KLIMATYCZNE
-        // ==========================================================
-
-        inline void ShiftDownGentleman() {
-            global_theme_BackGround_color = 0xFF2A2825; // Ciemny brąz/palona kawa
-            global_theme_Line_color       = 0xFFD4AF37; // Prawdziwe, matowe złoto
-            global_theme_Axis_color       = 0xFF8C7B65; // Szaro-brązowy
-            global_theme_Grid_color       = 0xFF3E3A35; // Jasniejszy brąz na siatkę
-            global_theme_Font_color       = 0xFFF5E6CC; // Pergamin / Kość słoniowa
-        }
-
-        inline void ShiftDownBrutalist() {
-            global_theme_BackGround_color = 0xFF111111; // Prawie smolista czerń
-            global_theme_Line_color       = 0xFFFF3300; // Agresywny pomarańczowo-czerwony
-            global_theme_Axis_color       = 0xFFFFFFFF; // Czysta biel
-            global_theme_Grid_color       = 0xFF444444; // Surowy, betonowy szary
-            global_theme_Font_color       = 0xFFFFFF00; // Krzyczący, ostrzegawczy żółty
-        }
-
-        inline void ShiftDownCyberpunk() {
-            // Night City vibes
-            global_theme_BackGround_color = 0xFF0D0221; // Ciemna, miejska noc
-            global_theme_Line_color       = 0xFFFCE205; // Cyber-żółty
-            global_theme_Axis_color       = 0xFFFF003C; // Neonowy róż/czerwień
-            global_theme_Grid_color       = 0xFF261447; // Mroczny neon
-            global_theme_Font_color       = 0xFF00FFFF; // Cyjan
-        }
-
-        inline void ShiftDownBareMetal() {
-            global_theme_BackGround_color = 0xFF004225; // Laminat (Solder Mask Green)
-            global_theme_Line_color       = 0xFFFFD700; // Złote piny (Gold Plating)
-            global_theme_Axis_color       = 0xFFC0C0C0; // Srebrny lut (Tin/Lead)
-            global_theme_Grid_color       = 0xFF002B18; // Ciemniejszy odcień zieleni płytki
-            global_theme_Font_color       = 0xFFFFFFFF; // Biały nadruk na płytce (Silkscreen)
-        }
 
 
-        inline void ShiftDownHelpMe() {
-            global_theme_BackGround_color = 0xFFFF00FF; // Ostra Magenta (Błąd tekstury Source)
-            global_theme_Line_color       = 0xFF00FF00; // Limonkowy rzyg
-            global_theme_Axis_color       = 0xFF00FFFF; // Cyjanowy ból
-            global_theme_Grid_color       = 0xFFFFFF00; // Żółty żółciuchny
-            global_theme_Font_color       = 0xFFFF0000; // Czysty czerwony
-        }
+namespace ShiftDownFunctionsColorThemes
+{
+    // ==========================================================
+    // ZMIENNE GLOBALNE (Od razu z domyślnym motywem "Original")
+    // ==========================================================
+    inline uint32_t global_theme_BackGround_color  = 0xFF06030B;
+    inline uint32_t global_theme_Line_color        = 0xFF0DE6F6;
+    inline uint32_t global_theme_Axis_color        = 0xFF354259;
+    inline uint32_t global_theme_Grid_color        = 0xFF171D2B;
+    inline uint32_t global_theme_SubSegments_color = 0xFF090A14;
+    inline uint32_t global_theme_Font_color        = 0xFFB4C5D6;
 
+    // ==========================================================
+    // 0. ORIGINAL
+    // ==========================================================
 
-        // ==========================================================
-        // 5. TRYB RNG ( RULETKA )
-        // ==========================================================
-        inline uint32_t generate_random_argb() {
-            return 0xFF000000 | ((std::rand() % 256) << 16) | ((std::rand() % 256) << 8) | (std::rand() % 256);
-        }
-        // każde wywołanie generuje randomowo palete barw
-        inline void ShiftDownRNG() {
-            global_theme_BackGround_color = generate_random_argb();
-            global_theme_Line_color       = generate_random_argb();
-            global_theme_Axis_color       = generate_random_argb();
-            global_theme_Grid_color       = generate_random_argb();
-            global_theme_Font_color       = generate_random_argb();
-        }
+    inline void ShiftDownOriginal_IPS() {
+        // Zoptymalizowane pod matryce IPS / OLED
+        global_theme_BackGround_color  = 0xFF06030B;
+        global_theme_Line_color        = 0xFF0DE6F6;
+        global_theme_Axis_color        = 0xFF354259;
+        global_theme_Grid_color        = 0xFF171D2B;
+        global_theme_SubSegments_color = 0xFF090A14;
+        global_theme_Font_color        = 0xFFB4C5D6;
     }
+    inline void ShiftDownOriginal_VA() {
+        // --- ORIGINAL ---
+        // Zoptymalizowane pod matryce VA
+        global_theme_BackGround_color  = 0xFF06030B;
+        global_theme_Line_color        = 0xFF0DE6F6;
+        global_theme_Axis_color        = 0xFF354259;
+        global_theme_Grid_color        = 0xFF222B3D;
+        global_theme_SubSegments_color = 0xFF0F121A;
+        global_theme_Font_color        = 0xFFB4C5D6;
+    }
+
+    inline void ShiftDownOriginalGreen_IPS() {
+        // --- ORIGINAL GREEN ---
+        // Zoptymalizowane pod matryce IPS / OLED
+        global_theme_BackGround_color  = 0xFF06030B;
+        global_theme_Line_color        = 0xFF39FF14;
+        global_theme_Axis_color        = 0xFF405246;
+        global_theme_Grid_color        = 0xFF1D2620;
+        global_theme_SubSegments_color = 0xFF080A0C;
+        global_theme_Font_color        = 0xFFB4CDB9;
+    }
+    inline void ShiftDownOriginalGreen_VA() {
+        // --- ORIGINAL GREEN ---
+        // Zoptymalizowane pod matryce VA
+        global_theme_BackGround_color  = 0xFF06030B;
+        global_theme_Line_color        = 0xFF39FF14;
+        global_theme_Axis_color        = 0xFF405246;
+        global_theme_Grid_color        = 0xFF28362D;
+        global_theme_SubSegments_color = 0xFF0E1411;
+        global_theme_Font_color        = 0xFFB4CDB9;
+    }
+
+    // ==========================================================
+    // 1. KLASYKI I UŻYTECZNE
+    // ==========================================================
+
+    inline void ShiftDownLight() {
+        // "Soft Pastel / Textbook"
+        global_theme_BackGround_color  = 0xFFF0EBE1;
+        global_theme_Line_color        = 0xFF5A7684;
+        global_theme_Axis_color        = 0xFF8A857F;
+        global_theme_Grid_color        = 0xFFC9C3BB;
+        global_theme_SubSegments_color = 0xFFDDD7CF;
+        global_theme_Font_color        = 0xFF4A4A4A;
+    }
+
+    inline void ShiftDownDark() {
+        // "One Dark Pro"
+        global_theme_BackGround_color  = 0xFF282C34;
+        global_theme_Line_color        = 0xFFC678DD;
+        global_theme_Axis_color        = 0xFFABB2BF;
+        global_theme_Grid_color        = 0xFF3E4451;
+        global_theme_SubSegments_color = 0xFF2D313A;
+        global_theme_Font_color        = 0xFFE5C07B;
+    }
+
+    // ==========================================================
+    // 2. DATA SCIENCE & DESIGN
+    // ==========================================================
+
+    inline void ShiftDownMinimal() {
+        // "Soft E-Ink"
+        global_theme_BackGround_color  = 0xFFD2D4D6;
+        global_theme_Line_color        = 0xFF606468;
+        global_theme_Axis_color        = 0xFF888D92;
+        global_theme_Grid_color        = 0xFFB8BCC0;
+        global_theme_SubSegments_color = 0xFFC5C8CB;
+        global_theme_Font_color        = 0xFF404448;
+    }
+
+    inline void ShiftDownSolarizedDark() {
+        // "Solarized"
+        global_theme_BackGround_color  = 0xFF002B36;
+        global_theme_Line_color        = 0xFF2AA198;
+        global_theme_Axis_color        = 0xFF839496;
+        global_theme_Grid_color        = 0xFF073642;
+        global_theme_SubSegments_color = 0xFF03303B;
+        global_theme_Font_color        = 0xFFB58900;
+    }
+
+    // ==========================================================
+    // 3. ESTETYCZNE / KLIMATYCZNE
+    // ==========================================================
+
+    inline void ShiftDownGentleman() {
+        // Klimat premium
+        global_theme_BackGround_color  = 0xFF2A2825;
+        global_theme_Line_color        = 0xFFD4AF37;
+        global_theme_Axis_color        = 0xFF8C7B65;
+        global_theme_Grid_color        = 0xFF3E3A35;
+        global_theme_SubSegments_color = 0xFF302E2B;
+        global_theme_Font_color        = 0xFFF5E6CC;
+    }
+
+    inline void ShiftDownBrutalist() {
+        // maksymalny techniczny kontrast
+        global_theme_BackGround_color  = 0xFF111111;
+        global_theme_Line_color        = 0xFFFF3300;
+        global_theme_Axis_color        = 0xFFFFFFFF;
+        global_theme_Grid_color        = 0xFF333333;
+        global_theme_SubSegments_color = 0xFF191919;
+        global_theme_Font_color        = 0xFFFFFF00;
+    }
+
+    inline void ShiftDownCyberpunk() {
+        // Night City vibes
+        global_theme_BackGround_color  = 0xFF0D0221;
+        global_theme_Line_color        = 0xFFFCE205;
+        global_theme_Axis_color        = 0xFFFF003C;
+        global_theme_Grid_color        = 0xFF261447;
+        global_theme_SubSegments_color = 0xFF150A2A;
+        global_theme_Font_color        = 0xFF00FFFF;
+    }
+
+    inline void ShiftDownBareMetal() {
+        // Kolory płytki PCB
+        global_theme_BackGround_color  = 0xFF004225;
+        global_theme_Line_color        = 0xFFFFD700;
+        global_theme_Axis_color        = 0xFFC0C0C0;
+        global_theme_Grid_color        = 0xFF002B18;
+        global_theme_SubSegments_color = 0xFF003A20;
+        global_theme_Font_color        = 0xFFFFFFFF;
+    }
+
+    // ==========================================================
+    // 4. POJEBANE / DO TESTÓW
+    // ==========================================================
+
+    inline void ShiftDownHelpMe() {
+        // "Missing Source Texture"
+        global_theme_BackGround_color  = 0xFFFF00FF;
+        global_theme_Line_color        = 0xFF00FF00;
+        global_theme_Axis_color        = 0xFF00FFFF;
+        global_theme_Grid_color        = 0xFFFFFF00;
+        global_theme_SubSegments_color = 0xFFFF1AFF;
+        global_theme_Font_color        = 0xFFFF0000;
+    }
+
+    // ==========================================================
+    // 5. TRYB RNG ( LOSOWE KOLORY )
+    // ==========================================================
+    inline uint32_t generate_random_argb() {
+        return 0xFF000000 | ((std::rand() % 256) << 16) | ((std::rand() % 256) << 8) | (std::rand() % 256);
+    }
+
+    inline void ShiftDownRNG() {
+        global_theme_BackGround_color  = generate_random_argb();
+        global_theme_Line_color        = generate_random_argb();
+        global_theme_Axis_color        = generate_random_argb();
+        global_theme_Grid_color        = generate_random_argb();
+        global_theme_SubSegments_color = generate_random_argb();
+        global_theme_Font_color        = generate_random_argb();
+    }
+}
 
 #pragma region Instrukcja obsługi
 /*
@@ -527,7 +589,7 @@ int main() {
         Przykład: 0xFF7D7D7D lub Colors::GRAY -> daje kolor szary
 
         Wartości na wykresach, czasem Amplituda jest w zakresie od np 1 do -0.984 albo coś około tego, wynika to niestety z akumulacji błędu zmiennoprzecinkowego (IEEE 754, Metody Numeryczne) pewnie da się to ręcznie zabezpieczyć
-        ale nie miałem na to ochoty, więc jeśli komuś przeszkadza można w funkcji rysującej Graph, sekcja values on x i values on y, dodać bramke przed wysłaniem wartości do funkcji detail_no_need_to_think_about_it::float_to_char, która wyrówna wartości
+        ale nie miałem na to ochoty, więc jeśli komuś przeszkadza można w funkcji rysującej Graph, sekcja values on x i values on y, dodać bramke przed wysłaniem wartości do funkcji z_detail_no_need_to_think_about_it::float_to_char, która wyrówna wartości
         do tego co powinno być, problem nie pojawia się zawsze ale czasem, i jest to specyfika działania tego tworu, ja mówie że to funkcjonalność, może kiedyś sam poprawie w wolnym czasie.
 
         Windows, a Linux. Domyślnie wszystko jest napisane i przetestowane na Linux Fedora 43, działa bez problemu, Na windows też powinno ale nic nie mogę obiecać, niech się cieszą że w ogole mi się chciało o nich pamiętać
@@ -758,7 +820,7 @@ int main() {
     };
 
     // stuff I wanted to hide from the UI, not needed by the user to enjoy the library, only used by the engine itself
-    namespace detail_no_need_to_think_about_it
+    namespace z_detail_no_need_to_think_about_it
     {
         // saving texture / picture / image, .png or .bmp, png is made via os commands, and is much slower, read instructions
         static void save_texture_to_file(const uint32_t* texture, uint32_t width, uint32_t height, const char* file_path) {
@@ -1384,19 +1446,25 @@ int main() {
         // index:
         // 0 = 8k default, created and tested with it in mind
         // 1 = 4k
-        // 2 = full hd
         uint32_t picture_size_index = 0;
-        uint32_t picture_width[3]{7680, 7680 / 2, 7680 / 4};
-        uint32_t picture_height[3]{4320, 4320 / 2, 4320 / 4};
+        uint32_t picture_width[2]{7680, 7680 / 2};
+        uint32_t picture_height[2]{4320, 4320 / 2};
 
-        //default values, chosen by me for 8k resolution, works well with 4k also, full hd may cause some issues because of every pixel being calculated by hand (paddings  and stuff, I mean)
+        //default values, chosen by me for 8k resolution, works well with 4k also
         // in pixels
         uint32_t line_thickness = 4;
         uint32_t grid_thickness = 4;
         uint32_t axis_thickness = 4;
+        uint32_t sub_segments_thickness = 2;
         // text scale
         uint32_t values_text_scale = 6;
         uint32_t labels_text_scale = 10;
+
+        //paddings for manual tweaking
+        uint32_t padding_left_x = 556;
+        uint32_t padding_right_x = 224;
+        uint32_t padding_top_y = 260;
+        uint32_t padding_bot_y = 380;
 
         // multithreading included in constructor, keep in mind, in order to fully exploit it, capp the max graph rendered in one function to the amount of threads in your cpu
         // in other case it may slow down the code instead, because of the constant context switching by the os, any way it should work one way or another
@@ -1405,14 +1473,9 @@ int main() {
         uint32_t* texture = nullptr;
 
     public:
-        Graph(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        Graph(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
             graph_thread = std::thread([=, this]() {
-
-                // just in case someone uses full hd, if the user wants to set paddings and stuff manually it is not needed
-                if (picture_size_index == 2) {
-                    values_text_scale *= 1.5;
-                }
 
                 //math section
                 uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
@@ -1432,11 +1495,11 @@ int main() {
                     max_y = function_to_render->f_t[i] > max_y ? function_to_render->f_t[i] : max_y;
                 }
 
-                uint32_t padding_left_x = 552 / divider;
-                uint32_t padding_right_x = 224 / divider;
+                padding_left_x /= divider;
+                padding_right_x /= divider;
 
-                uint32_t padding_top_y = 240 / divider;
-                uint32_t padding_bot_y = 360 / divider;
+                padding_top_y /= divider;
+                padding_bot_y /= divider;
 
                 uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
                 uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
@@ -1483,7 +1546,7 @@ int main() {
                 while ((name_label[end] != '\0') && (name_label[end] != '\n')) {
                     end++;
                 }
-                detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
+                z_detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
                 name.add_text(name_label, font_color);
 
                 uint32_t skala_textu_name = labels_text_scale / divider;
@@ -1508,7 +1571,7 @@ int main() {
                 while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
                     end++;
                 }
-                detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
+                z_detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
                 os_y.add_text(y_label, font_color);
 
                 auto* rotated_texture = static_cast<uint32_t*>(_mm_malloc(
@@ -1547,7 +1610,7 @@ int main() {
                 while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
                     end++;
                 }
-                detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
+                z_detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
                 os_x.add_text(x_label, font_color);
 
                 uint32_t skala_textu_os_x = labels_text_scale / divider;
@@ -1573,8 +1636,8 @@ int main() {
                 char value[32];
                 uint32_t skala_textu_value_x = values_text_scale / divider;
                 for (uint32_t i = 1; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                    value_x.add_text(detail_no_need_to_think_about_it::float_to_char(function_to_render->Tc / segments_count * (float)i, value, 3), font_color);
+                    z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+                    value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(function_to_render->Tc / segments_count * (float)i, value, 3), font_color);
                     uint32_t length_value = 0;
                     while (value[length_value] != '\n') {
                         if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -1605,8 +1668,8 @@ int main() {
                         pozycja_y += skala_textu_value_x;
                     }
                 }
-                detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail_no_need_to_think_about_it::float_to_char(function_to_render->Tc, value, 3),
+                z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+                value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(function_to_render->Tc, value, 3),
                                  font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
@@ -1641,8 +1704,8 @@ int main() {
                 float step_y = (max_y - min_y) / static_cast<float>(segments_count);
 
                 for (uint32_t i = 0; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-                    value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
+                    z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+                    value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
                     length_value = 0;
                     while (value[length_value] != '\n') {
                         if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -1674,8 +1737,8 @@ int main() {
                         pozycja_y += skala_textu_value_y;
                     }
                 }
-                detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-                value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
+                z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+                value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
                                  font_color);
                 length_value = 0;
                 while (value[length_value] != '\n') {
@@ -1705,40 +1768,58 @@ int main() {
                     pozycja_y += skala_textu_value_y;
                 }
 
-                // grid on x
-                for (uint32_t i = 0; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], 0 + padding_top_y, grid_color, grid_thickness / divider);
+
+
+                //sub segments on x
+                uint32_t sub_segments_count = 20;
+                uint32_t sub_segments_count_x = sub_segments_count * segments_count;
+                uint32_t sub_steps_x = function_to_render->N / (float)sub_segments_count_x;
+                for (uint32_t i = 0; i < sub_segments_count_x; i++) {
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[(sub_steps_x * i) - ((sub_steps_x * i) > 0)], picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[(sub_steps_x * i) - ((sub_steps_x * i) > 0)], 0 + padding_top_y, sub_segments_color, sub_segments_thickness / divider);
                 }
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render->N - 1],
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render->N - 1],
                           picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[function_to_render->N - 1], 0 + padding_top_y,
-                          grid_color, grid_thickness / divider);
+                          sub_segments_color, sub_segments_thickness / divider);
 
                 // grid on y
+                uint32_t kurwa_zmienna_2 = graph_height / (sub_segments_count * segments_count);
                 for (uint32_t i = 0; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
+                    for (uint32_t j = 0; j < sub_segments_count; j++) {
+                        z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i) + (kurwa_zmienna_2 * j),
+                                  picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i) + (kurwa_zmienna_2 * j) , sub_segments_color, sub_segments_thickness / divider);
+                    }
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
                               picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, grid_thickness / divider);
                 }
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
                           picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, grid_thickness / divider);
+
+                // grid on x
+                for (uint32_t i = 0; i < segments_count; i++) {
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], 0 + padding_top_y, grid_color, grid_thickness / divider);
+                }
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render->N - 1],
+                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[function_to_render->N - 1], 0 + padding_top_y,
+                          grid_color, grid_thickness / divider);
 
 
                 // os x
                 if (min_y <= 0.0f && max_y >= 0.0f) {
                     uint32_t zero_y_pixel = offset_y + padding_top_y;
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, axis_thickness / divider);
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, axis_thickness / divider);
                 }
                 // os y
                 if (scaled_x[0] <= 0) {
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color, axis_thickness / divider);
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color, axis_thickness / divider);
                 }
                 // wykres
                 for (uint32_t i = 0; i < function_to_render->N - 1; i++) {
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i],
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i],
                               scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, line_thickness / divider);
                 }
 
                 //zapis na dysk
-                detail_no_need_to_think_about_it::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
+                z_detail_no_need_to_think_about_it::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
 
                 _mm_free(scaled_y);
                 _mm_free(scaled_x);
@@ -1746,14 +1827,9 @@ int main() {
                 _mm_free(scaled_uint_y);
             });
         }
-        Graph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        Graph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
             graph_thread = std::thread([=, this]() {
-
-                // just in case someone uses full hd, if the user wants to set paddings and stuff manually it is not needed
-                if (picture_size_index == 2) {
-                    values_text_scale *= 1.5;
-                }
 
                 //math section
                 uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
@@ -1775,11 +1851,11 @@ int main() {
                     max_y = dft_to_render->mod_z[i] > max_y ? dft_to_render->mod_z[i] : max_y;
                 }
 
-                uint32_t padding_left_x = 552 / divider;
-                uint32_t padding_right_x = 224 / divider;
+                padding_left_x /= divider;
+                padding_right_x /= divider;
 
-                uint32_t padding_top_y = 240 / divider;
-                uint32_t padding_bot_y = 360 / divider;
+                padding_top_y /= divider;
+                padding_bot_y /= divider;
 
                 uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
                 uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
@@ -1833,7 +1909,7 @@ int main() {
                 while ((name_label[end] != '\0') && (name_label[end] != '\n')) {
                     end++;
                 }
-                detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
+                z_detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
                 name.add_text(name_label, font_color);
 
                 uint32_t skala_textu_name = labels_text_scale / divider;
@@ -1859,7 +1935,7 @@ int main() {
                 while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
                     end++;
                 }
-                detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
+                z_detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
                 os_y.add_text(y_label, font_color);
 
                 auto* rotated_texture = static_cast<uint32_t*>(_mm_malloc(
@@ -1900,7 +1976,7 @@ int main() {
                 while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
                     end++;
                 }
-                detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
+                z_detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
                 os_x.add_text(x_label, font_color);
 
                 uint32_t skala_textu_os_x = labels_text_scale / divider;
@@ -1931,8 +2007,8 @@ int main() {
                 uint32_t skala_textu_value_x = values_text_scale / divider;
                 uint32_t step_x = (K_render - 1) / segments_count;
                 for (uint32_t i = 1; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                    value_x.add_text(detail_no_need_to_think_about_it::float_to_char(dft_to_render->fk[step_x * i], value, 3), font_color);
+                    z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+                    value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(dft_to_render->fk[step_x * i], value, 3), font_color);
                     uint32_t length_value = 0;
                     while (value[length_value] != '\n') {
                         if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -1963,8 +2039,8 @@ int main() {
                         pozycja_y += skala_textu_value_x;
                     }
                 }
-                detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail_no_need_to_think_about_it::float_to_char(dft_to_render->fk[step_x * segments_count], value, 3),
+                z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+                value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(dft_to_render->fk[step_x * segments_count], value, 3),
                                  font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
@@ -2002,8 +2078,8 @@ int main() {
                 float step_y = (max_y - min_y) / static_cast<float>(segments_count);
 
                 for (uint32_t i = 0; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-                    value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
+                    z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+                    value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
                     length_value = 0;
                     while (value[length_value] != '\n') {
                         if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -2035,8 +2111,8 @@ int main() {
                         pozycja_y += skala_textu_value_y;
                     }
                 }
-                detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-                value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
+                z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+                value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
                                  font_color);
                 length_value = 0;
                 while (value[length_value] != '\n') {
@@ -2071,39 +2147,39 @@ int main() {
 
                 // grid on x
                 for (uint32_t i = 0; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
                               picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, grid_thickness / divider);
                 }
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
                           picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count], 0 + padding_top_y,
                           grid_color, grid_thickness / divider);
 
                 // grid on y
                 for (uint32_t i = 0; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
                               picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, grid_thickness / divider);
                 }
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
                           picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_thickness, line_thickness / divider);
 
                 // os x
                 if (min_y <= 0.0f && max_y >= 0.0f) {
                     uint32_t zero_y_pixel = offset_y + padding_top_y;
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, axis_thickness / divider);
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, axis_thickness / divider);
                 }
                 // os y
                 if (scaled_x[0] <= 0) {
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                     picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
                               axis_thickness / divider);
                 }
                 // wykres
                 for (uint32_t i = 0; i < K_render; i++) {
                     uint32_t zero_y_pixel = offset_y + padding_top_y;
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, line_thickness / divider);
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, line_thickness / divider);
                 }
 
-                detail_no_need_to_think_about_it::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
+                z_detail_no_need_to_think_about_it::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
 
                 _mm_free(scaled_y);
                 _mm_free(scaled_x);
@@ -2111,14 +2187,9 @@ int main() {
                 _mm_free(scaled_uint_y);
             });
         }
-        Graph(const FFT* fft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        Graph(const FFT* fft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
             graph_thread = std::thread([=, this]() {
-
-                // just in case someone uses full hd, if the user wants to set paddings and stuff manually it is not needed
-                if (picture_size_index == 2) {
-                    values_text_scale *= 1.5;
-                }
 
                 //math section
                 uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
@@ -2141,11 +2212,11 @@ int main() {
                     max_y = fft_to_render->mod_z[i] > max_y ? fft_to_render->mod_z[i] : max_y;
                 }
 
-                uint32_t padding_left_x = 552 / divider;
-                uint32_t padding_right_x = 224 / divider;
+                padding_left_x /= divider;
+                padding_right_x /= divider;
 
-                uint32_t padding_top_y = 240 / divider;
-                uint32_t padding_bot_y = 360 / divider;
+                padding_top_y /= divider;
+                padding_bot_y /= divider;
 
                 uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x;
                 uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y;
@@ -2199,7 +2270,7 @@ int main() {
                 while ((name_label[end] != '\0') && (name_label[end] != '\n')) {
                     end++;
                 }
-                detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
+                z_detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
                 name.add_text(name_label, font_color);
 
                 uint32_t skala_textu_name = labels_text_scale / divider;
@@ -2225,7 +2296,7 @@ int main() {
                 while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
                     end++;
                 }
-                detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
+                z_detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
                 os_y.add_text(y_label, font_color);
 
                 auto* rotated_texture = static_cast<uint32_t*>(_mm_malloc(
@@ -2266,7 +2337,7 @@ int main() {
                 while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
                     end++;
                 }
-                detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
+                z_detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
                 os_x.add_text(x_label, font_color);
 
                 uint32_t skala_textu_os_x = labels_text_scale / divider;
@@ -2297,8 +2368,8 @@ int main() {
                 uint32_t skala_textu_value_x = values_text_scale / divider;
                 uint32_t step_x = ((K_render - 1) / segments_count);
                 for (uint32_t i = 1; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                    value_x.add_text(detail_no_need_to_think_about_it::float_to_char(fft_to_render->fk[step_x * i], value, 3), font_color);
+                    z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+                    value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(fft_to_render->fk[step_x * i], value, 3), font_color);
                     uint32_t length_value = 0;
                     while (value[length_value] != '\n') {
                         if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -2327,8 +2398,8 @@ int main() {
                         pozycja_y += skala_textu_value_x;
                     }
                 }
-                detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail_no_need_to_think_about_it::float_to_char(fft_to_render->fk[step_x * segments_count], value, 3),
+                z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+                value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(fft_to_render->fk[step_x * segments_count], value, 3),
                                  font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
@@ -2366,8 +2437,8 @@ int main() {
                 float step_y = (max_y - min_y) / static_cast<float>(segments_count);
 
                 for (uint32_t i = 0; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-                    value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
+                    z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+                    value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
                     length_value = 0;
                     while (value[length_value] != '\n') {
                         if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -2399,8 +2470,8 @@ int main() {
                         pozycja_y += skala_textu_value_y;
                     }
                 }
-                detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-                value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
+                z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+                value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
                                  font_color);
                 length_value = 0;
                 while (value[length_value] != '\n') {
@@ -2432,39 +2503,39 @@ int main() {
 
                 // grid on x
                 for (uint32_t i = 0; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
                               picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, grid_thickness / divider);
                 }
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
                           picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count], 0 + padding_top_y,
                           grid_color, grid_thickness / divider);
 
                 // grid on y
                 for (uint32_t i = 0; i < segments_count; i++) {
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
                               picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, grid_thickness / divider);
                 }
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
                           picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, grid_thickness / divider);
 
                 // os x
                 if (min_y <= 0.0f && max_y >= 0.0f) {
                     uint32_t zero_y_pixel = offset_y + padding_top_y;
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, axis_thickness / divider);
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, axis_thickness / divider);
                 }
                 // os y
                 if (scaled_x[0] <= 0) {
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                     picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
                               axis_thickness / divider);
                 }
                 // wykres
                 for (uint32_t i = 0; i < K_render; i++) {
                     uint32_t zero_y_pixel = offset_y + padding_top_y;
-                    detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, line_thickness / divider);
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, line_thickness / divider);
                 }
 
-                detail_no_need_to_think_about_it::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
+                z_detail_no_need_to_think_about_it::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
 
                 _mm_free(scaled_y);
                 _mm_free(scaled_x);
@@ -2582,7 +2653,7 @@ int main() {
             while ((name_label[end] != '\0') && (name_label[end] != '\n')) {
                 end++;
             }
-            detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
+            z_detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
             name.add_text(name_label, font_color);
 
             uint32_t skala_textu_name = 16 / divider;
@@ -2607,7 +2678,7 @@ int main() {
             while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
                 end++;
             }
-            detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
+            z_detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
             os_y.add_text(y_label, font_color);
 
             auto* rotated_texture = static_cast<uint32_t*>(_mm_malloc(
@@ -2648,7 +2719,7 @@ int main() {
             while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
                 end++;
             }
-            detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
+            z_detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
             os_x.add_text(x_label, font_color);
 
             uint32_t skala_textu_os_x = 16 / divider;
@@ -2678,8 +2749,8 @@ int main() {
             char value[32];
             uint32_t skala_textu_value_x = 8 / divider;
             for (uint32_t i = 1; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail_no_need_to_think_about_it::float_to_char(function_to_render->Tc * (float)i, value, 3), font_color);
+                z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+                value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(function_to_render->Tc * (float)i, value, 3), font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -2710,8 +2781,8 @@ int main() {
                     pozycja_y += skala_textu_value_x;
                 }
             }
-            detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-            value_x.add_text(detail_no_need_to_think_about_it::float_to_char(function_to_render->Tc, value, 3),
+            z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+            value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(function_to_render->Tc, value, 3),
                              font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
@@ -2746,8 +2817,8 @@ int main() {
             float step_y = (max_y - min_y) / static_cast<float>(segments_count);
 
             for (uint32_t i = 0; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-                value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
+                z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+                value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
                 length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -2779,8 +2850,8 @@ int main() {
                     pozycja_y += skala_textu_value_y;
                 }
             }
-            detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-            value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
+            z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+            value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
                              font_color);
             length_value = 0;
             while (value[length_value] != '\n') {
@@ -2812,18 +2883,18 @@ int main() {
 
             // grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], 0 + padding_top_y, grid_color, 16 / divider);
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], 0 + padding_top_y, grid_color, 16 / divider);
             }
-            detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render->N - 1],
+            z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render->N - 1],
                       picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[function_to_render->N - 1], 0 + padding_top_y,
                       grid_color, 16 / divider);
 
             // grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
                           picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / divider);
             }
-            detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
+            z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
                       picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / divider);
 
 
@@ -2831,17 +2902,17 @@ int main() {
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
 
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / divider);
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / divider);
             }
             // os y
             if (scaled_x[0] <= 0) {
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                           picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
                           16 / divider);
             }
             // wykres
             for (uint32_t i = 0; i < function_to_render->N - 1; i++) {
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i],
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i],
                           scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, 4 / divider);
             }
 
@@ -2932,7 +3003,7 @@ int main() {
             while ((name_label[end] != '\0') && (name_label[end] != '\n')) {
                 end++;
             }
-            detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
+            z_detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
             name.add_text(name_label, font_color);
 
             uint32_t skala_textu_name = 16 / divider;
@@ -2958,7 +3029,7 @@ int main() {
             while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
                 end++;
             }
-            detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
+            z_detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
             os_y.add_text(y_label, font_color);
 
             auto* rotated_texture = static_cast<uint32_t*>(_mm_malloc(
@@ -2999,7 +3070,7 @@ int main() {
             while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
                 end++;
             }
-            detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
+            z_detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
             os_x.add_text(x_label, font_color);
 
             uint32_t skala_textu_os_x = 16 / divider;
@@ -3030,8 +3101,8 @@ int main() {
             uint32_t skala_textu_value_x = 8 / divider;
             uint32_t step_x = (K_render - 1) / segments_count;
             for (uint32_t i = 1; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail_no_need_to_think_about_it::float_to_char(dft_to_render->fk[step_x * i], value, 3), font_color);
+                z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+                value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(dft_to_render->fk[step_x * i], value, 3), font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -3062,8 +3133,8 @@ int main() {
                     pozycja_y += skala_textu_value_x;
                 }
             }
-            detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-            value_x.add_text(detail_no_need_to_think_about_it::float_to_char(dft_to_render->fk[step_x * segments_count], value, 3),
+            z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+            value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(dft_to_render->fk[step_x * segments_count], value, 3),
                              font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
@@ -3101,8 +3172,8 @@ int main() {
             float step_y = (max_y - min_y) / static_cast<float>(segments_count);
 
             for (uint32_t i = 0; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-                value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
+                z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+                value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
                 length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -3134,8 +3205,8 @@ int main() {
                     pozycja_y += skala_textu_value_y;
                 }
             }
-            detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-            value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
+            z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+            value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
                              font_color);
             length_value = 0;
             while (value[length_value] != '\n') {
@@ -3170,36 +3241,36 @@ int main() {
 
             // grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
                           picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / divider);
             }
-            detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
+            z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
                       picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count], 0 + padding_top_y,
                       grid_color, 16 / divider);
 
             // grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
                           picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / divider);
             }
-            detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
+            z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
                       picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / divider);
 
             // os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / divider);
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / divider);
             }
             // os y
             if (scaled_x[0] <= 0) {
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                 picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
                           16 / divider);
             }
             // wykres
             for (uint32_t i = 0; i < K_render; i++) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 4 / divider);
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 4 / divider);
             }
 
             _mm_free(scaled_y);
@@ -3289,7 +3360,7 @@ int main() {
             while ((name_label[end] != '\0') && (name_label[end] != '\n')) {
                 end++;
             }
-            detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
+            z_detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
             name.add_text(name_label, font_color);
 
             uint32_t skala_textu_name = 16 / divider;
@@ -3315,7 +3386,7 @@ int main() {
             while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
                 end++;
             }
-            detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
+            z_detail_no_need_to_think_about_it::TextBox os_y(end, 1, background_color);
             os_y.add_text(y_label, font_color);
 
             auto* rotated_texture = static_cast<uint32_t*>(_mm_malloc(
@@ -3356,7 +3427,7 @@ int main() {
             while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
                 end++;
             }
-            detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
+            z_detail_no_need_to_think_about_it::TextBox os_x(end, 1, background_color);
             os_x.add_text(x_label, font_color);
 
             uint32_t skala_textu_os_x = 16 / divider;
@@ -3387,8 +3458,8 @@ int main() {
             uint32_t skala_textu_value_x = 8 / divider;
             uint32_t step_x = ((K_render - 1) / segments_count);
             for (uint32_t i = 1; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail_no_need_to_think_about_it::float_to_char(fft_to_render->fk[step_x * i], value, 3), font_color);
+                z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+                value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(fft_to_render->fk[step_x * i], value, 3), font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -3417,8 +3488,8 @@ int main() {
                     pozycja_y += skala_textu_value_x;
                 }
             }
-            detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-            value_x.add_text(detail_no_need_to_think_about_it::float_to_char(fft_to_render->fk[step_x * segments_count], value, 3),
+            z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
+            value_x.add_text(z_detail_no_need_to_think_about_it::float_to_char(fft_to_render->fk[step_x * segments_count], value, 3),
                              font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
@@ -3456,8 +3527,8 @@ int main() {
             float step_y = (max_y - min_y) / static_cast<float>(segments_count);
 
             for (uint32_t i = 0; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-                value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
+                z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+                value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
                 length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -3489,8 +3560,8 @@ int main() {
                     pozycja_y += skala_textu_value_y;
                 }
             }
-            detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
-            value_y.add_text(detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
+            z_detail_no_need_to_think_about_it::TextBox value_y(7, 1, background_color);
+            value_y.add_text(z_detail_no_need_to_think_about_it::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
                              font_color);
             length_value = 0;
             while (value[length_value] != '\n') {
@@ -3522,36 +3593,36 @@ int main() {
 
             // grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * i],
                           picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * i], 0 + padding_top_y, grid_color, 16 / divider);
             }
-            detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
+            z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[step_x * segments_count],
                       picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[step_x * segments_count], 0 + padding_top_y,
                       grid_color, 16 / divider);
 
             // grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
                           picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / divider);
             }
-            detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
+            z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
                       picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / divider);
 
             // os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / divider);
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / divider);
             }
             // os y
             if (scaled_x[0] <= 0) {
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
                 picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
                           16 / divider);
             }
             // wykres
             for (uint32_t i = 0; i < K_render; i++) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 4 / divider);
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 4 / divider);
             }
 
             _mm_free(scaled_y);
@@ -3588,7 +3659,7 @@ int main() {
             for (uint32_t i = 0; i < function_to_render->N - 1; i++) {
                 if (scaled_uint_x[i] > picture_width[picture_size_index] - padding_right_x || scaled_uint_x[i] < padding_left_x) continue;
                 if (scaled_uint_y[i] > picture_height[picture_size_index] - padding_bot_y || scaled_uint_y[i] < padding_top_y) continue;
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, 4 / divider);
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, 4 / divider);
             }
             _mm_free(scaled_y);
             _mm_free(scaled_x);
@@ -3618,7 +3689,7 @@ int main() {
                 if (scaled_uint_x[i] > picture_width[picture_size_index] - padding_right_x || scaled_uint_x[i] < padding_left_x) continue;
                 if (scaled_uint_y[i] > picture_height[picture_size_index] - padding_bot_y || scaled_uint_y[i] < padding_top_y) continue;
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 4 / divider);
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 4 / divider);
             }
             _mm_free(scaled_y);
             _mm_free(scaled_x);
@@ -3648,7 +3719,7 @@ int main() {
                 if (scaled_uint_x[i] > picture_width[picture_size_index] - padding_right_x || scaled_uint_x[i] < padding_left_x) continue;
                 if (scaled_uint_y[i] > picture_height[picture_size_index] - padding_bot_y || scaled_uint_y[i] < padding_top_y) continue;
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
-                detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 4 / divider);
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, 4 / divider);
             }
             _mm_free(scaled_y);
             _mm_free(scaled_x);
@@ -3659,7 +3730,7 @@ int main() {
         // to zapisuje przygotowany multi grapg na dysk jako zdjęcie
         void GenerateGraphMulti() {
             multigraph_thread = std::thread([this]() {
-                detail_no_need_to_think_about_it::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
+                z_detail_no_need_to_think_about_it::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
             });
         }
     };
