@@ -1837,10 +1837,16 @@ int main() {
                 _mm_free(scaled_uint_y);
             });
         }
-        Graph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+
+        // log scale tension: 0 == off, 1 == log2f scale, 0 < value < 1 == better low frequencies visibility, value > 1 == better higher frequencies visibility
+        Graph(const DFT* dft_to_render, float db_scale_y = 0.f, float log_scale_tension = 0.f, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
             graph_thread = std::thread([=, this]() {
-
+                if (log_scale_tension > 0.f) {
+                    for (uint64_t k = 0; k < dft_to_render->K; k++) {
+                        dft_to_render->fk[k] > 1.f ? dft_to_render->fk[k] = powf(log2f(dft_to_render->fk[k]), log_scale_tension) : 0;
+                    }
+                }
                 //math section
                 uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
                 uint32_t divider = picture_size_index * 2;
@@ -2007,13 +2013,14 @@ int main() {
 
                 // values on x
                 uint32_t segments_count = 8;
-
+                uint32_t grid_cords = graph_width / segments_count;
+                float log_scale_segments_values = dft_to_render->fk[(K_render - 1)] / segments_count;
                 char value[32];
                 uint32_t skala_textu_value_x = values_text_scale / divider;
                 for (uint32_t i = 1; i < segments_count; i++) {
 
                     z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                    z_detail_no_need_to_think_about_it::float_to_engineering_7chars(dft_to_render->fk[((K_render - 1) * i) / segments_count], value);
+                    log_scale_tension > 0.0f ? z_detail_no_need_to_think_about_it::float_to_engineering_7chars(powf(2, powf(log_scale_segments_values * i, 1.f / log_scale_tension)), value) : z_detail_no_need_to_think_about_it::float_to_engineering_7chars(dft_to_render->fk[((K_render - 1) * i) / segments_count], value);
                     value_x.add_text(value, font_color);
 
                     center = value[0] == '-' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) - (skala_textu_value_x << 1));
@@ -2025,9 +2032,7 @@ int main() {
                         for (uint32_t x = 0; x < value_x.texture_width; x++) {
                             for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                                 for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                                    texture[(sx + pozycja_x + scaled_uint_x[((K_render - 1) * i) / segments_count] +
-                                             ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) -
-                                            center] = value_x.texture[x + (y * value_x.texture_width)];
+                                    texture[(sx + pozycja_x + (grid_cords * i) + padding_left_x + ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) - center] = value_x.texture[x + (y * value_x.texture_width)];
                                 }
                             }
                             pozycja_x += skala_textu_value_x;
@@ -2036,7 +2041,8 @@ int main() {
                     }
                 }
                 z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                z_detail_no_need_to_think_about_it::float_to_engineering_7chars(dft_to_render->fk[(K_render - 1)], value);
+                log_scale_tension > 0.0f ? z_detail_no_need_to_think_about_it::float_to_engineering_7chars(powf(2, powf(dft_to_render->fk[(K_render - 1)], 1.f / log_scale_tension)), value) : z_detail_no_need_to_think_about_it::float_to_engineering_7chars(dft_to_render->fk[(K_render - 1)], value);
+
                 value_x.add_text(value, font_color);
 
                 center = value[0] == '-' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) - (skala_textu_value_x << 1));
@@ -2047,9 +2053,7 @@ int main() {
                     for (uint32_t x = 0; x < value_x.texture_width; x++) {
                         for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                                texture[(sx + pozycja_x + scaled_uint_x[(K_render - 1)] +
-                                         ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) -
-                                        center] = value_x.texture[x + (y * value_x.texture_width)];
+                                texture[(sx + pozycja_x + graph_width + padding_left_x + ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) - center] = value_x.texture[x + (y * value_x.texture_width)];
                             }
                         }
                         pozycja_x += skala_textu_value_x;
@@ -2135,15 +2139,13 @@ int main() {
                           picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, grid_thickness / divider);
 
 
-
+                // siatke rysuje sztywno po szerokosci, na przeskalowanych wartosciach, i podstawiam je potem i tyle i guess, slupki mi sie ladnie dostroja juz ogolnie, do tego
                 // grid on x
+
                 for (uint32_t i = 0; i < segments_count; i++) {
-                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[((K_render - 1) * i) / segments_count],
-                              picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[((K_render - 1) * i) / segments_count], 0 + padding_top_y, grid_color, grid_thickness / divider);
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], grid_cords * i + padding_left_x, picture_height[picture_size_index] - padding_bot_y, grid_cords * i + padding_left_x, 0 + padding_top_y, grid_color, grid_thickness / divider);
                 }
-                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[(K_render - 1)],
-                          picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[(K_render - 1)], 0 + padding_top_y,
-                          grid_color, grid_thickness / divider);
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], graph_width + padding_left_x, picture_height[picture_size_index] - padding_bot_y, graph_width + padding_left_x, 0 + padding_top_y, grid_color, grid_thickness / divider);
 
 
 
@@ -2190,7 +2192,7 @@ int main() {
                 _mm_free(scaled_uint_y);
             });
         }
-        Graph(const FFT* fft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        Graph(const FFT* fft_to_render, bool db_scale_y = false, bool log_scale_x = false, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
             graph_thread = std::thread([=, this]() {
 
