@@ -243,11 +243,8 @@ namespace ShiftDownFonts {
     constexpr uint64_t font_z_krop[4] = {0x1000000000000000, 0x7C00080010002000, 0x40007C0000000000, 0x0000000000000000};
 #pragma endregion
 }
-
 // właściwa biblioteka
 namespace ShiftDownFunctions {
-
-
 
 namespace ShiftDownFunctionsColorThemes
 {
