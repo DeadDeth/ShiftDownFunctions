@@ -42,7 +42,7 @@
 #endif
 
 #ifndef M_PIf
-#define M_PIf 3.14159265358979323846
+#define M_PIf 3.14159265358979323846f
 #endif
 
 // predefiniowane kolory jako ARGB
@@ -429,396 +429,6 @@ namespace ShiftDownFunctionsColorThemes
     }
 }
 
-#pragma region Instrukcja obsługi
-/*
------------------------------------------------------- KROK 1. Tworzymy funkcje cpp dla wzoru matematycznego naszej funkcji --------------------------------------------------------------------------------------------------------
-
-        float nazwa_funkcji_wzoru ([stała referencja obiektu naszej funkcji], [aktualna iteracja 'n' jako uint64_t]], [wartość naszego t dla f(t) albo x dla f(x) jako float]) {
-            ---ciało funkcji---
-            zwracamy po prostu nasz wzór matematyczny, wykorzystując wskaźnik na obiekt funkcji:
-            return [tutaj podajemy wzór]
-        }
-                                                                                ---- PRZYKŁAD ----
-
-        float sinus_formula (const Function& function_object, uint64_t n, float t) {
-            // n jest zazwyczaj niepotrzebne dla prostych funkcji, przyda się w tych bardziej złożonych lub gdy potrzebny jest index naszego t zamiast wartości
-            return function_object.A * sinf(2.f * M_PIf * function_object.f * t + function_object.PHI); //M_PIf to jest wartość liczby PI jako float
-        }
-
------------------------------------------------------- KROK 2. Tworzymy obiekt Function w main albo gdzie tam się chce --------------------------------------------------------------------------------------------------------
-
-        Function nazwa_naszej_funkcji([wartość Tc], [wartość fs], [wartość f], [wartość PHI], [wartość A], [nazwa naszej funkcji wzoru]);
-
-                                                                                ---- PRZYKŁAD ----
-                                                        ---- różne obiekty mogą dostawać ten sam wzór, nie jest to problemem ----
-
-        Function funkcja_sinus(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
-        Function funkcja_sinus_saw(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
-        Function funkcja_sinus_rec(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
-        Function funkcja_sinus_tri(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
-
------------------------------------------------------- KROK 3. Modulujemy, liczmy DFT albo Rysujemy przygotowane funkcje --------------------------------------------------------------------------------------------------------
-                                                                               ---- Modulacja ----
-                                                      --- Modulowanie funkcji tworzy nowy obiekt i zwraca wskaźnik na niego ---
-                                         --- dzieki temu nie trzeba się bać że modulacja zmieni wartości oryginalnej funkcji przed rysowaniem ---
-
-        Function* [nazwa_funkcji_zmodulowanej] = [nazwa wybranej funkcji modulującej] ([adres pamieci obiektu funkcji do modulacji], ["A" funkcji nośnej], ["fs" funkcji nośnej], ["PHI" funkcji nośnej]);
-
-        // do wyboru mamy 4 kategorie modulacji:
-            -sinusowa
-            -piłokształtna
-            -prostokątna
-            -trójkątna
-
-        // oraz 3 rodzaje każdej z nich:
-            AM - po amplitudzie
-            FM - po częstotliwości
-            PM - po PHI
-
-                                                                                ---- PRZYKŁAD ----
-
-        Function* sin_modulacja_AM_sin = modulate_AM_sin(&funkcja_sinus, 5.0f, 120.0f, 0.f);
-        Function* sin_modulacja_PM_saw = modulate_PM_saw(&funkcja_sinus, 5.0f, 120.0f, 0.f);
-        Function* sin_modulacja_FM_rec = modulate_FM_rec(&funkcja_sinus, 5.0f, 120.0f, 0.f);
-        Function* sin_modulacja_FM_tri = modulate_FM_tri(&funkcja_sinus, 5.0f, 120.0f, 0.f);
-
-                                                                                   ---- DFT ----
-                                                                            --- Tworzymy obiekt DFT ---
-        DFT [nazwa_obiektu_dft]([obiekt funkcji do narysowania]);
-
-                                                                                ---- PRZYKŁAD ----
-
-        DFT widmo_sinusa(&funkcja_sinus);
-
-                                                                                ---- Rysowanie ----
-                                                                            --- Tworzymy obiekt Graph ---
-
-        Graph [nazwa_obiektu_grafu]([obiekt funkcji do narysowania], [tekst nazwy grafu], [tekst osi X], [tekst osi Y]);
-
-                                                                                ---- PRZYKŁAD ----
-
-        Graph graf_sinus(&funkcja_sinus, "funkcja sinus", "Czas [s]", "Amplituda [A]");
-        Graph graf_sin_modulacja_AM_sin(sin_modulacja_AM_sin, "Modulacja sin, AM", "Czas [s]", "Amplituda [A]");
-        Graph graf_sin_modulacja_PM_saw(sin_modulacja_PM_saw, "Modulacja saw, PM", "Czas [s]", "Amplituda [A]");
-        Graph graf_sin_modulacja_FM_rec(sin_modulacja_FM_rec, "Modulacja rec, FM", "Czas [s]", "Amplituda [A]");
-        Graph graf_sin_modulacja_FM_tri(sin_modulacja_FM_tri, "Modulacja tri, FM", "Czas [s]", "Amplituda [A]");
-
-                                                                            --- Zasada ta sama dla DFT ---
-
-        Graph graf_widma_sinusa(&widmo_sinusa, "Widmo funkcji_sinus", "Częstotliwość [Hz]", "Amplituda [A]");
-
----------------------------------------------------------------------------------- KROK 4. DELETE --------------------------------------------------------------------------------------------------------
-
-                                                    !!! Pamiętamy o delete dla każdego obiektu stworzonego przez funkcje modulujące !!!
-
-                                                                            delete sin_modulacja_FM_tri;
-                                                                            delete sin_modulacja_FM_rec;
-                                                                            delete sin_modulacja_PM_saw;
-                                                                            delete sin_modulacja_AM_sin;
-
------------------------------------------------------------------------------- PRZYKŁADOWY KOD TESTOWY --------------------------------------------------------------------------------------------------------
-
-#include "ShiftDownFunctions.hpp"
-
-    // albo używamy:
-    // using namespace ShiftDownFunctions;
-    // albo trzeba pamiętać o pisaniu ShiftDownFunctions::, przed wszystkim co pochodzi z tego kontenera
-
-
-//KROK 1 - tworzenie wzoru funkcji
-float sinus_formula (const ShiftDownFunctions::Function& function_object, uint64_t n, float t) {
-    return function_object.A * sinf(2.f * M_PIf * function_object.f * t + function_object.PHI); //M_PIf to jest wartość liczby PI jako float
-}
-
-int main() {
-
-    //KROK 2 - tworzenie obiektów funkcji
-    ShiftDownFunctions::Function funkcja_sinus(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
-    ShiftDownFunctions::Function funkcja_sinus_saw(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
-    ShiftDownFunctions::Function funkcja_sinus_rec(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
-    ShiftDownFunctions::Function funkcja_sinus_tri(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
-
-    //KROK 3 - modulacja funkcji
-    ShiftDownFunctions::Function* sin_modulacja_AM_sin = modulate_AM_sin(&funkcja_sinus, 2.0f, 40.0f, 0.f);
-    ShiftDownFunctions::Function* sin_modulacja_PM_saw = modulate_PM_saw(&funkcja_sinus, 1.0f, 30.0f, 0.f);
-    ShiftDownFunctions::Function* sin_modulacja_FM_rec = modulate_FM_rec(&funkcja_sinus, 1.0f, 50.0f, 0.f);
-    ShiftDownFunctions::Function* sin_modulacja_FM_tri = modulate_FM_tri(&funkcja_sinus, 1.0f, 50.0f, 0.f);
-
-    //KROK 3 - tworzenie dft
-
-    DFT widmo_sinusa(&funkcja_sinus);
-
-    //KROK 3 - rysowanie funkcji
-    ShiftDownFunctions::Graph graf_sinus(&funkcja_sinus, "funkcja sinus", "Czas [s]", "Amplituda [A]");
-    ShiftDownFunctions::Graph graf_widma_sinusa(&widmo_sinusa, "Widmo funkcji_sinus", "Częstotliwość [Hz]", "Amplituda [A]"); // WIDMO
-    ShiftDownFunctions::Graph graf_sin_modulacja_AM_sin(sin_modulacja_AM_sin, "Modulacja sin, AM", "Czas [s]", "Amplituda [A]");
-    ShiftDownFunctions::Graph graf_sin_modulacja_PM_saw(sin_modulacja_PM_saw, "Modulacja saw, PM", "Czas [s]", "Amplituda [A]");
-    ShiftDownFunctions::Graph graf_sin_modulacja_FM_rec(sin_modulacja_FM_rec, "Modulacja rec, FM", "Czas [s]", "Amplituda [A]");
-    ShiftDownFunctions::Graph graf_sin_modulacja_FM_tri(sin_modulacja_FM_tri, "Modulacja tri, FM", "Czas [s]", "Amplituda [A]");
-
-
-    //rysowanie w innych kolorach tej samej funkcji
-    ShiftDownFunctions::Graph graf_sinus_red_theme(&funkcja_sinus, "funkcja sinus RED", "Czas [s]", "Amplituda [A]", Colors::BLOOD_RED, Colors::RED, Colors::PASTEL_RED, Colors::GLASS_RED);
-    ShiftDownFunctions::Graph graf_sinus_blue_theme(&funkcja_sinus, "funkcja sinus BLUE", "Czas [s]", "Amplituda [A]", Colors::MIDNIGHT_BLUE, Colors::BLUE, Colors::PASTEL_BLUE, Colors::GLASS_BLUE);
-    ShiftDownFunctions::Graph graf_sinus_purple_theme(&funkcja_sinus, "funkcja sinus PURPLE", "Czas [s]", "Amplituda [A]", Colors::DARK_PURPLE, Colors::PINK, Colors::PASTEL_PURPLE, Colors::PURPLE);
-
-    //KROK 4 - usuwanie funkcji
-    delete sin_modulacja_FM_tri;
-    delete sin_modulacja_FM_rec;
-    delete sin_modulacja_PM_saw;
-    delete sin_modulacja_AM_sin;
-
-
-
-    return 0;
-}
-
-
------------------------------------------------------------------------------------- !!! UWAGA !!! --------------------------------------------------------------------------------------------------------
-
-        Program automatycznie dokona próby zapisu do PNG i na windows i na linux, jeśli natomiast się nie uda to zachowa zdjęcia we wskazanym folderze jako bmp,
-        jeśli lokalizacja folderu nie została wskazana ręcznie, program zapisze to w miejscu gdzie zapisana jest jego binarka. Mogą występować różne fikuśne błędy i bugi, nie wiem nie testowałem
-        każdego scenariusza w razie co można starać się naprawić błąd samemu, sekcji Font lepiej nie ruszac tam znajduje się czcionka do którą wkleja się w graf, ma wymiary fizyczne 16 x 16 jakby
-        ktoś chciał podmienic natomiast faktyczne litery są 16 x 8, gdzie litera znajduje się z lewej strony tekstury, i taki format musi być zachowany,
-
-        W grafach można modyfikować kolory dla osi, czcionki, tła, wykresu, można podać wartości ARGB jako uint32_t, polecam jako hex w formacie 0xAARRGGBB, albo gotowa sekcja kolorów Colors::[nazwa gotowego koloru jaki tam jest]
-        A-alpha, od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
-        R-czerwony, od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
-        G-zielony, od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
-        B-niebieski od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
-        Przykład: 0xFF7D7D7D lub Colors::GRAY -> daje kolor szary
-
-        Wartości na wykresach, czasem Amplituda jest w zakresie od np 1 do -0.984 albo coś około tego, wynika to niestety z akumulacji błędu zmiennoprzecinkowego (IEEE 754, Metody Numeryczne) pewnie da się to ręcznie zabezpieczyć
-        ale nie miałem na to ochoty, więc jeśli komuś przeszkadza można w funkcji rysującej Graph, sekcja values on x i values on y, dodać bramke przed wysłaniem wartości do funkcji z_detail_no_need_to_think_about_it::float_to_char, która wyrówna wartości
-        do tego co powinno być, problem nie pojawia się zawsze ale czasem, i jest to specyfika działania tego tworu, ja mówie że to funkcjonalność, może kiedyś sam poprawie w wolnym czasie.
-
-        Windows, a Linux. Domyślnie wszystko jest napisane i przetestowane na Linux Fedora 43, działa bez problemu, Na windows też powinno ale nic nie mogę obiecać, niech się cieszą że w ogole mi się chciało o nich pamiętać
-        Zdjęcia są w 8k robione, skalowanie z poziomu systemu nie programu ze względu na dosyć leniwe podejście do statycznie wyliczanych odległości i zależności między elementami wykresu w celu osiągnięcia najbardziej
-        satysfakcjonujących rezultatów, gotowe zdjęcie można już skalować do woli. Pliki .png nie są tragiczne w rozmiarach, wahają się w zależności od wyglądu wykresu, .bmp natomiast to sztywne około 130MB, i uwaga
-        tutaj mówię o miejscu na dysku, w ramie i procesie tworzenia, przekraczamy te 130MB na funkcje, prosty wzór na obliczenia ile to zajmie (mniej wiecej), sama funkcja w sobie to Tc * fs * rozmiar_float (32bity) * 2,
-        bo mamy oś x i y, potem modulacje, dft i inne jako że to osobne obiekty zasada ta sama, renderowanie grafu to zawsze 8K, szerokość * wysokość * rozmiar uint32_t (32bity) co daje około 130MB
-        wiec dla funkcji o czasie Tc = 2 sekundy i fs = 32k mamy 2 * 32k * 2 czyli 128k * 32 co daje 4 096 000 bitów czyli około 0.5MB, dla czasu 4s to już 1MB dla, 10s mamy 5MB i tak dalej, wiec przy renderowaniu kilku
-        funkcji i zdjęć łatwo pójść w gigabajty pamięci RAM, tylko ostrzegam, i przypominam o magicznych delete albo robieniu każdego wykresu w osobnych funkcjach by obiekty ginęły automatycznie,
-        wraz z jej końcem (za wyjątkiem modulacji tam zawsze delete), wycieków pamięci nie widziałem ale gwarancji też nie dam więc warto mieć to gdzieś z tyłu głowy.
-
-        Dla poprawnego działania formatu .png na linux potrzeba zainstalować ImageMagick albo FFmpeg na windows jakimś cudem działa powershell script,
-
-        Komendy dla Linuxa dla działania formatowania do .png:
-
-              --- Fedora 43 i podobne ---
-        sudo dnf install ImageMagick ffmpeg
-
-            --- Ubuntu / Debian / Pop!_OS ---
-        sudo apt update
-        sudo apt install imagemagick ffmpeg
-
-            --- Arch Linux / Manjaro ---
-        sudo pacman -S imagemagick ffmpeg
-
-
-        Całość jest na licencji MIT.
-*/
-#pragma endregion
-
-#pragma region Sekcja Funkcyjna
-
-
-    // this is main structure, use it to create function objects to use later on in the engine, almost everything uses it as default input object
-    struct Function {
-        float Tc{0.f};  // total time / czas całkowity [s]
-        float fs{0.f};  // sampling rate / czestotliwosc probkowania [Hz]
-        float f{0.f};   // frequency / czestotliwosc [Hz]
-        float PHI{0.f}; // initial phase / faza_poczatkowa [rad]
-        float A{0.f};   // amplitude / amplituda [A], [V], [dB]
-        float Ts{0.f};  // sampling interval(step on x) / krok_czasu [s]
-        uint64_t N{0};  // samples count / ilosc probek
-
-        // those void* are for extra data if needed, instead of merging 2 functions by counting the other one again, just put it in as a void pointer and then cast to what you need, you can insert extra
-        // variables also just cast them to what type is needed, like float arrays, other functions or just whatever you may need
-        void* evj = nullptr;
-        void* evd = nullptr;
-        void* evt = nullptr;
-        void* evc = nullptr;
-
-        float* t = nullptr; // time value of given sample number, (values on x axis) / wartosci t dla próbki n
-        float* f_t = nullptr; // function value for given t of the same n index (values on y axis) / wartosci funkcji dla t tej samej próbki n
-
-        typedef float (*FormulaPtr)(const Function&, uint64_t, float, void*, void*, void*, void*);
-        FormulaPtr function_formula = nullptr; // formula pointer, for the object to use its own variables in calculations
-
-        Function(float Tc, float fs, float f, float PHI, float A, FormulaPtr formula, void* extra_variable_one = nullptr, void* extra_variable_two = nullptr, void* extra_variable_three = nullptr, void* extra_variable_four = nullptr) : Tc(Tc), fs(fs), f(f), PHI(PHI), A(A), Ts(1.f / fs), N(static_cast<uint64_t>(Tc * fs)), evj(extra_variable_one), evd(extra_variable_two), evt(extra_variable_three), evc(extra_variable_four)  {
-
-            if (N == 0) return; // well no point in counting anything for N == 0
-
-            function_formula = formula;
-            t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
-            f_t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
-
-            for (uint64_t n = 0; n < N; n++)
-                t[n] = static_cast<float>(n) * Ts;
-            for (uint64_t n = 0; n < N; n++)
-                f_t[n] = formula(*this, n, t[n], evj, evd, evt, evc);
-        }
-        ~Function() {
-            _mm_free(t);
-            _mm_free(f_t);
-        }
-    };
-    // DFT, n^2, very slow for high count of points, included just for flex, or research purposes to compare it with FFT, kinda funny
-    // also normalization already included
-    struct DFT {
-        uint64_t K{0};
-
-        float* Re = nullptr;
-        float* Im = nullptr; // część zmyślona :)
-
-        float* fk = nullptr;
-        float* mod_z = nullptr;
-
-        DFT(const Function* function) {
-            if (function->N == 1) return;
-
-            K = function->N;
-
-            Re = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-            Im = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-
-            mod_z = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-            fk = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-
-            for (uint64_t k = 0; k < K; k++) {
-                Re[k] = 0;
-                Im[k] = 0;
-                for (uint64_t n = 0; n < K; n++) {
-                    Re[k] += function->f_t[n] * cosf((-2.f * M_PIf * static_cast<float>(n) * static_cast<float>(k)) / static_cast<float>(K));
-                    Im[k] += function->f_t[n] * sinf((-2.f * M_PIf * static_cast<float>(n) * static_cast<float>(k)) / static_cast<float>(K));
-                }
-            }
-
-            for (uint64_t k = 0; k < K; k++) {
-                mod_z[k] = sqrtf((Re[k] * Re[k]) + (Im[k] * Im[k]));
-                fk[k] = static_cast<float>(k) * function->fs / static_cast<float>(K);
-            }
-            mod_z[0] /= static_cast<float>(function->N);
-            for (uint64_t k = 1; k < K; k++) {
-                mod_z[k] /= static_cast<float>(K) / 2.f;
-            }
-        }
-        ~DFT() {
-            _mm_free(Im);
-            _mm_free(Re);
-
-            _mm_free(mod_z);
-            _mm_free(fk);
-        }
-    };
-
-    // Faster DFT, n log n instead of n^2, much faster, for 100 samples instead of n^2 = 10 000 operations, we have n log n = about 664 operations, and this scales with n like crazy for DFT
-    struct FFT {
-
-        uint64_t K{0};
-
-        float* Re = nullptr;
-        float* Im = nullptr;
-
-        float* fk = nullptr;
-        float* mod_z = nullptr;
-
-        FFT(const Function* function) {
-
-            if (function->N == 1) return;
-            K = function->N;
-
-            uint32_t old_k = K;
-            uint32_t bits_shift = 0;
-            while (K != 1) {
-                K = K >> 1;
-                bits_shift++;
-            }
-            K = K << bits_shift;
-            K = K << (old_k > K);
-
-            Re = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-            Im = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-
-            mod_z = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-            fk = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-
-            uint64_t i = 0;
-            for (i = 0; i < old_k; i++) {
-                Re[i] = function->f_t[i];
-                Im[i] = 0;
-            }
-            for (; i < K; i++) {
-                Re[i] = 0;
-                Im[i] = 0;
-            }
-
-            i = 0;
-            uint64_t j = 0;
-            for (;i<K - 1;i++) {
-                if (i < j) {
-                    float temp = Re[i];
-                    Re[i] = Re[j];
-                    Re[j] = temp;
-                }
-                uint64_t m = K >> 1;
-                while (m >= 1 && j >=m) {
-                    j -= m;
-                    m = m >> 1;
-                }
-                j += m;
-            }
-
-            float angle_def = -2.0f * M_PIf;
-            for (uint64_t size = 2; size <= K; size = size << 1) {
-
-                float angle = angle_def / static_cast<float>(size);
-                float w_step_re = cosf(angle);
-                float w_step_im = sinf(angle);
-
-                for (uint64_t b = 0; b < K; b+= size) {
-                    float w_re = 1.0f;
-                    float w_im = 0.0f;
-
-                    for (uint64_t k = b; k < b + (size >> 1); k++) {
-                        uint64_t pair_idx = k + (size >> 1);
-
-                        float t_re = Re[pair_idx] * w_re - Im[pair_idx] * w_im;
-                        float t_im = Re[pair_idx] * w_im + Im[pair_idx] * w_re;
-
-                        Re[pair_idx] = Re[k] - t_re;
-                        Im[pair_idx] = Im[k] - t_im;
-
-                        Re[k] += t_re;
-                        Im[k] += t_im;
-
-                        float next_w_re = w_re * w_step_re - w_im * w_step_im;
-                        w_im = w_re * w_step_im + w_im * w_step_re;
-                        w_re = next_w_re;
-                    }
-                }
-            }
-            for (uint64_t k = 0; k <= K / 2; k++) {
-                mod_z[k] = sqrtf((Re[k] * Re[k]) + (Im[k] * Im[k]));
-                fk[k] = static_cast<float>(k) * function->fs / static_cast<float>(K);
-            }
-            mod_z[0] /= static_cast<float>(function->N);
-            for (uint64_t k = 1; k <= K / 2; k++) {
-                mod_z[k] /= static_cast<float>(K) / 2.f;
-            }
-        }
-        ~FFT() {
-            _mm_free(Im);
-            _mm_free(Re);
-
-            _mm_free(mod_z);
-            _mm_free(fk);
-        }
-
-
-    };
-
     // stuff I wanted to hide from the UI, not needed by the user to enjoy the library, only used by the engine itself
     namespace z_detail_no_need_to_think_about_it
     {
@@ -1009,32 +619,33 @@ int main() {
 
         //converts number into a something more human friendly
         static void float_to_engineering_7chars(float value, char* buffer) {
-            if (value == 0.0f || (value > -1e-10f && value < 1e-10f)) {
-                snprintf(buffer, 8, " 0.000 ");
-                return;
+                if (value == 0.0f || (value > -1e-10f && value < 1e-10f)) {
+                    snprintf(buffer, 8, " 0.000 ");
+                    return;
+                }
+
+                char sign = value < 0 ? '-' : ' ';
+                value = fabsf(value);
+
+                char prefix = ' ';
+                if (value >= 1e12f)      { value /= 1e12f; prefix = 'T'; }
+                else if (value >= 1e9f)  { value /= 1e9f;  prefix = 'G'; }
+                else if (value >= 1e6f)  { value /= 1e6f;  prefix = 'M'; }
+                else if (value >= 1e3f)  { value /= 1e3f;  prefix = 'k'; }
+                else if (value >= 1.0f)  { prefix = ' '; }
+                else if (value >= 1e-3f) { value *= 1e3f;  prefix = 'm'; }
+                else if (value >= 1e-6f) { value *= 1e6f;  prefix = 'u'; }
+                else if (value >= 1e-9f) { value *= 1e9f;  prefix = 'n'; }
+
+                // Goły, czysty float wjeżdża prosto do bufora - snprintf sam go wygładzi!
+                if (value >= 100.0f) {
+                    snprintf(buffer, 8, "%c%5.1f%c", sign, value, prefix);
+                } else if (value >= 10.0f) {
+                    snprintf(buffer, 8, "%c%5.2f%c", sign, value, prefix);
+                } else {
+                    snprintf(buffer, 8, "%c%5.3f%c", sign, value, prefix);
+                }
             }
-
-            char sign = value < 0 ? '-' : ' ';
-            value = fabsf(value);
-
-            char prefix = ' ';
-            if (value >= 1e12f)      { value /= 1e12f; prefix = 'T'; }
-            else if (value >= 1e9f)  { value /= 1e9f;  prefix = 'G'; }
-            else if (value >= 1e6f)  { value /= 1e6f;  prefix = 'M'; }
-            else if (value >= 1e3f)  { value /= 1e3f;  prefix = 'k'; }
-            else if (value >= 1.0f)  { prefix = ' '; }
-            else if (value >= 1e-3f) { value *= 1e3f;  prefix = 'm'; }
-            else if (value >= 1e-6f) { value *= 1e6f;  prefix = 'u'; }
-            else if (value >= 1e-9f) { value *= 1e9f;  prefix = 'n'; }
-
-            if (value >= 100.0f) {
-                snprintf(buffer, 8, "%c%5.1f%c", sign, value, prefix);
-            } else if (value >= 10.0f) {
-                snprintf(buffer, 8, "%c%5.2f%c", sign, value, prefix);
-            } else {
-                snprintf(buffer, 8, "%c%5.3f%c", sign, value, prefix);
-            }
-        }
 
         // a very, very slimmed down version of the TextBox class form my graphic engine, made thin enough to work with the library, converts given text to a texture with it, using my own font
         struct TextBox {
@@ -1470,6 +1081,396 @@ int main() {
     [[nodiscard]] const uint32_t* return_texture() const { return texture; }
 };
     }
+
+#pragma region Instrukcja obsługi
+/*
+------------------------------------------------------ KROK 1. Tworzymy funkcje cpp dla wzoru matematycznego naszej funkcji --------------------------------------------------------------------------------------------------------
+
+        float nazwa_funkcji_wzoru ([stała referencja obiektu naszej funkcji], [aktualna iteracja 'n' jako uint64_t]], [wartość naszego t dla f(t) albo x dla f(x) jako float]) {
+            ---ciało funkcji---
+            zwracamy po prostu nasz wzór matematyczny, wykorzystując wskaźnik na obiekt funkcji:
+            return [tutaj podajemy wzór]
+        }
+                                                                                ---- PRZYKŁAD ----
+
+        float sinus_formula (const Function& function_object, uint64_t n, float t) {
+            // n jest zazwyczaj niepotrzebne dla prostych funkcji, przyda się w tych bardziej złożonych lub gdy potrzebny jest index naszego t zamiast wartości
+            return function_object.A * sinf(2.f * M_PIf * function_object.f * t + function_object.PHI); //M_PIf to jest wartość liczby PI jako float
+        }
+
+------------------------------------------------------ KROK 2. Tworzymy obiekt Function w main albo gdzie tam się chce --------------------------------------------------------------------------------------------------------
+
+        Function nazwa_naszej_funkcji([wartość Tc], [wartość fs], [wartość f], [wartość PHI], [wartość A], [nazwa naszej funkcji wzoru]);
+
+                                                                                ---- PRZYKŁAD ----
+                                                        ---- różne obiekty mogą dostawać ten sam wzór, nie jest to problemem ----
+
+        Function funkcja_sinus(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
+        Function funkcja_sinus_saw(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
+        Function funkcja_sinus_rec(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
+        Function funkcja_sinus_tri(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
+
+------------------------------------------------------ KROK 3. Modulujemy, liczmy DFT albo Rysujemy przygotowane funkcje --------------------------------------------------------------------------------------------------------
+                                                                               ---- Modulacja ----
+                                                      --- Modulowanie funkcji tworzy nowy obiekt i zwraca wskaźnik na niego ---
+                                         --- dzieki temu nie trzeba się bać że modulacja zmieni wartości oryginalnej funkcji przed rysowaniem ---
+
+        Function* [nazwa_funkcji_zmodulowanej] = [nazwa wybranej funkcji modulującej] ([adres pamieci obiektu funkcji do modulacji], ["A" funkcji nośnej], ["fs" funkcji nośnej], ["PHI" funkcji nośnej]);
+
+        // do wyboru mamy 4 kategorie modulacji:
+            -sinusowa
+            -piłokształtna
+            -prostokątna
+            -trójkątna
+
+        // oraz 3 rodzaje każdej z nich:
+            AM - po amplitudzie
+            FM - po częstotliwości
+            PM - po PHI
+
+                                                                                ---- PRZYKŁAD ----
+
+        Function* sin_modulacja_AM_sin = modulate_AM_sin(&funkcja_sinus, 5.0f, 120.0f, 0.f);
+        Function* sin_modulacja_PM_saw = modulate_PM_saw(&funkcja_sinus, 5.0f, 120.0f, 0.f);
+        Function* sin_modulacja_FM_rec = modulate_FM_rec(&funkcja_sinus, 5.0f, 120.0f, 0.f);
+        Function* sin_modulacja_FM_tri = modulate_FM_tri(&funkcja_sinus, 5.0f, 120.0f, 0.f);
+
+                                                                                   ---- DFT ----
+                                                                            --- Tworzymy obiekt DFT ---
+        DFT [nazwa_obiektu_dft]([obiekt funkcji do narysowania]);
+
+                                                                                ---- PRZYKŁAD ----
+
+        DFT widmo_sinusa(&funkcja_sinus);
+
+                                                                                ---- Rysowanie ----
+                                                                            --- Tworzymy obiekt Graph ---
+
+        Graph [nazwa_obiektu_grafu]([obiekt funkcji do narysowania], [tekst nazwy grafu], [tekst osi X], [tekst osi Y]);
+
+                                                                                ---- PRZYKŁAD ----
+
+        Graph graf_sinus(&funkcja_sinus, "funkcja sinus", "Czas [s]", "Amplituda [A]");
+        Graph graf_sin_modulacja_AM_sin(sin_modulacja_AM_sin, "Modulacja sin, AM", "Czas [s]", "Amplituda [A]");
+        Graph graf_sin_modulacja_PM_saw(sin_modulacja_PM_saw, "Modulacja saw, PM", "Czas [s]", "Amplituda [A]");
+        Graph graf_sin_modulacja_FM_rec(sin_modulacja_FM_rec, "Modulacja rec, FM", "Czas [s]", "Amplituda [A]");
+        Graph graf_sin_modulacja_FM_tri(sin_modulacja_FM_tri, "Modulacja tri, FM", "Czas [s]", "Amplituda [A]");
+
+                                                                            --- Zasada ta sama dla DFT ---
+
+        Graph graf_widma_sinusa(&widmo_sinusa, "Widmo funkcji_sinus", "Częstotliwość [Hz]", "Amplituda [A]");
+
+---------------------------------------------------------------------------------- KROK 4. DELETE --------------------------------------------------------------------------------------------------------
+
+                                                    !!! Pamiętamy o delete dla każdego obiektu stworzonego przez funkcje modulujące !!!
+
+                                                                            delete sin_modulacja_FM_tri;
+                                                                            delete sin_modulacja_FM_rec;
+                                                                            delete sin_modulacja_PM_saw;
+                                                                            delete sin_modulacja_AM_sin;
+
+------------------------------------------------------------------------------ PRZYKŁADOWY KOD TESTOWY --------------------------------------------------------------------------------------------------------
+
+#include "ShiftDownFunctions.hpp"
+
+    // albo używamy:
+    // using namespace ShiftDownFunctions;
+    // albo trzeba pamiętać o pisaniu ShiftDownFunctions::, przed wszystkim co pochodzi z tego kontenera
+
+
+//KROK 1 - tworzenie wzoru funkcji
+float sinus_formula (const ShiftDownFunctions::Function& function_object, uint64_t n, float t) {
+    return function_object.A * sinf(2.f * M_PIf * function_object.f * t + function_object.PHI); //M_PIf to jest wartość liczby PI jako float
+}
+
+int main() {
+
+    //KROK 2 - tworzenie obiektów funkcji
+    ShiftDownFunctions::Function funkcja_sinus(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
+    ShiftDownFunctions::Function funkcja_sinus_saw(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
+    ShiftDownFunctions::Function funkcja_sinus_rec(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
+    ShiftDownFunctions::Function funkcja_sinus_tri(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
+
+    //KROK 3 - modulacja funkcji
+    ShiftDownFunctions::Function* sin_modulacja_AM_sin = modulate_AM_sin(&funkcja_sinus, 2.0f, 40.0f, 0.f);
+    ShiftDownFunctions::Function* sin_modulacja_PM_saw = modulate_PM_saw(&funkcja_sinus, 1.0f, 30.0f, 0.f);
+    ShiftDownFunctions::Function* sin_modulacja_FM_rec = modulate_FM_rec(&funkcja_sinus, 1.0f, 50.0f, 0.f);
+    ShiftDownFunctions::Function* sin_modulacja_FM_tri = modulate_FM_tri(&funkcja_sinus, 1.0f, 50.0f, 0.f);
+
+    //KROK 3 - tworzenie dft
+
+    DFT widmo_sinusa(&funkcja_sinus);
+
+    //KROK 3 - rysowanie funkcji
+    ShiftDownFunctions::Graph graf_sinus(&funkcja_sinus, "funkcja sinus", "Czas [s]", "Amplituda [A]");
+    ShiftDownFunctions::Graph graf_widma_sinusa(&widmo_sinusa, "Widmo funkcji_sinus", "Częstotliwość [Hz]", "Amplituda [A]"); // WIDMO
+    ShiftDownFunctions::Graph graf_sin_modulacja_AM_sin(sin_modulacja_AM_sin, "Modulacja sin, AM", "Czas [s]", "Amplituda [A]");
+    ShiftDownFunctions::Graph graf_sin_modulacja_PM_saw(sin_modulacja_PM_saw, "Modulacja saw, PM", "Czas [s]", "Amplituda [A]");
+    ShiftDownFunctions::Graph graf_sin_modulacja_FM_rec(sin_modulacja_FM_rec, "Modulacja rec, FM", "Czas [s]", "Amplituda [A]");
+    ShiftDownFunctions::Graph graf_sin_modulacja_FM_tri(sin_modulacja_FM_tri, "Modulacja tri, FM", "Czas [s]", "Amplituda [A]");
+
+
+    //rysowanie w innych kolorach tej samej funkcji
+    ShiftDownFunctions::Graph graf_sinus_red_theme(&funkcja_sinus, "funkcja sinus RED", "Czas [s]", "Amplituda [A]", Colors::BLOOD_RED, Colors::RED, Colors::PASTEL_RED, Colors::GLASS_RED);
+    ShiftDownFunctions::Graph graf_sinus_blue_theme(&funkcja_sinus, "funkcja sinus BLUE", "Czas [s]", "Amplituda [A]", Colors::MIDNIGHT_BLUE, Colors::BLUE, Colors::PASTEL_BLUE, Colors::GLASS_BLUE);
+    ShiftDownFunctions::Graph graf_sinus_purple_theme(&funkcja_sinus, "funkcja sinus PURPLE", "Czas [s]", "Amplituda [A]", Colors::DARK_PURPLE, Colors::PINK, Colors::PASTEL_PURPLE, Colors::PURPLE);
+
+    //KROK 4 - usuwanie funkcji
+    delete sin_modulacja_FM_tri;
+    delete sin_modulacja_FM_rec;
+    delete sin_modulacja_PM_saw;
+    delete sin_modulacja_AM_sin;
+
+
+
+    return 0;
+}
+
+
+------------------------------------------------------------------------------------ !!! UWAGA !!! --------------------------------------------------------------------------------------------------------
+
+        Program automatycznie dokona próby zapisu do PNG i na windows i na linux, jeśli natomiast się nie uda to zachowa zdjęcia we wskazanym folderze jako bmp,
+        jeśli lokalizacja folderu nie została wskazana ręcznie, program zapisze to w miejscu gdzie zapisana jest jego binarka. Mogą występować różne fikuśne błędy i bugi, nie wiem nie testowałem
+        każdego scenariusza w razie co można starać się naprawić błąd samemu, sekcji Font lepiej nie ruszac tam znajduje się czcionka do którą wkleja się w graf, ma wymiary fizyczne 16 x 16 jakby
+        ktoś chciał podmienic natomiast faktyczne litery są 16 x 8, gdzie litera znajduje się z lewej strony tekstury, i taki format musi być zachowany,
+
+        W grafach można modyfikować kolory dla osi, czcionki, tła, wykresu, można podać wartości ARGB jako uint32_t, polecam jako hex w formacie 0xAARRGGBB, albo gotowa sekcja kolorów Colors::[nazwa gotowego koloru jaki tam jest]
+        A-alpha, od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
+        R-czerwony, od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
+        G-zielony, od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
+        B-niebieski od 0 do 255 czyli dla hex 0 to 0x00 a 255 to 0xFF
+        Przykład: 0xFF7D7D7D lub Colors::GRAY -> daje kolor szary
+
+        Wartości na wykresach, czasem Amplituda jest w zakresie od np 1 do -0.984 albo coś około tego, wynika to niestety z akumulacji błędu zmiennoprzecinkowego (IEEE 754, Metody Numeryczne) pewnie da się to ręcznie zabezpieczyć
+        ale nie miałem na to ochoty, więc jeśli komuś przeszkadza można w funkcji rysującej Graph, sekcja values on x i values on y, dodać bramke przed wysłaniem wartości do funkcji z_detail_no_need_to_think_about_it::float_to_char, która wyrówna wartości
+        do tego co powinno być, problem nie pojawia się zawsze ale czasem, i jest to specyfika działania tego tworu, ja mówie że to funkcjonalność, może kiedyś sam poprawie w wolnym czasie.
+
+        Windows, a Linux. Domyślnie wszystko jest napisane i przetestowane na Linux Fedora 43, działa bez problemu, Na windows też powinno ale nic nie mogę obiecać, niech się cieszą że w ogole mi się chciało o nich pamiętać
+        Zdjęcia są w 8k robione, skalowanie z poziomu systemu nie programu ze względu na dosyć leniwe podejście do statycznie wyliczanych odległości i zależności między elementami wykresu w celu osiągnięcia najbardziej
+        satysfakcjonujących rezultatów, gotowe zdjęcie można już skalować do woli. Pliki .png nie są tragiczne w rozmiarach, wahają się w zależności od wyglądu wykresu, .bmp natomiast to sztywne około 130MB, i uwaga
+        tutaj mówię o miejscu na dysku, w ramie i procesie tworzenia, przekraczamy te 130MB na funkcje, prosty wzór na obliczenia ile to zajmie (mniej wiecej), sama funkcja w sobie to Tc * fs * rozmiar_float (32bity) * 2,
+        bo mamy oś x i y, potem modulacje, dft i inne jako że to osobne obiekty zasada ta sama, renderowanie grafu to zawsze 8K, szerokość * wysokość * rozmiar uint32_t (32bity) co daje około 130MB
+        wiec dla funkcji o czasie Tc = 2 sekundy i fs = 32k mamy 2 * 32k * 2 czyli 128k * 32 co daje 4 096 000 bitów czyli około 0.5MB, dla czasu 4s to już 1MB dla, 10s mamy 5MB i tak dalej, wiec przy renderowaniu kilku
+        funkcji i zdjęć łatwo pójść w gigabajty pamięci RAM, tylko ostrzegam, i przypominam o magicznych delete albo robieniu każdego wykresu w osobnych funkcjach by obiekty ginęły automatycznie,
+        wraz z jej końcem (za wyjątkiem modulacji tam zawsze delete), wycieków pamięci nie widziałem ale gwarancji też nie dam więc warto mieć to gdzieś z tyłu głowy.
+
+        Dla poprawnego działania formatu .png na linux potrzeba zainstalować ImageMagick albo FFmpeg na windows jakimś cudem działa powershell script,
+
+        Komendy dla Linuxa dla działania formatowania do .png:
+
+              --- Fedora 43 i podobne ---
+        sudo dnf install ImageMagick ffmpeg
+
+            --- Ubuntu / Debian / Pop!_OS ---
+        sudo apt update
+        sudo apt install imagemagick ffmpeg
+
+            --- Arch Linux / Manjaro ---
+        sudo pacman -S imagemagick ffmpeg
+
+
+        Całość jest na licencji MIT.
+*/
+#pragma endregion
+
+#pragma region Sekcja Funkcyjna
+
+    // this is main structure, use it to create function objects to use later on in the engine, almost everything uses it as default input object
+    struct Function {
+        float Tc{0.f};  // total time / czas całkowity [s]
+        float fs{0.f};  // sampling rate / czestotliwosc probkowania [Hz]
+        float f{0.f};   // frequency / czestotliwosc [Hz]
+        float PHI{0.f}; // initial phase / faza_poczatkowa [rad]
+        float A{0.f};   // amplitude / amplituda [A], [V], [dB]
+        float Ts{0.f};  // sampling interval(step on x) / krok_czasu [s]
+        uint64_t N{0};  // samples count / ilosc probek
+
+        // those void* are for extra data if needed, instead of merging 2 functions by counting the other one again, just put it in as a void pointer and then cast to what you need, you can insert extra
+        // variables also just cast them to what type is needed, like float arrays, other functions or just whatever you may need
+        void* evj = nullptr;
+        void* evd = nullptr;
+        void* evt = nullptr;
+        void* evc = nullptr;
+
+        float* t = nullptr; // time value of given sample number, (values on x axis) / wartosci t dla próbki n
+        float* f_t = nullptr; // function value for given t of the same n index (values on y axis) / wartosci funkcji dla t tej samej próbki n
+
+        typedef float (*FormulaPtr)(const Function&, uint64_t, float, void*, void*, void*, void*);
+        FormulaPtr function_formula = nullptr; // formula pointer, for the object to use its own variables in calculations
+
+        Function(float Tc, float fs, float f, float PHI, float A, FormulaPtr formula, void* extra_variable_one = nullptr, void* extra_variable_two = nullptr, void* extra_variable_three = nullptr, void* extra_variable_four = nullptr) : Tc(Tc), fs(fs), f(f), PHI(PHI), A(A), Ts(1.f / fs), N(static_cast<uint64_t>(Tc * fs)), evj(extra_variable_one), evd(extra_variable_two), evt(extra_variable_three), evc(extra_variable_four)  {
+
+            if (N == 0) return; // well no point in counting anything for N == 0
+
+            function_formula = formula;
+            t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
+            f_t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
+
+            for (uint64_t n = 0; n < N; n++)
+                t[n] = static_cast<float>(n) * Ts;
+            for (uint64_t n = 0; n < N; n++)
+                f_t[n] = formula(*this, n, t[n], evj, evd, evt, evc);
+        }
+        ~Function() {
+            _mm_free(t);
+            _mm_free(f_t);
+        }
+    };
+    // DFT, n^2, very slow for high count of points, included just for flex, or research purposes to compare it with FFT, kinda funny
+    // also normalization already included
+    struct DFT {
+        uint64_t K{0};
+
+        float* Re = nullptr;
+        float* Im = nullptr; // część zmyślona :)
+
+        float* fk = nullptr;
+        float* mod_z = nullptr;
+
+        DFT(const Function* function) {
+            if (function->N == 1) return;
+
+            K = function->N;
+
+            Re = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+            Im = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+
+            mod_z = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+            fk = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+
+            for (uint64_t k = 0; k < K; k++) {
+                Re[k] = 0;
+                Im[k] = 0;
+                for (uint64_t n = 0; n < K; n++) {
+                    Re[k] += function->f_t[n] * cosf((-2.f * M_PIf * static_cast<float>(n) * static_cast<float>(k)) / static_cast<float>(K));
+                    Im[k] += function->f_t[n] * sinf((-2.f * M_PIf * static_cast<float>(n) * static_cast<float>(k)) / static_cast<float>(K));
+                }
+            }
+
+            for (uint64_t k = 0; k < K; k++) {
+                mod_z[k] = sqrtf((Re[k] * Re[k]) + (Im[k] * Im[k]));
+                fk[k] = static_cast<float>(k) * function->fs / static_cast<float>(K);
+            }
+            mod_z[0] /= static_cast<float>(function->N);
+            for (uint64_t k = 1; k < K; k++) {
+                mod_z[k] /= static_cast<float>(K) / 2.f;
+            }
+        }
+        ~DFT() {
+            _mm_free(Im);
+            _mm_free(Re);
+
+            _mm_free(mod_z);
+            _mm_free(fk);
+        }
+    };
+
+    // Faster DFT, n log n instead of n^2, much faster, for 100 samples instead of n^2 = 10 000 operations, we have n log n = about 664 operations, and this scales with n like crazy for DFT
+    struct FFT {
+
+        uint64_t K{0};
+
+        float* Re = nullptr;
+        float* Im = nullptr;
+
+        float* fk = nullptr;
+        float* mod_z = nullptr;
+
+        FFT(const Function* function) {
+
+            if (function->N == 1) return;
+            K = function->N;
+
+            uint32_t old_k = K;
+            uint32_t bits_shift = 0;
+            while (K != 1) {
+                K = K >> 1;
+                bits_shift++;
+            }
+            K = K << bits_shift;
+            K = K << (old_k > K);
+
+            Re = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+            Im = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+
+            mod_z = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+            fk = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+
+            uint64_t i = 0;
+            for (i = 0; i < old_k; i++) {
+                Re[i] = function->f_t[i];
+                Im[i] = 0;
+            }
+            for (; i < K; i++) {
+                Re[i] = 0;
+                Im[i] = 0;
+            }
+
+            i = 0;
+            uint64_t j = 0;
+            for (;i<K - 1;i++) {
+                if (i < j) {
+                    float temp = Re[i];
+                    Re[i] = Re[j];
+                    Re[j] = temp;
+                }
+                uint64_t m = K >> 1;
+                while (m >= 1 && j >=m) {
+                    j -= m;
+                    m = m >> 1;
+                }
+                j += m;
+            }
+
+            float angle_def = -2.0f * M_PIf;
+            for (uint64_t size = 2; size <= K; size = size << 1) {
+
+                float angle = angle_def / static_cast<float>(size);
+                float w_step_re = cosf(angle);
+                float w_step_im = sinf(angle);
+
+                for (uint64_t b = 0; b < K; b+= size) {
+                    float w_re = 1.0f;
+                    float w_im = 0.0f;
+
+                    for (uint64_t k = b; k < b + (size >> 1); k++) {
+                        uint64_t pair_idx = k + (size >> 1);
+
+                        float t_re = Re[pair_idx] * w_re - Im[pair_idx] * w_im;
+                        float t_im = Re[pair_idx] * w_im + Im[pair_idx] * w_re;
+
+                        Re[pair_idx] = Re[k] - t_re;
+                        Im[pair_idx] = Im[k] - t_im;
+
+                        Re[k] += t_re;
+                        Im[k] += t_im;
+
+                        float next_w_re = w_re * w_step_re - w_im * w_step_im;
+                        w_im = w_re * w_step_im + w_im * w_step_re;
+                        w_re = next_w_re;
+                    }
+                }
+            }
+            for (uint64_t k = 0; k <= K / 2; k++) {
+                mod_z[k] = sqrtf((Re[k] * Re[k]) + (Im[k] * Im[k]));
+                fk[k] = static_cast<float>(k) * function->fs / static_cast<float>(K);
+            }
+            mod_z[0] /= static_cast<float>(function->N);
+            for (uint64_t k = 1; k <= K / 2; k++) {
+                mod_z[k] /= static_cast<float>(K) / 2.f;
+            }
+        }
+        ~FFT() {
+            _mm_free(Im);
+            _mm_free(Re);
+
+            _mm_free(mod_z);
+            _mm_free(fk);
+        }
+
+
+    };
+
     // this is main class for graph rendering with dft, fft or function objects, read instructions on how to use (it's pretty simple)
     class Graph {
         // index:
@@ -1666,7 +1667,7 @@ int main() {
                 uint32_t skala_textu_value_x = values_text_scale / divider;
                 for (uint32_t i = 1; i < segments_count; i++) {
                     z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                    z_detail_no_need_to_think_about_it::float_to_engineering_7chars(function_to_render->t[steps_x * i], value);
+                    z_detail_no_need_to_think_about_it::float_to_engineering_7chars((function_to_render->Tc * (float)i) / (float)segments_count, value);
                     value_x.add_text(value, font_color);
 
                     center = value[0] == '-' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) - (skala_textu_value_x << 1));
