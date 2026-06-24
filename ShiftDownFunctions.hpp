@@ -1345,10 +1345,10 @@ int main() {
         float* fk = nullptr;
         float* mod_z = nullptr;
 
-        DFT(const Function* function) {
-            if (function->N == 1) return;
+        DFT(const Function& function) {
+            if (function.N == 1) return;
 
-            K = function->N;
+            K = function.N;
 
             Re = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
             Im = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
@@ -1360,16 +1360,16 @@ int main() {
                 Re[k] = 0;
                 Im[k] = 0;
                 for (uint64_t n = 0; n < K; n++) {
-                    Re[k] += function->f_t[n] * cosf((-2.f * M_PIf * static_cast<float>(n) * static_cast<float>(k)) / static_cast<float>(K));
-                    Im[k] += function->f_t[n] * sinf((-2.f * M_PIf * static_cast<float>(n) * static_cast<float>(k)) / static_cast<float>(K));
+                    Re[k] += function.f_t[n] * cosf((-2.f * M_PIf * static_cast<float>(n) * static_cast<float>(k)) / static_cast<float>(K));
+                    Im[k] += function.f_t[n] * sinf((-2.f * M_PIf * static_cast<float>(n) * static_cast<float>(k)) / static_cast<float>(K));
                 }
             }
 
             for (uint64_t k = 0; k < K; k++) {
                 mod_z[k] = sqrtf((Re[k] * Re[k]) + (Im[k] * Im[k]));
-                fk[k] = static_cast<float>(k) * function->fs / static_cast<float>(K);
+                fk[k] = static_cast<float>(k) * function.fs / static_cast<float>(K);
             }
-            mod_z[0] /= static_cast<float>(function->N);
+            mod_z[0] /= static_cast<float>(function.N);
             for (uint64_t k = 1; k < K; k++) {
                 mod_z[k] /= static_cast<float>(K) / 2.f;
             }
@@ -4257,14 +4257,23 @@ int main() {
 
 #pragma region Funkcje okien
 
-    Function HammingWindow(const Function* function_to_window_function) {
-
+    inline Function HammingWindow(const Function* function_to_window_function, bool compensate = true) {
+        float coherent_gain = 1.f / 0.54f;
         Function after_window = *function_to_window_function;
 
-        for (uint64_t n = 0; n < after_window.N; n++) {
-
-
+        if (compensate) {
+            for (uint64_t n = 0; n < after_window.N; n++) {
+                float w_n = 0.54f - 0.46f * cosf((2.0f * M_PIf * n) / (after_window.N - 1));
+                after_window.f_t[n] = after_window.f_t[n] * w_n * coherent_gain;
+            }
         }
+        if (!compensate) {
+            for (uint64_t n = 0; n < after_window.N; n++) {
+                float w_n = 0.54f - 0.46f * cosf((2.0f * M_PIf * n) / (after_window.N - 1));
+                after_window.f_t[n] = after_window.f_t[n] * w_n;
+            }
+        }
+
         return after_window;
     }
 
