@@ -3867,179 +3867,31 @@ int main() {
     W skrócie, mała funkcja pakowana w pociąg, wysyłana w świat, odbierana dekodowana i mamy informacje w niej zawarte setki kilometrów dalej.
      */
 
-    // --- MODULACJA SINUSOIDALNA (SIN) ---
-    inline Function* modulate_AM_sin(const Function* ftm, float A, float fs, float PHI) {
-
-        auto* AM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-
-        AM->A = A;
-        AM->fs = fs;
-        AM->PHI = PHI;
-
-        for (uint64_t t = 0; t < AM->N; t++) {
-            // dodajemy wartości naszej funkcji do amplitudy [A] sygnału
-            AM->f_t[t] = (A + ftm->f_t[t]) * sinf(2.f * M_PIf * fs * AM->t[t] + PHI);
-        }
-
-        return AM;
-    }
-    inline Function* modulate_PM_sin(const Function* ftm, float A, float fs, float PHI) {
-
-        auto* PM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        PM->A = A;
-        PM->fs = fs;
-        PM->PHI = PHI;
-
-
-        for (uint64_t t = 0; t < PM->N; t++) {
-            // dodajemy wartości naszej funkcji do fazy [PHI] sygnału
-            PM->f_t[t] = A * sinf(2.f * M_PIf * fs * PM->t[t] + ftm->f_t[t] + PHI);
-        }
-
-        return PM;
-    }
-    inline Function* modulate_FM_sin(const Function* ftm, float A, float fs, float PHI) {
-        auto* FM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        FM->A = A;
-        FM->fs = fs;
-        FM->PHI = PHI;
-
-        float integral = 0.f;
-        for (uint64_t t = 0; t < FM->N; t++) {
-            // wyliczamy całkę (integral) z naszej funkcji, a potem ładujemy do częstotliwości
-            integral += ftm->f_t[t] * ftm->Ts;
-            FM->f_t[t] = A * sinf(2.f * M_PIf * fs * FM->t[t] + 2.f * M_PIf * integral + PHI);
-        }
-        return FM;
-    }
-
-    // --- MODULACJA PIŁOKSZTAŁTNA (SAW) ---
-    inline Function* modulate_AM_saw(const Function* ftm, float A, float fs, float PHI) {
-        auto* AM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        AM->A = A;
-        AM->fs = fs;
-        AM->PHI = PHI;
-        for (uint64_t t = 0; t < AM->N; t++) {
-            // angle to faza, rośnie w nieskończoność, fmodf to modulo dla liczb zmiennoprzecinkowych, kiedy faza dobije 2PI, to resetuje się do 0 i tak w kółko
-            // stąd pojawiają się te kształty, funkcja rośnie, potem obraca się z powrotem na 0
-            float angle = fmodf(2.f * M_PIf * fs * AM->t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f) angle += 2.f * M_PIf;
-            float carrier = (angle / M_PIf) - 1.f;
-            AM->f_t[t] = (A + ftm->f_t[t]) * carrier;
+    // --- AM MODULATION ---
+    inline Function AM_modulation(const Function* ftm, float k) {
+        Function AM = *ftm;
+        float const_cos = pi2 * AM.f;
+        for (uint64_t t = 0; t < AM.N; t++) {
+            AM.f_t[t] = (k * ftm->f_t[t] + 1) * cosf(const_cos * (float)t);
         }
         return AM;
     }
-    inline Function* modulate_PM_saw(const Function* ftm, float A, float fs, float PHI) {
-        auto* PM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        PM->A = A;
-        PM->fs = fs;
-        PM->PHI = PHI;
-        for (uint64_t t = 0; t < PM->N; t++) {
-            float angle = fmodf(2.f * M_PIf * fs * PM->t[t] + ftm->f_t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f) angle += 2.f * M_PIf;
-            float carrier = (angle / M_PIf) - 1.f;
-            PM->f_t[t] = A * carrier;
+    // --- PM MODULATION ---
+    inline Function PM_modulation(const Function* ftm, float k) {
+        Function PM = *ftm;
+        float const_cos = pi2 * PM.f;
+        for (uint64_t t = 0; t < PM.N; t++) {
+            PM.f_t[t] = cosf(const_cos * (float)t + k * ftm->f_t[t]);
         }
         return PM;
     }
-    inline Function* modulate_FM_saw(const Function* ftm, float A, float fs, float PHI) {
-        auto* FM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        FM->A = A;
-        FM->fs = fs;
-        FM->PHI = PHI;
-        float integral = 0.f;
-        for (uint64_t t = 0; t < FM->N; t++) {
-            integral += ftm->f_t[t] * ftm->Ts;
-            float angle = fmodf(2.f * M_PIf * fs * FM->t[t] + 2.f * M_PIf * integral + PHI, 2.f * M_PIf);
-            if (angle < 0.f) angle += 2.f * M_PIf;
-            float carrier = (angle / M_PIf) - 1.f;
-            FM->f_t[t] = A * carrier;
-        }
-        return FM;
-    }
-
-    // --- MODULACJA PROSTOKĄTNA (REC) ---
-    inline Function* modulate_AM_rec(const Function* ftm, float A, float fs, float PHI) {
-        auto* AM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        AM->A = A;
-        AM->fs = fs;
-        AM->PHI = PHI;
-        for (uint64_t t = 0; t < AM->N; t++) {
-            float angle = fmodf(2.f * M_PIf * fs * AM->t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f) angle += 2.f * M_PIf;
-            float carrier = (angle < M_PIf) ? 1.f : -1.f;
-            AM->f_t[t] = (A + ftm->f_t[t]) * carrier;
-        }
-        return AM;
-    }
-    inline Function* modulate_PM_rec(const Function* ftm, float A, float fs, float PHI) {
-        auto* PM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        PM->A = A;
-        PM->fs = fs;
-        PM->PHI = PHI;
-        for (uint64_t t = 0; t < PM->N; t++) {
-            float angle = fmodf(2.f * M_PIf * fs * PM->t[t] + ftm->f_t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f) angle += 2.f * M_PIf;
-            float carrier = (angle < M_PIf) ? 1.f : -1.f;
-            PM->f_t[t] = A * carrier;
-        }
-        return PM;
-    }
-    inline Function* modulate_FM_rec(const Function* ftm, float A, float fs, float PHI) {
-        auto* FM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        FM->A = A;
-        FM->fs = fs;
-        FM->PHI = PHI;
-        float integral = 0.f;
-        for (uint64_t t = 0; t < FM->N; t++) {
-            integral += ftm->f_t[t] * ftm->Ts;
-            float angle = fmodf(2.f * M_PIf * fs * FM->t[t] + 2.f * M_PIf * integral + PHI, 2.f * M_PIf);
-            if (angle < 0.f) angle += 2.f * M_PIf;
-            float carrier = (angle < M_PIf) ? 1.f : -1.f;
-            FM->f_t[t] = A * carrier;
-        }
-        return FM;
-    }
-
-    // --- MODULACJA TRÓJKĄTNA (TRI) ---
-    inline Function* modulate_AM_tri(const Function* ftm, float A, float fs, float PHI) {
-        auto* AM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        AM->A = A;
-        AM->fs = fs;
-        AM->PHI = PHI;
-        for (uint64_t t = 0; t < AM->N; t++) {
-            float angle = fmodf(2.f * M_PIf * fs * AM->t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f) angle += 2.f * M_PIf;
-            float carrier = (angle < M_PIf) ? (-1.f + 2.f * angle / M_PIf) : (3.f - 2.f * angle / M_PIf);
-            AM->f_t[t] = (A + ftm->f_t[t]) * carrier;
-        }
-        return AM;
-    }
-    inline Function* modulate_PM_tri(const Function* ftm, float A, float fs, float PHI) {
-        auto* PM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        PM->A = A;
-        PM->fs = fs;
-        PM->PHI = PHI;
-        for (uint64_t t = 0; t < PM->N; t++) {
-            float angle = fmodf(2.f * M_PIf * fs * PM->t[t] + ftm->f_t[t] + PHI, 2.f * M_PIf);
-            if (angle < 0.f) angle += 2.f * M_PIf;
-            float carrier = (angle < M_PIf) ? (-1.f + 2.f * angle / M_PIf) : (3.f - 2.f * angle / M_PIf);
-            PM->f_t[t] = A * carrier;
-        }
-        return PM;
-    }
-    inline Function* modulate_FM_tri(const Function* ftm, float A, float fs, float PHI) {
-        auto* FM = new Function(ftm->Tc, ftm->fs, ftm->f, ftm->PHI, ftm->A, ftm->function_formula);
-        FM->A = A;
-        FM->fs = fs;
-        FM->PHI = PHI;
-        float integral = 0.f;
-        for (uint64_t t = 0; t < FM->N; t++) {
-            integral += ftm->f_t[t] * ftm->Ts;
-            float angle = fmodf(2.f * M_PIf * fs * FM->t[t] + 2.f * M_PIf * integral + PHI, 2.f * M_PIf);
-            if (angle < 0.f) angle += 2.f * M_PIf;
-            float carrier = (angle < M_PIf) ? (-1.f + 2.f * angle / M_PIf) : (3.f - 2.f * angle / M_PIf);
-            FM->f_t[t] = A * carrier;
+    // --- FM MODULATION ---
+    inline Function FM_modulation(const Function* ftm, float k) {
+        Function FM = *ftm;
+        float const_cos = pi2 * FM.f;
+        float second_const = k / ftm->f;
+        for (uint64_t t = 0; t < FM.N; t++) {
+            FM.f_t[t] = cosf(const_cos * (float)t + second_const * ftm->f_t[t]);
         }
         return FM;
     }
@@ -4058,7 +3910,7 @@ int main() {
         });
 
         for (uint64_t n = 0; n < ASK->N; n++) {
-            uint64_t current_bit = static_cast<uint64_t>(ASK->t[n] * bitrate);
+            auto current_bit = static_cast<uint64_t>(ASK->t[n] * bitrate);
             if (current_bit >= bit_count) current_bit = bit_count - 1;
             float bit_val = (bits[current_bit] > 0) ? A_HIGH : A_LOW;
             ASK->f_t[n] = bit_val * sinf(2.f * M_PIf * f * ASK->t[n] + PHI);
@@ -4076,7 +3928,7 @@ int main() {
         });
 
         for (uint64_t n = 0; n < PSK->N; n++) {
-            uint64_t current_bit = static_cast<uint64_t>(PSK->t[n] * bitrate);
+            auto current_bit = static_cast<uint64_t>(PSK->t[n] * bitrate);
             if (current_bit >= bit_count) current_bit = bit_count - 1;
             float phi_current = (bits[current_bit] > 0) ? PHI_HIGH : PHI_LOW;
             PSK->f_t[n] = A * sinf(2.f * M_PIf * f * PSK->t[n] + phi_current);
@@ -4094,7 +3946,7 @@ int main() {
         });
 
         for (uint64_t n = 0; n < FSK->N; n++) {
-            uint64_t current_bit = static_cast<uint64_t>(FSK->t[n] * bitrate);
+            auto current_bit = static_cast<uint64_t>(FSK->t[n] * bitrate);
             if (current_bit >= bit_count) current_bit = bit_count - 1;
             float f_current = (bits[current_bit] > 0) ? f_HIGH : f_LOW;
             FSK->f_t[n] = A * sinf(2.f * M_PIf * f_current * FSK->t[n] + PHI);
