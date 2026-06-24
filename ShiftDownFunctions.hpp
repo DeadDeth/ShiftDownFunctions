@@ -2663,14 +2663,14 @@ int main() {
         };
     };
     // Ability to draw, more functions on one canvas, you can keep adding them, and it will draw over the main function scaled graph
-    class GraphMulti {
+    class MultiGraph {
         // index:
-        // 0 = 8k
+        // 0 = 8k default, created and tested with it in mind
         // 1 = 4k
-        // 2 = full hd
         uint32_t picture_size_index = 0;
-        uint32_t picture_width[3]{7680, 7680 / 2, 7680 / 4};
-        uint32_t picture_height[3]{4320, 4320 / 2, 4320 / 4};
+        uint32_t picture_width[2]{7680, 7680 / 2};
+        uint32_t picture_height[2]{4320, 4320 / 2};
+
 
         const char* file_path = nullptr;
         const char* name_label = nullptr;
@@ -2678,271 +2678,280 @@ int main() {
         float scale_x = 0;
         float scale_y = 0;
 
+        //paddings for manual tweaking
+        uint32_t padding_left_x = 556;
+        uint32_t padding_right_x = 244;
+        uint32_t padding_top_y = 260;
+        uint32_t padding_bot_y = 380;
+
+
         uint32_t offset_x = 0;
         uint32_t offset_y = 0;
-        uint32_t padding_left_x = 0;
-        uint32_t padding_right_x = 0;
-        uint32_t padding_top_y = 0;
-        uint32_t padding_bot_y = 0;
         uint32_t divider = 0;
 
+        //default values, chosen by me for 8k resolution, works well with 4k also
+        // in pixels
+        uint32_t line_thickness = 4;
+        uint32_t grid_thickness = 4;
+        uint32_t axis_thickness = 4;
+        uint32_t sub_segments_thickness = 2;
+        // text scale
+        uint32_t values_text_scale = 6;
+        uint32_t labels_text_scale = 10;
+
+
+        // multithread here works only on the final save to file section, in order to avoid thread collisions
+        // and, it's enough for me since it's the most time taking operation here
         std::thread multigraph_thread;
 
+        // texture pointer in RAM
         uint32_t* texture = nullptr;
+
 
     public:
 
-        GraphMulti(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
-            this->file_path = file_path;
-            this->name_label = name_label;
-            //math section
-            uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
-            divider = picture_size_index * 2;
-            divider += (divider == 0);
+        MultiGraph(const Function& function_to_render, const char* file_path = nullptr, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
-            texture = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * picture_size, 32));
-            for (uint64_t i = 0; i < picture_size; i++) {
-                texture[i] = background_color;
-            }
+                if (file_path != nullptr) {
+                    this->file_path = file_path;
+                }
 
-            float min_y = std::numeric_limits<float>::max();
-            float max_y = std::numeric_limits<float>::lowest();
+                //math section
+                uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
+                divider = picture_size_index * 2;
+                if (divider == 0) divider = 1;
 
-            for (uint32_t i = 0; i < function_to_render->N; i++) {
-                min_y = function_to_render->f_t[i] < min_y ? function_to_render->f_t[i] : min_y;
-                max_y = function_to_render->f_t[i] > max_y ? function_to_render->f_t[i] : max_y;
-            }
+                texture = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * picture_size, 32));
+                for (uint64_t i = 0; i < picture_size; i++) {
+                    texture[i] = background_color;
+                }
 
-            padding_left_x = 736 / divider;
-            padding_right_x = 384 / divider;
+                float min_y = std::numeric_limits<float>::max();
+                float max_y = std::numeric_limits<float>::lowest();
 
-            padding_top_y = 256 / divider;
-            padding_bot_y = 512 / divider;
+                for (uint32_t i = 0; i < function_to_render.N; i++) {
+                    min_y = function_to_render.f_t[i] < min_y ? function_to_render.f_t[i] : min_y;
+                    max_y = function_to_render.f_t[i] > max_y ? function_to_render.f_t[i] : max_y;
+                }
 
-            uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
-            uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
+                padding_left_x /= divider;
+                padding_right_x /= divider;
 
-            scale_x = static_cast<float>(graph_width) / (function_to_render->t[function_to_render->N - 1] - function_to_render->t[0]);
-            scale_y = 0;
-            if (max_y == min_y) {
-                scale_y = static_cast<float>(graph_height) / 1.f;
-            }
-            else {
-                scale_y = static_cast<float>(graph_height) / (max_y - min_y);
-            }
+                padding_top_y /= divider;
+                padding_bot_y /= divider;
 
-            int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render->N, 32));
-            int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render->N, 32));
+                uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
+                uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
-            for (uint32_t i = 0; i < function_to_render->N; i++) {
-                scaled_x[i] = static_cast<int>(roundf(function_to_render->t[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(function_to_render->f_t[i] * scale_y)));
-            }
+                scale_x = static_cast<float>(graph_width) / (function_to_render.t[function_to_render.N - 1] - function_to_render.t[0]);
+                scale_y = 0;
+                if (max_y == min_y) {
+                    scale_y = static_cast<float>(graph_height) / 1.f;
+                }
+                else {
+                    scale_y = static_cast<float>(graph_height) / (max_y - min_y);
+                }
 
-            int int_min_y = std::numeric_limits<int>::max();
-            int int_max_y = std::numeric_limits<int>::lowest();
+                int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
+                int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
 
-            for (uint32_t i = 0; i < function_to_render->N; i++) {
-                int_min_y = scaled_y[i] < int_min_y ? scaled_y[i] : int_min_y;
-                int_max_y = scaled_y[i] > int_max_y ? scaled_y[i] : int_max_y;
-            }
+                for (uint32_t i = 0; i < function_to_render.N; i++) {
+                    scaled_x[i] = static_cast<int>(roundf(function_to_render.t[i] * scale_x));
+                    scaled_y[i] = -(static_cast<int>(roundf(function_to_render.f_t[i] * scale_y)));
+                }
 
-            offset_x = scaled_x[0] * -1;
-            offset_y = int_min_y * -1;
+                int int_min_y = std::numeric_limits<int>::max();
+                int int_max_y = std::numeric_limits<int>::lowest();
 
-            auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render->N, 32));
-            auto* scaled_uint_y = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render->N, 32));
+                for (uint32_t i = 0; i < function_to_render.N; i++) {
+                    int_min_y = scaled_y[i] < int_min_y ? scaled_y[i] : int_min_y;
+                    int_max_y = scaled_y[i] > int_max_y ? scaled_y[i] : int_max_y;
+                }
 
-            for (uint32_t i = 0; i < function_to_render->N; i++) {
-                scaled_uint_x[i] = scaled_x[i] + offset_x + padding_left_x;
-                scaled_uint_y[i] = scaled_y[i] + offset_y + padding_top_y;
-            }
+                offset_x = scaled_x[0] * -1;
+                offset_y = int_min_y * -1;
+
+                auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render.N, 32));
+                auto* scaled_uint_y = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render.N, 32));
+
+                for (uint32_t i = 0; i < function_to_render.N; i++) {
+                    scaled_uint_x[i] = scaled_x[i] + offset_x + padding_left_x;
+                    scaled_uint_y[i] = scaled_y[i] + offset_y + padding_top_y;
+                }
 
 
-            // name label
-            uint32_t end = 0;
-            while ((name_label[end] != '\0') && (name_label[end] != '\n')) {
-                end++;
-            }
-            detail::TextBox name(end, 1, background_color);
-            name.add_text(name_label, font_color);
+                // name label
+                uint32_t end = 0;
+                while ((name_label[end] != '\0') && (name_label[end] != '\n')) {
+                    end++;
+                }
+                detail::TextBox name(end, 1, background_color);
+                name.add_text(name_label, font_color);
 
-            uint32_t skala_textu_name = 16 / divider;
-            uint32_t center = name.texture_width * skala_textu_name / 2;
+                uint32_t skala_textu_name = labels_text_scale / divider;
+                uint32_t center = name.texture_width * skala_textu_name / 2;
 
-            uint32_t pozycja_y = 0;
-            for (uint32_t y = 0; y < name.texture_height; y++) {
-                uint32_t pozycja_x = 0;
-                for (uint32_t x = 0; x < name.texture_width; x++) {
-                    for (uint32_t sy = 0; sy < skala_textu_name; sy++) {
-                        for (uint32_t sx = 0; sx < skala_textu_name; sx++) {
-                            texture[(sx + pozycja_x + padding_left_x + (graph_width / 2) + ((sy + pozycja_y) * picture_width[picture_size_index])) - center] = name.texture[x + (y * name.texture_width)];
+                uint32_t pozycja_y = 0;
+                for (uint32_t y = 0; y < name.texture_height; y++) {
+                    uint32_t pozycja_x = 0;
+                    for (uint32_t x = 0; x < name.texture_width; x++) {
+                        for (uint32_t sy = 0; sy < skala_textu_name; sy++) {
+                            for (uint32_t sx = 0; sx < skala_textu_name; sx++) {
+                                texture[(sx + pozycja_x + padding_left_x + (graph_width / 2) + ((sy + pozycja_y + (48 / divider)) * picture_width[picture_size_index])) - center] = name.texture[x + (y * name.texture_width)];
+                            }
                         }
+                        pozycja_x += skala_textu_name;
                     }
-                    pozycja_x += skala_textu_name;
+                    pozycja_y += skala_textu_name;
                 }
-                pozycja_y += skala_textu_name;
-            }
 
-            // podpis osi y
-            end = 0;
-            while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
-                end++;
-            }
-            detail::TextBox os_y(end, 1, background_color);
-            os_y.add_text(y_label, font_color);
-
-            auto* rotated_texture = static_cast<uint32_t*>(_mm_malloc(
-                sizeof(uint32_t) * os_y.texture_width * os_y.texture_height, 32));
-            uint32_t rotated_width = os_y.texture_height;
-            uint32_t rotated_height = os_y.texture_width;
-
-            for (uint32_t y = 0; y < rotated_height; y++) {
-                for (uint32_t x = 0; x < rotated_width; x++) {
-                    rotated_texture[x + (y * rotated_width)] =
-                        os_y.texture[(os_y.texture_width - 1 - y) + (x * os_y.texture_width)];
+                // podpis osi y
+                end = 0;
+                while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
+                    end++;
                 }
-            }
+                detail::TextBox os_y(end, 1, background_color);
+                os_y.add_text(y_label, font_color);
 
-            uint32_t skala_textu_os_y = 16 / divider;
-            pozycja_y = 0;
-            center = rotated_height * skala_textu_os_y / 2;
+                auto* rotated_texture = static_cast<uint32_t*>(_mm_malloc(
+                    sizeof(uint32_t) * os_y.texture_width * os_y.texture_height, 32));
+                uint32_t rotated_width = os_y.texture_height;
+                uint32_t rotated_height = os_y.texture_width;
 
-            for (uint32_t y = 0; y < rotated_height; y++) {
-                uint32_t pozycja_x = 0;
-                for (uint32_t x = 0; x < rotated_width; x++) {
-                    for (uint32_t sy = 0; sy < skala_textu_name; sy++) {
-                        for (uint32_t sx = 0; sx < skala_textu_name; sx++) {
-                            texture[sx + pozycja_x +
-                                    ((sy + pozycja_y + (graph_height / 2) + padding_top_y - center) * picture_width[picture_size_index])] =
-                                rotated_texture[x + y * rotated_width];
+                for (uint32_t y = 0; y < rotated_height; y++) {
+                    for (uint32_t x = 0; x < rotated_width; x++) {
+                        rotated_texture[x + (y * rotated_width)] =
+                            os_y.texture[(os_y.texture_width - 1 - y) + (x * os_y.texture_width)];
+                    }
+                }
+
+                uint32_t skala_textu_os_y = labels_text_scale / divider;
+                pozycja_y = 0;
+                center = rotated_height * skala_textu_os_y / 2;
+
+                for (uint32_t y = 0; y < rotated_height; y++) {
+                    uint32_t pozycja_x = 0;
+                    for (uint32_t x = 0; x < rotated_width; x++) {
+                        for (uint32_t sy = 0; sy < skala_textu_name; sy++) {
+                            for (uint32_t sx = 0; sx < skala_textu_name; sx++) {
+                                texture[sx + pozycja_x + ((sy + pozycja_y + (graph_height / 2) + padding_top_y - center) * picture_width[picture_size_index])] = rotated_texture[x + y * rotated_width];
+                            }
                         }
+                        pozycja_x += skala_textu_os_y;
                     }
-                    pozycja_x += skala_textu_os_y;
+                    pozycja_y += skala_textu_os_y;
                 }
-                pozycja_y += skala_textu_os_y;
-            }
-            _mm_free(rotated_texture);
+                _mm_free(rotated_texture);
 
 
-            // podpis osi x
-            end = 0;
-            while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
-                end++;
-            }
-            detail::TextBox os_x(end, 1, background_color);
-            os_x.add_text(x_label, font_color);
+                // podpis osi x
+                end = 0;
+                while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
+                    end++;
+                }
+                detail::TextBox os_x(end, 1, background_color);
+                os_x.add_text(x_label, font_color);
 
-            uint32_t skala_textu_os_x = 16 / divider;
-            center = os_x.texture_width * skala_textu_os_x / 2;
+                uint32_t skala_textu_os_x = labels_text_scale / divider;
+                center = os_x.texture_width * skala_textu_os_x / 2;
 
-            pozycja_y = 0;
-            for (uint32_t y = 0; y < os_x.texture_height; y++) {
-                uint32_t pozycja_x = 0;
-                for (uint32_t x = 0; x < os_x.texture_width; x++) {
-                    for (uint32_t sy = 0; sy < skala_textu_os_x; sy++) {
-                        for (uint32_t sx = 0; sx < skala_textu_os_x; sx++) {
-                            texture[(sx + pozycja_x + padding_left_x + (graph_width / 2) +
-                                     ((sy + pozycja_y + picture_height[picture_size_index] -
-                                       os_x.texture_height * skala_textu_os_x) *
-                                      picture_width[picture_size_index])) -
-                                    center] = os_x.texture[x + (y * os_x.texture_width)];
+                pozycja_y = 0;
+                for (uint32_t y = 0; y < os_x.texture_height; y++) {
+                    uint32_t pozycja_x = 0;
+                    for (uint32_t x = 0; x < os_x.texture_width; x++) {
+                        for (uint32_t sy = 0; sy < skala_textu_os_x; sy++) {
+                            for (uint32_t sx = 0; sx < skala_textu_os_x; sx++) {
+                                texture[(sx + pozycja_x + padding_left_x + (graph_width / 2) + ((sy + pozycja_y - (16 / divider) + picture_height[picture_size_index] - os_x.texture_height * skala_textu_os_x) * picture_width[picture_size_index])) - center] = os_x.texture[x + (y * os_x.texture_width)];
+                            }
                         }
+                        pozycja_x += skala_textu_os_x;
                     }
-                    pozycja_x += skala_textu_os_x;
+                    pozycja_y += skala_textu_os_x;
                 }
-                pozycja_y += skala_textu_os_x;
-            }
 
-            // values on x
-            uint32_t segments_count = 8;
-            uint32_t steps_x = function_to_render->N / (float)segments_count;
-            char value[32];
-            uint32_t skala_textu_value_x = 8 / divider;
-            for (uint32_t i = 1; i < segments_count; i++) {
+                // values on x
+                uint32_t segments_count = 8;
+                uint32_t steps_x = function_to_render.N / segments_count;
+                char value[32];
+                uint32_t skala_textu_value_x = values_text_scale / divider;
+                for (uint32_t i = 1; i < segments_count; i++) {
+                    detail::TextBox value_x(7, 1, background_color);
+                    detail::float_to_engineering_7chars((function_to_render.Tc * (float)i) / (float)segments_count, value);
+                    value_x.add_text(value, font_color);
+
+                    center = value[0] == '-' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) - (skala_textu_value_x << 1));
+                    center = value[6] != ' ' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) + (skala_textu_value_x << 1));
+
+                    pozycja_y = 0;
+                    for (uint32_t y = 0; y < value_x.texture_height; y++) {
+                        uint32_t pozycja_x = 0;
+                        for (uint32_t x = 0; x < value_x.texture_width; x++) {
+                            for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
+                                for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
+                                    texture[(sx + pozycja_x + scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)] +
+                                             ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) -
+                                            center] = value_x.texture[x + (y * value_x.texture_width)];
+                                }
+                            }
+                            pozycja_x += skala_textu_value_x;
+                        }
+                        pozycja_y += skala_textu_value_x;
+                    }
+                }
                 detail::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail::float_to_char(function_to_render->Tc * (float)i, value, 3), font_color);
-                uint32_t length_value = 0;
-                while (value[length_value] != '\n') {
-                    if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
-                        value[length_value] == '1' || value[length_value] == '2' || value[length_value] == '3' ||
-                        value[length_value] == '4' || value[length_value] == '5' || value[length_value] == '6' ||
-                        value[length_value] == '7' || value[length_value] == '8' || value[length_value] == '9') {
-                        length_value++;
-                    }
-                    else {
-                        break;
-                    }
-                }
-                center = (length_value * 8 * skala_textu_value_x) / 2;
+                detail::float_to_engineering_7chars(function_to_render.Tc, value);
+                value_x.add_text(value, font_color);
 
+                center = value[0] == '-' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) - (skala_textu_value_x << 1));
+                center = value[6] != ' ' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) + (skala_textu_value_x << 1));
                 pozycja_y = 0;
                 for (uint32_t y = 0; y < value_x.texture_height; y++) {
                     uint32_t pozycja_x = 0;
                     for (uint32_t x = 0; x < value_x.texture_width; x++) {
                         for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                                texture[(sx + pozycja_x + scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)] +
-                                         ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) -
-                                        center] = value_x.texture[x + (y * value_x.texture_width)];
+                                texture[(sx + pozycja_x + scaled_uint_x[function_to_render.N-1] + ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) - center] = value_x.texture[x + (y * value_x.texture_width)];
                             }
                         }
                         pozycja_x += skala_textu_value_x;
                     }
                     pozycja_y += skala_textu_value_x;
                 }
-            }
-            detail::TextBox value_x(7, 1, background_color);
-            value_x.add_text(detail::float_to_char(function_to_render->Tc, value, 3),
-                             font_color);
-            uint32_t length_value = 0;
-            while (value[length_value] != '\n') {
-                if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
-                    value[length_value] == '1' || value[length_value] == '2' || value[length_value] == '3' ||
-                    value[length_value] == '4' || value[length_value] == '5' || value[length_value] == '6' ||
-                    value[length_value] == '7' || value[length_value] == '8' || value[length_value] == '9') {
-                    length_value++;
-                }
-                else {
-                    break;
-                }
-            }
-            center = (length_value * 8 * skala_textu_value_x) / 2;
-            pozycja_y = 0;
-            for (uint32_t y = 0; y < value_x.texture_height; y++) {
-                uint32_t pozycja_x = 0;
-                for (uint32_t x = 0; x < value_x.texture_width; x++) {
-                    for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
-                        for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                            texture[(sx + pozycja_x + scaled_uint_x[function_to_render->N-1] + ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) - center] = value_x.texture[x + (y * value_x.texture_width)];
+
+                // values y
+                uint32_t kurwa_zmienna = graph_height / segments_count;
+                uint32_t skala_textu_value_y = values_text_scale / divider;
+                float step_y = (max_y - min_y) / static_cast<float>(segments_count);
+
+                for (uint32_t i = 0; i < segments_count; i++) {
+                    detail::TextBox value_y(7, 1, background_color);
+                    detail::float_to_engineering_7chars(max_y - step_y * static_cast<float>(i), value);
+                    value_y.add_text(value, font_color);
+
+                    center = (7 * 8 * skala_textu_value_y);
+
+                    pozycja_y = 0;
+                    for (uint32_t y = 0; y < value_y.texture_height; y++) {
+                        uint32_t pozycja_x = 0;
+                        for (uint32_t x = 0; x < value_y.texture_width; x++) {
+                            for (uint32_t sy = 0; sy < skala_textu_value_y; sy++) {
+                                for (uint32_t sx = 0; sx < skala_textu_value_y; sx++) {
+                                    texture[(padding_left_x + sx + pozycja_x - center - (64 / divider)) +
+                                            ((padding_top_y + sy + pozycja_y + (kurwa_zmienna * i) -
+                                              ((value_y.texture_height * skala_textu_value_y) / 3)) *
+                                             picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
+                                }
+                            }
+                            pozycja_x += skala_textu_value_y;
                         }
+                        pozycja_y += skala_textu_value_y;
                     }
-                    pozycja_x += skala_textu_value_x;
                 }
-                pozycja_y += skala_textu_value_x;
-            }
-
-            // values y
-            uint32_t kurwa_zmienna = graph_height / segments_count;
-            uint32_t skala_textu_value_y = 8 / divider;
-            float step_y = (max_y - min_y) / static_cast<float>(segments_count);
-
-            for (uint32_t i = 0; i < segments_count; i++) {
                 detail::TextBox value_y(7, 1, background_color);
-                value_y.add_text(detail::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
-                length_value = 0;
-                while (value[length_value] != '\n') {
-                    if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
-                        value[length_value] == '1' || value[length_value] == '2' || value[length_value] == '3' ||
-                        value[length_value] == '4' || value[length_value] == '5' || value[length_value] == '6' ||
-                        value[length_value] == '7' || value[length_value] == '8' || value[length_value] == '9') {
-                        length_value++;
-                    }
-                    else {
-                        break;
-                    }
-                }
-                center = (length_value * 8 * skala_textu_value_y);
+                detail::float_to_engineering_7chars(max_y - step_y * static_cast<float>(segments_count), value);
+                value_y.add_text(value, font_color);
+
+                center = (7 * 8 * skala_textu_value_y);
 
                 pozycja_y = 0;
                 for (uint32_t y = 0; y < value_y.texture_height; y++) {
@@ -2950,90 +2959,93 @@ int main() {
                     for (uint32_t x = 0; x < value_y.texture_width; x++) {
                         for (uint32_t sy = 0; sy < skala_textu_value_y; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_y; sx++) {
-                                texture[(padding_left_x + sx + pozycja_x - center - (64 / divider)) +
-                                        ((padding_top_y + sy + pozycja_y + (kurwa_zmienna * i) -
-                                          ((value_y.texture_height * skala_textu_value_y) / 3)) *
-                                         picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
+                                texture[(padding_left_x + sx + pozycja_x - center - (64 / divider)) + ((padding_top_y + sy + pozycja_y + graph_height - ((value_y.texture_height * skala_textu_value_y) / 3)) * picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
                             }
                         }
                         pozycja_x += skala_textu_value_y;
                     }
                     pozycja_y += skala_textu_value_y;
                 }
-            }
-            detail::TextBox value_y(7, 1, background_color);
-            value_y.add_text(detail::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
-                             font_color);
-            length_value = 0;
-            while (value[length_value] != '\n') {
-                if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
-                    value[length_value] == '1' || value[length_value] == '2' || value[length_value] == '3' ||
-                    value[length_value] == '4' || value[length_value] == '5' || value[length_value] == '6' ||
-                    value[length_value] == '7' || value[length_value] == '8' || value[length_value] == '9') {
-                    length_value++;
-                }
-                else {
-                    break;
-                }
-            }
-            center = (length_value * 8 * skala_textu_value_y);
 
-            pozycja_y = 0;
-            for (uint32_t y = 0; y < value_y.texture_height; y++) {
-                uint32_t pozycja_x = 0;
-                for (uint32_t x = 0; x < value_y.texture_width; x++) {
-                    for (uint32_t sy = 0; sy < skala_textu_value_y; sy++) {
-                        for (uint32_t sx = 0; sx < skala_textu_value_y; sx++) {
-                            texture[(padding_left_x + sx + pozycja_x - center - (64 / divider)) + ((padding_top_y + sy + pozycja_y + graph_height - ((value_y.texture_height * skala_textu_value_y) / 3)) * picture_width[picture_size_index])] = value_y.texture[x + (y * value_y.texture_width)];
-                        }
+
+
+                //sub segments on x
+                uint32_t sub_segments_count = 20;
+                uint32_t sub_segments_count_x = sub_segments_count * segments_count;
+
+                uint32_t sub_steps_x = graph_width / sub_segments_count_x;
+                for (uint32_t i = 0; i < sub_segments_count_x; i++) {
+                    detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], (sub_steps_x * i) + padding_left_x, picture_height[picture_size_index] - padding_bot_y, (sub_steps_x * i) + padding_left_x, 0 + padding_top_y, sub_segments_color, sub_segments_thickness / divider);
+                }
+                detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render.N - 1],
+                          picture_height[picture_size_index] - padding_bot_y, graph_width + padding_left_x, 0 + padding_top_y,
+                          sub_segments_color, sub_segments_thickness / divider);
+
+                // grid on y
+                uint32_t kurwa_zmienna_2 = graph_height / (sub_segments_count * segments_count);
+                for (uint32_t i = 0; i < segments_count; i++) {
+                    for (uint32_t j = 0; j < sub_segments_count; j++) {
+                        detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i) + (kurwa_zmienna_2 * j),
+                                  picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i) + (kurwa_zmienna_2 * j) , sub_segments_color, sub_segments_thickness / divider);
                     }
-                    pozycja_x += skala_textu_value_y;
+                    detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
+                              picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, grid_thickness / divider);
                 }
-                pozycja_y += skala_textu_value_y;
-            }
+                detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
+                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, grid_thickness / divider);
 
-            // grid on x
-            for (uint32_t i = 0; i < segments_count; i++) {
-                detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[(steps_x * i) - ((steps_x * i) > 0)], 0 + padding_top_y, grid_color, 16 / divider);
-            }
-            detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render->N - 1],
-                      picture_height[picture_size_index] - padding_bot_y, scaled_uint_x[function_to_render->N - 1], 0 + padding_top_y,
-                      grid_color, 16 / divider);
-
-            // grid on y
-            for (uint32_t i = 0; i < segments_count; i++) {
-                detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (kurwa_zmienna * i),
-                          picture_width[picture_size_index] - padding_right_x, padding_top_y + (kurwa_zmienna * i), grid_color, 16 / divider);
-            }
-            detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, padding_top_y + (graph_height),
-                      picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height), grid_color, 16 / divider);
+                // grid on x
+                steps_x = graph_width / segments_count;
+                for (uint32_t i = 0; i < segments_count; i++) {
+                    detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], (steps_x * i) + padding_left_x, picture_height[picture_size_index] - padding_bot_y, (steps_x * i) + padding_left_x, 0 + padding_top_y, grid_color, grid_thickness / divider);
+                }
+                detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render.N - 1],
+                          picture_height[picture_size_index] - padding_bot_y, graph_width + padding_left_x, 0 + padding_top_y,
+                          grid_color, grid_thickness / divider);
 
 
-            // os x
-            if (min_y <= 0.0f && max_y >= 0.0f) {
-                uint32_t zero_y_pixel = offset_y + padding_top_y;
+                // os x
+                if (min_y <= 0.0f && max_y >= 0.0f) {
+                    uint32_t zero_y_pixel = offset_y + padding_top_y;
+                    detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, axis_thickness / divider);
+                }
+                // os y
+                if (scaled_x[0] <= 0) {
+                    detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color, axis_thickness / divider);
+                }
+                // wykres
+                // stara oryginalna funkcja, problem dla f > bardzo dużo, oraz Bresenham dostawał zawału i czasy leciały w bardzo dużo
+                // for (uint32_t i = 0; i < function_to_render.N - 1; i++) {
+                //     detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i],scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, line_thickness / divider);
+                // }
+                // zoptymalizowane rysowanie, dla f > bardzo dużo, czasy mniejsze względem oryginału
+                uint64_t local_max_y = scaled_uint_y[0];
+                uint64_t local_min_y = scaled_uint_y[0];
+                for (uint64_t i = 0; i < function_to_render.N - 1; i++) {
+                    local_max_y = scaled_uint_y[i] < local_max_y ? scaled_uint_y[i] : local_max_y;
+                    local_min_y = scaled_uint_y[i] >= local_min_y ? scaled_uint_y[i] : local_min_y;
+                    i = (scaled_uint_x[i] != scaled_uint_x[i + 1]) ?
+                    (detail::draw_line(texture, picture_width[picture_size_index],
+                        picture_height[picture_size_index], scaled_uint_x[i], local_max_y,scaled_uint_x[i],
+                        local_min_y, line_color, line_thickness / divider),
+                        local_max_y = scaled_uint_y[i + 1],
+                        local_min_y = scaled_uint_y[i + 1],
+                        detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
+                            scaled_uint_x[i], scaled_uint_y[i],scaled_uint_x[i + 1], scaled_uint_y[i + 1],
+                            line_color, line_thickness / divider),
+                        i) : i;
+                }
+                detail::draw_line(texture, picture_width[picture_size_index],
+                        picture_height[picture_size_index], scaled_uint_x[function_to_render.N - 1], local_max_y,scaled_uint_x[function_to_render.N - 1],
+                        local_min_y, line_color, line_thickness / divider);
 
-                detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x, zero_y_pixel, axis_color, 16 / divider);
-            }
-            // os y
-            if (scaled_x[0] <= 0) {
-                detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], 0 + offset_x + padding_left_x,
-                          picture_height[picture_size_index] - padding_bot_y, 0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
-                          16 / divider);
-            }
-            // wykres
-            for (uint32_t i = 0; i < function_to_render->N - 1; i++) {
-                detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i],
-                          scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, 4 / divider);
-            }
-
-            _mm_free(scaled_y);
-            _mm_free(scaled_x);
-            _mm_free(scaled_uint_x);
-            _mm_free(scaled_uint_y);
+                _mm_free(scaled_y);
+                _mm_free(scaled_x);
+                _mm_free(scaled_uint_x);
+                _mm_free(scaled_uint_y);
         }
         // a ten dla funkcji po DFT,
-        GraphMulti(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        MultiGraph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
             this->file_path = file_path;
             this->name_label = name_label;
             //math section
@@ -3390,7 +3402,7 @@ int main() {
             _mm_free(scaled_uint_y);
         }
         //  ten dla fft
-        GraphMulti(const FFT* fft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        MultiGraph(const FFT* fft_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
             this->file_path = file_path;
             this->name_label = name_label;
             //math section
@@ -3742,36 +3754,55 @@ int main() {
             _mm_free(scaled_uint_y);
         }
 
-        ~GraphMulti() {
+        ~MultiGraph() {
             if (multigraph_thread.joinable()) {
                 multigraph_thread.join();
             }
             _mm_free(texture);
         };
         // tego używamy, aby dodać funkcję do wykresu
-        void add(const Function* function_to_render, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color) {
+        void add(const Function& function_to_render, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color) {
             // wykres
-            int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render->N, 32));
-            int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render->N, 32));
+            int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
+            int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
 
-            for (uint32_t i = 0; i < function_to_render->N; i++) {
-                scaled_x[i] = static_cast<int>(roundf(function_to_render->t[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(function_to_render->f_t[i] * scale_y)));
+            for (uint32_t i = 0; i < function_to_render.N; i++) {
+                scaled_x[i] = static_cast<int>(roundf(function_to_render.t[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(roundf(function_to_render.f_t[i] * scale_y)));
             }
 
-            auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render->N, 32));
-            auto* scaled_uint_y = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render->N, 32));
+            auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render.N, 32));
+            auto* scaled_uint_y = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render.N, 32));
 
-            for (uint32_t i = 0; i < function_to_render->N; i++) {
+            for (uint32_t i = 0; i < function_to_render.N; i++) {
                 scaled_uint_x[i] = scaled_x[i] + offset_x + padding_left_x;
                 scaled_uint_y[i] = scaled_y[i] + offset_y + padding_top_y;
             }
 
-            for (uint32_t i = 0; i < function_to_render->N - 1; i++) {
+
+            uint64_t local_max_y = scaled_uint_y[0];
+            uint64_t local_min_y = scaled_uint_y[0];
+            for (uint64_t i = 0; i < function_to_render.N - 1; i++) {
                 if (scaled_uint_x[i] > picture_width[picture_size_index] - padding_right_x || scaled_uint_x[i] < padding_left_x) continue;
                 if (scaled_uint_y[i] > picture_height[picture_size_index] - padding_bot_y || scaled_uint_y[i] < padding_top_y) continue;
-                detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, 4 / divider);
+                local_max_y = scaled_uint_y[i] < local_max_y ? scaled_uint_y[i] : local_max_y;
+                local_min_y = scaled_uint_y[i] >= local_min_y ? scaled_uint_y[i] : local_min_y;
+                i = (scaled_uint_x[i] != scaled_uint_x[i + 1]) ?
+                (detail::draw_line(texture, picture_width[picture_size_index],
+                    picture_height[picture_size_index], scaled_uint_x[i], local_max_y,scaled_uint_x[i],
+                    local_min_y, line_color, line_thickness / divider),
+                    local_max_y = scaled_uint_y[i + 1],
+                    local_min_y = scaled_uint_y[i + 1],
+                    detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
+                        scaled_uint_x[i], scaled_uint_y[i],scaled_uint_x[i + 1], scaled_uint_y[i + 1],
+                        line_color, line_thickness / divider),
+                    i) : i;
             }
+            detail::draw_line(texture, picture_width[picture_size_index],
+                    picture_height[picture_size_index], scaled_uint_x[function_to_render.N - 1], local_max_y,scaled_uint_x[function_to_render.N - 1],
+                    local_min_y, line_color, line_thickness / divider);
+
+
             _mm_free(scaled_y);
             _mm_free(scaled_x);
             _mm_free(scaled_uint_x);
@@ -3839,7 +3870,7 @@ int main() {
         }
 
         // to zapisuje przygotowany multi grapg na dysk jako zdjęcie
-        void GenerateGraphMulti() {
+        void GenerateMultiGraph() {
             multigraph_thread = std::thread([this]() {
                 detail::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
             });
@@ -3868,30 +3899,33 @@ int main() {
      */
 
     // --- AM MODULATION ---
-    inline Function AM_modulation(const Function* ftm, float k) {
+    inline Function AM_modulation(const Function* ftm, float f, float kA) {
         Function AM = *ftm;
+        AM.f = f;
         float const_cos = pi2 * AM.f;
         for (uint64_t t = 0; t < AM.N; t++) {
-            AM.f_t[t] = (k * ftm->f_t[t] + 1) * cosf(const_cos * (float)t);
+            AM.f_t[t] = (kA * ftm->f_t[t] + 1) * cosf(const_cos * AM.t[t]);
         }
         return AM;
     }
     // --- PM MODULATION ---
-    inline Function PM_modulation(const Function* ftm, float k) {
+    inline Function PM_modulation(const Function* ftm, float f, float kPHI) {
         Function PM = *ftm;
+        PM.f = f;
         float const_cos = pi2 * PM.f;
         for (uint64_t t = 0; t < PM.N; t++) {
-            PM.f_t[t] = cosf(const_cos * (float)t + k * ftm->f_t[t]);
+            PM.f_t[t] = cosf(const_cos * PM.t[t] + kPHI * ftm->f_t[t]);
         }
         return PM;
     }
     // --- FM MODULATION ---
-    inline Function FM_modulation(const Function* ftm, float k) {
+    inline Function FM_modulation(const Function* ftm, float f, float kf) {
         Function FM = *ftm;
+        FM.f = f;
         float const_cos = pi2 * FM.f;
-        float second_const = k / ftm->f;
+        float second_const = kf / ftm->f;
         for (uint64_t t = 0; t < FM.N; t++) {
-            FM.f_t[t] = cosf(const_cos * (float)t + second_const * ftm->f_t[t]);
+            FM.f_t[t] = cosf(const_cos * FM.t[t] + second_const * ftm->f_t[t]);
         }
         return FM;
     }
