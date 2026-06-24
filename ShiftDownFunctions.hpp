@@ -2169,9 +2169,10 @@ namespace ShiftDownFunctions
             });
         }
 
-        // log scale tension: 0 == off, 1 == log2f scale, 0 < value < 1 == better low frequencies visibility, value > 1 == better higher frequencies visibility
-        Graph(const DFT& dft_to_render, bool dB_scale = false, float log_scale_tension = 0, const char* file_path = nullptr,
-              const char* name_label = " ", const char* x_label = " ",
+        // log scale tension: 0 == off, 1 == log2f scale, 0 < value < 1 == better low frequencies visibility, value > 1
+        // == better higher frequencies visibility
+        Graph(const DFT& dft_to_render, bool dB_scale = false, float log_scale_tension = 0,
+              const char* file_path = nullptr, const char* name_label = " ", const char* x_label = " ",
               const char* y_label = " ",
               uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color,
               uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color,
@@ -2642,9 +2643,10 @@ namespace ShiftDownFunctions
             });
         }
 
-        // log scale tension: 0 == off, 1 == log2f scale, 0 < value < 1 == better low frequencies visibility, value > 1 == better higher frequencies visibility
-        Graph(const FFT& fft_to_render, bool dB_scale = false, float log_scale_tension = 0, const char* file_path = nullptr,
-              const char* name_label = " ", const char* x_label = " ",
+        // log scale tension: 0 == off, 1 == log2f scale, 0 < value < 1 == better low frequencies visibility, value > 1
+        // == better higher frequencies visibility
+        Graph(const FFT& fft_to_render, bool dB_scale = false, float log_scale_tension = 0,
+              const char* file_path = nullptr, const char* name_label = " ", const char* x_label = " ",
               const char* y_label = " ",
               uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color,
               uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color,
@@ -2874,8 +2876,8 @@ namespace ShiftDownFunctions
 
                     // center finder (best one yet)
                     for (uint64_t l = 0; value[l] != '\0'; l++) {
-                    center = (l + 1) * 4 * skala_textu_value_x;
-                }
+                        center = (l + 1) * 4 * skala_textu_value_x;
+                    }
 
                     pozycja_y = 0;
                     for (uint32_t y = 0; y < value_x.texture_height; y++) {
@@ -3194,13 +3196,14 @@ namespace ShiftDownFunctions
                    uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color,
                    uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
+#pragma region math section
             if (file_path != nullptr) {
                 this->file_path = file_path;
             }
 
             bg = background_color;
             font = font_color;
-            // math section
+
             uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
             divider = picture_size_index * 2;
             if (divider == 0)
@@ -3265,8 +3268,9 @@ namespace ShiftDownFunctions
                 scaled_uint_y[i] = scaled_y[i] + offset_y + padding_top_y;
             }
 
+#pragma endregion
 
-            // name label
+#pragma region name label
             uint32_t end = 0;
             while ((name_label[end] != '\0') && (name_label[end] != '\n')) {
                 end++;
@@ -3292,8 +3296,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_name;
             }
+#pragma endregion
 
-            // podpis osi y
+#pragma region podpis osi y
             end = 0;
             while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
                 end++;
@@ -3333,8 +3338,9 @@ namespace ShiftDownFunctions
             }
             _mm_free(rotated_texture);
 
+#pragma endregion
 
-            // podpis osi x
+#pragma region podpis osi x
             end = 0;
             while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
                 end++;
@@ -3362,8 +3368,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_os_x;
             }
+#pragma endregion
 
-            // values on x
+#pragma region values on x
             uint32_t segments_count = 8;
             uint32_t steps_x = function_to_render.N / segments_count;
             char value[32];
@@ -3417,8 +3424,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_value_x;
             }
+#pragma endregion
 
-            // values y
+#pragma region values y
             uint32_t kurwa_zmienna = graph_height / segments_count;
             uint32_t skala_textu_value_y = values_text_scale / divider;
             float step_y = (max_y - min_y) / static_cast<float>(segments_count);
@@ -3472,8 +3480,9 @@ namespace ShiftDownFunctions
                 pozycja_y += skala_textu_value_y;
             }
 
+#pragma endregion
 
-            // sub segments on x
+#pragma region sub segments on x
             uint32_t sub_segments_count = 20;
             uint32_t sub_segments_count_x = sub_segments_count * segments_count;
 
@@ -3489,8 +3498,9 @@ namespace ShiftDownFunctions
                               scaled_uint_x[function_to_render.N - 1],
                               picture_height[picture_size_index] - padding_bot_y, graph_width + padding_left_x,
                               0 + padding_top_y, sub_segments_color, sub_segments_thickness / divider);
+#pragma endregion
 
-            // grid on y
+#pragma region grid on y
             uint32_t kurwa_zmienna_2 = graph_height / (sub_segments_count * segments_count);
             for (uint32_t i = 0; i < segments_count; i++) {
                 for (uint32_t j = 0; j < sub_segments_count; j++) {
@@ -3509,8 +3519,9 @@ namespace ShiftDownFunctions
                               padding_left_x, padding_top_y + (graph_height),
                               picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height),
                               grid_color, grid_thickness / divider);
+#pragma endregion
 
-            // grid on x
+#pragma region grid on x
             steps_x = graph_width / segments_count;
             for (uint32_t i = 0; i < segments_count; i++) {
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
@@ -3523,22 +3534,27 @@ namespace ShiftDownFunctions
                               picture_height[picture_size_index] - padding_bot_y, graph_width + padding_left_x,
                               0 + padding_top_y, grid_color, grid_thickness / divider);
 
+#pragma endregion
 
-            // os x
+#pragma region os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x,
                                   zero_y_pixel, axis_color, axis_thickness / divider);
             }
-            // os y
+#pragma endregion
+
+#pragma region os y
             if (scaled_x[0] <= 0) {
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   0 + offset_x + padding_left_x, picture_height[picture_size_index] - padding_bot_y,
                                   0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color,
                                   axis_thickness / divider);
             }
-            // wykres
+#pragma endregion
+
+#pragma region wykres
             // stara oryginalna funkcja, problem dla f > bardzo dużo, oraz Bresenham dostawał zawału i czasy leciały w
             // bardzo dużo for (uint32_t i = 0; i < function_to_render.N - 1; i++) {
             //     detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
@@ -3566,7 +3582,9 @@ namespace ShiftDownFunctions
                               scaled_uint_x[function_to_render.N - 1], local_max_y,
                               scaled_uint_x[function_to_render.N - 1], local_min_y, line_color,
                               line_thickness / divider);
+#pragma endregion
 
+#pragma region cleaning up and legend
             graph_height_legend = graph_height;
             y_legend_top_offset += detail::multi_graph_legend(
                 texture, y_legend_top_offset, padding_top_y, graph_height_legend, legend_text_scale,
@@ -3577,24 +3595,27 @@ namespace ShiftDownFunctions
             _mm_free(scaled_x);
             _mm_free(scaled_uint_x);
             _mm_free(scaled_uint_y);
+#pragma endregion
         }
 
         // nie dostosowane jeszcze do nowej wresjii wszystkiego XD
         // a ten dla funkcji po DFT,
-        MultiGraph(const DFT* dft_to_render, const char* name_label = " ", const char* x_label = " ",
+        MultiGraph(const DFT& dft_to_render, const char* name_label = " ", const char* x_label = " ",
                    const char* y_label = " ", const char* file_path = nullptr,
                    uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color,
                    uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color,
                    uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color,
                    uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color,
                    uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+
+#pragma region math section
             this->file_path = file_path;
             this->name_label = name_label;
-            // math section
+
             uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
             divider = picture_size_index * 2;
             divider += (divider == 0);
-            uint32_t K_render = (dft_to_render->K / 2) + 1;
+            uint32_t K_render = (dft_to_render.K / 2) + 1;
 
 
             texture = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * picture_size, 32));
@@ -3606,8 +3627,8 @@ namespace ShiftDownFunctions
             float max_y = std::numeric_limits<float>::lowest();
 
             for (uint32_t i = 0; i < K_render; i++) {
-                min_y = dft_to_render->mod_z[i] < min_y ? dft_to_render->mod_z[i] : min_y;
-                max_y = dft_to_render->mod_z[i] > max_y ? dft_to_render->mod_z[i] : max_y;
+                min_y = dft_to_render.mod_z[i] < min_y ? dft_to_render.mod_z[i] : min_y;
+                max_y = dft_to_render.mod_z[i] > max_y ? dft_to_render.mod_z[i] : max_y;
             }
 
             padding_left_x = 736 / divider;
@@ -3620,7 +3641,7 @@ namespace ShiftDownFunctions
             uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
 
-            scale_x = static_cast<float>(graph_width) / (dft_to_render->fk[K_render - 1] - dft_to_render->fk[0]);
+            scale_x = static_cast<float>(graph_width) / (dft_to_render.fk[K_render - 1] - dft_to_render.fk[0]);
             scale_y = 0;
             if (max_y == min_y) {
                 scale_y = static_cast<float>(graph_height) / 1.f;
@@ -3633,8 +3654,8 @@ namespace ShiftDownFunctions
             int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
             for (uint32_t i = 0; i < K_render; i++) {
-                scaled_x[i] = static_cast<int>(roundf(dft_to_render->fk[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(dft_to_render->mod_z[i] * scale_y)));
+                scaled_x[i] = static_cast<int>(roundf(dft_to_render.fk[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(roundf(dft_to_render.mod_z[i] * scale_y)));
             }
 
             int int_min_y = std::numeric_limits<int>::max();
@@ -3656,10 +3677,9 @@ namespace ShiftDownFunctions
                 scaled_uint_y[i] = scaled_y[i] + offset_y + padding_top_y;
             }
 
+#pragma endregion
 
-            // drawing section
-
-            // name label
+#pragma region name label
             uint32_t end = 0;
             uint32_t pozycja_y = 0;
             uint32_t center = 0;
@@ -3687,8 +3707,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_name;
             }
+#pragma endregion
 
-            // podpis osi y
+#pragma region podpis osi y
             end = 0;
             while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
                 end++;
@@ -3727,9 +3748,9 @@ namespace ShiftDownFunctions
                 pozycja_y += skala_textu_os_y;
             }
             _mm_free(rotated_texture);
+#pragma endregion
 
-
-            // podpis osi x
+#pragma region podpis osi x
             end = 0;
             while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
                 end++;
@@ -3757,8 +3778,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_os_x;
             }
+#pragma endregion
 
-            // values on x
+#pragma region values on x
             uint32_t segments_count = 8;
 
             char value[32];
@@ -3766,7 +3788,7 @@ namespace ShiftDownFunctions
             uint32_t step_x = (K_render - 1) / segments_count;
             for (uint32_t i = 1; i < segments_count; i++) {
                 detail::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail::float_to_char(dft_to_render->fk[step_x * i], value, 3), font_color);
+                value_x.add_text(detail::float_to_char(dft_to_render.fk[step_x * i], value, 3), font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -3799,7 +3821,7 @@ namespace ShiftDownFunctions
                 }
             }
             detail::TextBox value_x(7, 1, background_color);
-            value_x.add_text(detail::float_to_char(dft_to_render->fk[step_x * segments_count], value, 3), font_color);
+            value_x.add_text(detail::float_to_char(dft_to_render.fk[step_x * segments_count], value, 3), font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
                 if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -3829,8 +3851,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_value_x;
             }
+#pragma endregion
 
-            // values y
+#pragma region values y
             uint32_t kurwa_zmienna = graph_height / segments_count;
 
             uint32_t skala_textu_value_y = 8 / divider;
@@ -3905,8 +3928,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_value_y;
             }
+#pragma endregion
 
-            // grid on x
+#pragma region grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   scaled_uint_x[step_x * i], picture_height[picture_size_index] - padding_bot_y,
@@ -3916,8 +3940,9 @@ namespace ShiftDownFunctions
                               scaled_uint_x[step_x * segments_count],
                               picture_height[picture_size_index] - padding_bot_y,
                               scaled_uint_x[step_x * segments_count], 0 + padding_top_y, grid_color, 16 / divider);
+#pragma endregion
 
-            // grid on y
+#pragma region grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   padding_left_x, padding_top_y + (kurwa_zmienna * i),
@@ -3928,48 +3953,58 @@ namespace ShiftDownFunctions
                               padding_left_x, padding_top_y + (graph_height),
                               picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height),
                               grid_color, 16 / divider);
+#pragma endregion
 
-            // os x
+#pragma region os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x,
                                   zero_y_pixel, axis_color, 16 / divider);
             }
-            // os y
+#pragma endregion
+
+#pragma region os y
             if (scaled_x[0] <= 0) {
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   0 + offset_x + padding_left_x, picture_height[picture_size_index] - padding_bot_y,
                                   0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color, 16 / divider);
             }
-            // wykres
+#pragma endregion
+
+#pragma region wykres
             for (uint32_t i = 0; i < K_render; i++) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color,
                                   4 / divider);
             }
+#pragma endregion
 
+#pragma region cleaning up
             _mm_free(scaled_y);
             _mm_free(scaled_x);
             _mm_free(scaled_uint_x);
             _mm_free(scaled_uint_y);
+#pragma endregion
         }
         //  ten dla fft
-        MultiGraph(const FFT* fft_to_render, const char* name_label = " ", const char* x_label = " ",
+        MultiGraph(const FFT& fft_to_render, const char* name_label = " ", const char* x_label = " ",
                    const char* y_label = " ", const char* file_path = nullptr,
                    uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color,
                    uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color,
                    uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color,
                    uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color,
                    uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+
+#pragma region math section
             this->file_path = file_path;
             this->name_label = name_label;
-            // math section
+
             uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
             divider = picture_size_index * 2;
             divider += (divider == 0);
-            uint32_t K_render = (fft_to_render->K / 2) + 1;
+            uint32_t K_render = (fft_to_render.K / 2) + 1;
 
 
             texture = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * picture_size, 32));
@@ -3981,8 +4016,8 @@ namespace ShiftDownFunctions
             float max_y = std::numeric_limits<float>::lowest();
 
             for (uint32_t i = 0; i < K_render; i++) {
-                min_y = fft_to_render->mod_z[i] < min_y ? fft_to_render->mod_z[i] : min_y;
-                max_y = fft_to_render->mod_z[i] > max_y ? fft_to_render->mod_z[i] : max_y;
+                min_y = fft_to_render.mod_z[i] < min_y ? fft_to_render.mod_z[i] : min_y;
+                max_y = fft_to_render.mod_z[i] > max_y ? fft_to_render.mod_z[i] : max_y;
             }
 
             padding_left_x = 736 / divider; // 736
@@ -3995,7 +4030,7 @@ namespace ShiftDownFunctions
             uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
 
-            scale_x = static_cast<float>(graph_width) / (fft_to_render->fk[K_render - 1] - fft_to_render->fk[0]);
+            scale_x = static_cast<float>(graph_width) / (fft_to_render.fk[K_render - 1] - fft_to_render.fk[0]);
             scale_y = 0;
             if (max_y == min_y) {
                 scale_y = static_cast<float>(graph_height) / 1.f;
@@ -4008,8 +4043,8 @@ namespace ShiftDownFunctions
             int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
             for (uint32_t i = 0; i < K_render; i++) {
-                scaled_x[i] = static_cast<int>(roundf(fft_to_render->fk[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(fft_to_render->mod_z[i] * scale_y)));
+                scaled_x[i] = static_cast<int>(roundf(fft_to_render.fk[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(roundf(fft_to_render.mod_z[i] * scale_y)));
             }
 
             int int_min_y = std::numeric_limits<int>::max();
@@ -4032,9 +4067,9 @@ namespace ShiftDownFunctions
             }
 
 
-            // drawing section
+#pragma endregion
 
-            // name label
+#pragma region name label
             uint32_t end = 0;
             uint32_t pozycja_y = 0;
             uint32_t center = 0;
@@ -4062,8 +4097,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_name;
             }
+#pragma endregion
 
-            // podpis osi y
+#pragma region podpis osi y
             end = 0;
             while ((y_label[end] != '\0') && (y_label[end] != '\n')) {
                 end++;
@@ -4103,8 +4139,9 @@ namespace ShiftDownFunctions
             }
             _mm_free(rotated_texture);
 
+#pragma endregion
 
-            // podpis osi x
+#pragma region podpis osi x
             end = 0;
             while ((x_label[end] != '\0') && (x_label[end] != '\n')) {
                 end++;
@@ -4132,8 +4169,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_os_x;
             }
+#pragma endregion
 
-            // values on x
+#pragma region values on x
             uint32_t segments_count = 8;
 
             char value[32];
@@ -4141,7 +4179,7 @@ namespace ShiftDownFunctions
             uint32_t step_x = ((K_render - 1) / segments_count);
             for (uint32_t i = 1; i < segments_count; i++) {
                 detail::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail::float_to_char(fft_to_render->fk[step_x * i], value, 3), font_color);
+                value_x.add_text(detail::float_to_char(fft_to_render.fk[step_x * i], value, 3), font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -4174,7 +4212,7 @@ namespace ShiftDownFunctions
                 }
             }
             detail::TextBox value_x(7, 1, background_color);
-            value_x.add_text(detail::float_to_char(fft_to_render->fk[step_x * segments_count], value, 3), font_color);
+            value_x.add_text(detail::float_to_char(fft_to_render.fk[step_x * segments_count], value, 3), font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
                 if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -4204,8 +4242,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_value_x;
             }
+#pragma endregion
 
-            // values y
+#pragma region values y
             uint32_t kurwa_zmienna = graph_height / segments_count;
 
             uint32_t skala_textu_value_y = 8 / divider;
@@ -4280,8 +4319,9 @@ namespace ShiftDownFunctions
                 }
                 pozycja_y += skala_textu_value_y;
             }
+#pragma endregion
 
-            // grid on x
+#pragma region grid on x
             for (uint32_t i = 0; i < segments_count; i++) {
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   scaled_uint_x[step_x * i], picture_height[picture_size_index] - padding_bot_y,
@@ -4291,8 +4331,9 @@ namespace ShiftDownFunctions
                               scaled_uint_x[step_x * segments_count],
                               picture_height[picture_size_index] - padding_bot_y,
                               scaled_uint_x[step_x * segments_count], 0 + padding_top_y, grid_color, 16 / divider);
+#pragma endregion
 
-            // grid on y
+#pragma region grid on y
             for (uint32_t i = 0; i < segments_count; i++) {
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   padding_left_x, padding_top_y + (kurwa_zmienna * i),
@@ -4303,32 +4344,40 @@ namespace ShiftDownFunctions
                               padding_left_x, padding_top_y + (graph_height),
                               picture_width[picture_size_index] - padding_right_x, padding_top_y + (graph_height),
                               grid_color, 16 / divider);
+#pragma endregion
 
-            // os x
+#pragma region os x
             if (min_y <= 0.0f && max_y >= 0.0f) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x,
                                   zero_y_pixel, axis_color, 16 / divider);
             }
-            // os y
+#pragma endregion
+
+#pragma region os y
             if (scaled_x[0] <= 0) {
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   0 + offset_x + padding_left_x, picture_height[picture_size_index] - padding_bot_y,
                                   0 + offset_x + padding_left_x, 0 + padding_top_y, axis_color, 16 / divider);
             }
-            // wykres
+#pragma endregion
+
+#pragma region wykres
             for (uint32_t i = 0; i < K_render; i++) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color,
                                   4 / divider);
             }
+#pragma endregion
 
+#pragma region cleanign up and legend
             _mm_free(scaled_y);
             _mm_free(scaled_x);
             _mm_free(scaled_uint_x);
             _mm_free(scaled_uint_y);
+#pragma endregion
         }
 
         ~MultiGraph() {
@@ -4395,16 +4444,16 @@ namespace ShiftDownFunctions
             _mm_free(scaled_uint_x);
             _mm_free(scaled_uint_y);
         }
-        void add(const DFT* dft_to_render,
+        void add(const DFT& dft_to_render,
                  uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color) {
-            uint32_t K_render = (dft_to_render->K / 2) + 1;
+            uint32_t K_render = (dft_to_render.K / 2) + 1;
             // wykres
             int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
             int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
             for (uint32_t i = 0; i < K_render; i++) {
-                scaled_x[i] = static_cast<int>(roundf(dft_to_render->fk[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(dft_to_render->mod_z[i] * scale_y)));
+                scaled_x[i] = static_cast<int>(roundf(dft_to_render.fk[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(roundf(dft_to_render.mod_z[i] * scale_y)));
             }
 
             auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * K_render, 32));
@@ -4432,16 +4481,16 @@ namespace ShiftDownFunctions
             _mm_free(scaled_uint_x);
             _mm_free(scaled_uint_y);
         }
-        void add(const FFT* fft_to_render,
+        void add(const FFT& fft_to_render,
                  uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color) {
-            uint32_t K_render = (fft_to_render->K / 2) + 1;
+            uint32_t K_render = (fft_to_render.K / 2) + 1;
             // wykres
             int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
             int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
             for (uint32_t i = 0; i < K_render; i++) {
-                scaled_x[i] = static_cast<int>(roundf(fft_to_render->fk[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(fft_to_render->mod_z[i] * scale_y)));
+                scaled_x[i] = static_cast<int>(roundf(fft_to_render.fk[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(roundf(fft_to_render.mod_z[i] * scale_y)));
             }
 
             auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * K_render, 32));
