@@ -1303,10 +1303,31 @@ int main() {
             t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
             f_t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
 
-            for (uint64_t n = 0; n < N; n++)
-                t[n] = static_cast<float>(n) * Ts;
-            for (uint64_t n = 0; n < N; n++)
-                f_t[n] = formula(*this, n, t[n], evj, evd, evt, evc);
+            for (uint64_t n = 0; n < N; n++) t[n] = static_cast<float>(n) * Ts;
+            for (uint64_t n = 0; n < N; n++) f_t[n] = formula(*this, n, t[n], evj, evd, evt, evc);
+        }
+        // deep copy
+        Function(const Function& function) {
+            this->Tc = function.Tc;
+            this->fs = function.fs;
+            this->f = function.f;
+            this->PHI = function.PHI;
+            this->A = function.A;
+            this->Ts = function.Ts;
+            this->N = function.N;
+
+            this->evj = function.evj;
+            this->evd = function.evd;
+            this->evt = function.evt;
+            this->evc = function.evc;
+
+            this->function_formula = function.function_formula;
+
+            this->t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
+            this->f_t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
+
+            for (uint64_t n = 0; n < N; n++) this->t[n] = function.t[n];
+            for (uint64_t n = 0; n < N; n++) this->f_t[n] = function.f_t[n];
         }
         ~Function() {
             _mm_free(t);
@@ -1500,7 +1521,7 @@ int main() {
         uint32_t* texture = nullptr;
 
     public:
-        Graph(const Function* function_to_render, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        Graph(const Function* function_to_render, const char* file_path = nullptr, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
             graph_thread = std::thread([=, this]() {
 
@@ -1807,9 +1828,9 @@ int main() {
                 //     z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i],scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, line_thickness / divider);
                 // }
                 // zoptymalizowane rysowanie, dla f > bardzo dużo, czasy mniejsze względem oryginału
-                uint32_t local_max_y = scaled_uint_y[0];
-                uint32_t local_min_y = scaled_uint_y[0];
-                for (uint32_t i = 0; i < function_to_render->N - 1; i++) {
+                uint64_t local_max_y = scaled_uint_y[0];
+                uint64_t local_min_y = scaled_uint_y[0];
+                for (uint64_t i = 0; i < function_to_render->N - 1; i++) {
                     local_max_y = scaled_uint_y[i] < local_max_y ? scaled_uint_y[i] : local_max_y;
                     local_min_y = scaled_uint_y[i] >= local_min_y ? scaled_uint_y[i] : local_min_y;
                     i = (scaled_uint_x[i] != scaled_uint_x[i + 1]) ?
@@ -1839,14 +1860,34 @@ int main() {
         }
 
         // log scale tension: 0 == off, 1 == log2f scale, 0 < value < 1 == better low frequencies visibility, value > 1 == better higher frequencies visibility
-        Graph(const DFT* dft_to_render, float db_scale_y = 0.f, float log_scale_tension = 0.f, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        Graph(const DFT* dft_to_render, const char* file_path = nullptr, bool dB_scale = false, float log_scale_tension = 0, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
             graph_thread = std::thread([=, this]() {
-                if (log_scale_tension > 0.f) {
+
+                //dodac podmianke, bo po narysowaniu tego ogolnie, takie dft nadaje sie do wyjebania XD i trzeba by od nowa liczyc, wiec podmieniamy wskazniki na szybko :)
+                    // oraz tylko w zasadzie tablice ich elementów kopiujemy do nich :)
+                        float* modz_bufor = nullptr;
+                        float* fk_bufor = nullptr;
+                // log scale conversion
+                if (log_scale_tension > 0) {
+                    fk_bufor = (float*)_mm_malloc(sizeof(float) * dft_to_render->K, 64);
+
                     for (uint64_t k = 0; k < dft_to_render->K; k++) {
-                        dft_to_render->fk[k] > 1.f ? dft_to_render->fk[k] = powf(log2f(dft_to_render->fk[k]), log_scale_tension) : 0;
+                        fk_bufor[k] = 0;
+                        dft_to_render->fk[k] > 1.f ? fk_bufor[k] = powf(log2f(dft_to_render->fk[k]), log_scale_tension) : 0;
                     }
                 }
+                // dB scale conversion
+                if (dB_scale) {
+                    modz_bufor = (float*)_mm_malloc(sizeof(float) * dft_to_render->K, 64);
+
+                    for (uint64_t k = 1; k < dft_to_render->K; k++) {
+                        modz_bufor[k] = 0;
+                        dft_to_render->mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(dft_to_render->mod_z[k]) : 0;
+                    }
+                }
+
+
                 //math section
                 uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
                 uint32_t divider = picture_size_index * 2;
@@ -1863,9 +1904,10 @@ int main() {
                 float max_y = std::numeric_limits<float>::lowest();
 
                 for (uint32_t i = 0; i < K_render; i++) {
-                    max_y = dft_to_render->mod_z[i] > max_y ? dft_to_render->mod_z[i] : max_y;
+                    dB_scale ? (max_y = modz_bufor[i] > max_y ? modz_bufor[i] : max_y) : (max_y = dft_to_render->mod_z[i] > max_y ? dft_to_render->mod_z[i] : max_y);
+                    dB_scale ? (min_y = modz_bufor[i] < min_y ? modz_bufor[i] : min_y) : (min_y = dft_to_render->mod_z[i] < min_y ? dft_to_render->mod_z[i] : min_y);
                 }
-                min_y = 0.0f;
+                dB_scale ? : min_y = 0.0f;
                 padding_left_x /= divider;
                 padding_right_x /= divider;
 
@@ -1877,7 +1919,7 @@ int main() {
 
 
 
-                float scale_x = static_cast<float>(graph_width) / (dft_to_render->fk[K_render - 1] - dft_to_render->fk[0]);
+                float scale_x = log_scale_tension > 0 ? static_cast<float>(graph_width) / (fk_bufor[K_render - 1] - fk_bufor[0]) : static_cast<float>(graph_width) / (dft_to_render->fk[K_render - 1] - dft_to_render->fk[0]);
                 float scale_y = 0;
                 if (max_y == min_y) {
                     scale_y = static_cast<float>(graph_height) / 1.f;
@@ -1890,8 +1932,8 @@ int main() {
                 int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
                 for (uint32_t i = 0; i < K_render; i++) {
-                    scaled_x[i] = static_cast<int>(roundf(dft_to_render->fk[i] * scale_x));
-                    scaled_y[i] = -(static_cast<int>(roundf(dft_to_render->mod_z[i] * scale_y)));
+                    scaled_x[i] = log_scale_tension > 0 ? static_cast<int>(roundf(fk_bufor[i] * scale_x)) : static_cast<int>(roundf(dft_to_render->fk[i] * scale_x));
+                    scaled_y[i] = dB_scale ? -(static_cast<int>(roundf(modz_bufor[i] * scale_y))) : -(static_cast<int>(roundf(dft_to_render->mod_z[i] * scale_y)));
                 }
 
                 int int_min_y = std::numeric_limits<int>::max();
@@ -1921,9 +1963,8 @@ int main() {
                 uint32_t pozycja_y = 0;
                 uint32_t center = 0;
 
-                while ((name_label[end] != '\0') && (name_label[end] != '\n')) {
-                    end++;
-                }
+                while ((name_label[end] != '\0') && (name_label[end] != '\n')) end++;
+
                 z_detail_no_need_to_think_about_it::TextBox name(end, 1, background_color);
                 name.add_text(name_label, font_color);
 
@@ -2014,7 +2055,8 @@ int main() {
                 // values on x
                 uint32_t segments_count = 8;
                 uint32_t grid_cords = graph_width / segments_count;
-                float log_scale_segments_values = dft_to_render->fk[(K_render - 1)] / segments_count;
+                float log_scale_segments_values = 0;
+                log_scale_tension > 0.0f ? log_scale_segments_values = fk_bufor[(K_render - 1)] / segments_count : 0;
                 char value[32];
                 uint32_t skala_textu_value_x = values_text_scale / divider;
                 for (uint32_t i = 1; i < segments_count; i++) {
@@ -2041,7 +2083,7 @@ int main() {
                     }
                 }
                 z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                log_scale_tension > 0.0f ? z_detail_no_need_to_think_about_it::float_to_engineering_7chars(powf(2, powf(dft_to_render->fk[(K_render - 1)], 1.f / log_scale_tension)), value) : z_detail_no_need_to_think_about_it::float_to_engineering_7chars(dft_to_render->fk[(K_render - 1)], value);
+                log_scale_tension > 0.0f ? z_detail_no_need_to_think_about_it::float_to_engineering_7chars(powf(2, powf(fk_bufor[(K_render - 1)], 1.f / log_scale_tension)), value) : z_detail_no_need_to_think_about_it::float_to_engineering_7chars(dft_to_render->fk[(K_render - 1)], value);
 
                 value_x.add_text(value, font_color);
 
@@ -2168,20 +2210,51 @@ int main() {
                 //     uint32_t zero_y_pixel = offset_y + padding_top_y;
                 //     z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i], scaled_uint_x[i], zero_y_pixel, line_color, line_thickness / divider);
                 // }
-
-                uint32_t zero_y_pixel = offset_y + padding_top_y;
-                uint32_t local_peak_y = zero_y_pixel;
-                for (uint32_t i = 0; i < K_render; i++) {
-                    local_peak_y = local_peak_y < scaled_uint_y[i] ? local_peak_y : scaled_uint_y[i];
-                    local_peak_y = (scaled_uint_x[i] != scaled_uint_x[i + 1]) ?
-                    (z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
-                        scaled_uint_x[i], local_peak_y, scaled_uint_x[i], zero_y_pixel,
-                        line_color, line_thickness / divider),
-                        local_peak_y = zero_y_pixel) : local_peak_y;
+                if (!dB_scale) {
+                    uint32_t zero_y_pixel = offset_y + padding_top_y;
+                    uint32_t local_peak_y = zero_y_pixel;
+                    for (uint32_t i = 0; i < K_render; i++) {
+                        local_peak_y = local_peak_y < scaled_uint_y[i] ? local_peak_y : scaled_uint_y[i];
+                        local_peak_y = (scaled_uint_x[i] != scaled_uint_x[i + 1]) ?
+                        (z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index],
+                        picture_height[picture_size_index], scaled_uint_x[i], local_peak_y, scaled_uint_x[i],
+                        zero_y_pixel, line_color, line_thickness / divider), local_peak_y = zero_y_pixel) : local_peak_y;
+                    }
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index],
+                    picture_height[picture_size_index], scaled_uint_x[K_render - 1], scaled_uint_y[K_render - 1],
+                    scaled_uint_x[K_render - 1], zero_y_pixel,
+                    line_color, line_thickness / divider);
                 }
-                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
-                        scaled_uint_x[K_render - 1], scaled_uint_y[K_render - 1], scaled_uint_x[K_render - 1], zero_y_pixel,
-                        line_color, line_thickness / divider);
+                if (dB_scale) {
+
+                    // drawing from -inf to first point
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
+                    padding_left_x, padding_top_y + graph_height,
+                    padding_left_x, scaled_uint_y[1],
+                    line_color, line_thickness / divider);
+
+                    uint64_t local_max_y = scaled_uint_y[1];
+                    uint64_t local_min_y = scaled_uint_y[1];
+                    for (uint64_t i = 1; i < K_render - 1; i++) {
+                        local_max_y = scaled_uint_y[i] < local_max_y ? scaled_uint_y[i] : local_max_y;
+                        local_min_y = scaled_uint_y[i] >= local_min_y ? scaled_uint_y[i] : local_min_y;
+                        i = (scaled_uint_x[i] != scaled_uint_x[i + 1]) ?
+                        (z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
+                            scaled_uint_x[i], local_max_y,
+                            scaled_uint_x[i], local_min_y,
+                            line_color, line_thickness / divider),
+                            local_max_y = scaled_uint_y[i + 1],
+                            local_min_y = scaled_uint_y[i + 1],
+                            z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
+                                scaled_uint_x[i], scaled_uint_y[i],scaled_uint_x[i + 1], scaled_uint_y[i + 1],
+                                line_color, line_thickness / divider),
+                            i) : i;
+                    }
+                    z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index],
+                            picture_height[picture_size_index], scaled_uint_x[K_render - 1], local_max_y,scaled_uint_x[K_render - 1],
+                            local_min_y, line_color, line_thickness / divider);
+                }
+
 
                 // save to file
                 z_detail_no_need_to_think_about_it::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
@@ -2192,7 +2265,7 @@ int main() {
                 _mm_free(scaled_uint_y);
             });
         }
-        Graph(const FFT* fft_to_render, bool db_scale_y = false, bool log_scale_x = false, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", const char* file_path = nullptr, uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        Graph(const FFT* fft_to_render, const char* file_path = nullptr, bool db_scale_y = false, bool log_scale_x = false, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
             graph_thread = std::thread([=, this]() {
 
@@ -4180,6 +4253,21 @@ int main() {
             _mm_free(decoded_bits);
         }
     };
+#pragma endregion
+
+#pragma region Funkcje okien
+
+    Function HammingWindow(const Function* function_to_window_function) {
+
+        Function after_window = *function_to_window_function;
+
+        for (uint64_t n = 0; n < after_window.N; n++) {
+
+
+        }
+        return after_window;
+    }
+
 #pragma endregion
 
 } // namespace ShiftDownFunctions
