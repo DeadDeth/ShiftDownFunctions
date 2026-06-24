@@ -44,6 +44,9 @@
 #define M_PIf 3.14159265358979323846f
 #endif
 
+#define pi2 (2.0f * M_PIf)
+#define pi (M_PIf)
+
 #pragma region misc
 // predefiniowane kolory jako ARGB
 namespace Colors {
