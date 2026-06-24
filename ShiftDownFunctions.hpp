@@ -1515,15 +1515,15 @@ int main() {
         uint32_t padding_bot_y = 380;
 
         // multithreading included in constructor, keep in mind, in order to fully exploit it, capp the max graph rendered in one function to the amount of threads in your cpu
-        // in other case it may slow down the code instead, because of the constant context switching by the os, any way it should work one way or another
+        // in other case it may slow down the code instead, because of the constant context switching by the os, anyway it should work faster with smart usage
         std::thread graph_thread;
 
         uint32_t* texture = nullptr;
 
     public:
-        Graph(const Function* function_to_render, const char* file_path = nullptr, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        Graph(const Function& function_to_render, const char* file_path = nullptr, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
-            graph_thread = std::thread([=, this]() {
+            graph_thread = std::thread([=, &function_to_render,this]() {
 
                 //math section
                 uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
@@ -1538,9 +1538,9 @@ int main() {
                 float min_y = std::numeric_limits<float>::max();
                 float max_y = std::numeric_limits<float>::lowest();
 
-                for (uint32_t i = 0; i < function_to_render->N; i++) {
-                    min_y = function_to_render->f_t[i] < min_y ? function_to_render->f_t[i] : min_y;
-                    max_y = function_to_render->f_t[i] > max_y ? function_to_render->f_t[i] : max_y;
+                for (uint32_t i = 0; i < function_to_render.N; i++) {
+                    min_y = function_to_render.f_t[i] < min_y ? function_to_render.f_t[i] : min_y;
+                    max_y = function_to_render.f_t[i] > max_y ? function_to_render.f_t[i] : max_y;
                 }
 
                 padding_left_x /= divider;
@@ -1552,7 +1552,7 @@ int main() {
                 uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
                 uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
-                float scale_x = static_cast<float>(graph_width) / (function_to_render->t[function_to_render->N - 1] - function_to_render->t[0]);
+                float scale_x = static_cast<float>(graph_width) / (function_to_render.t[function_to_render.N - 1] - function_to_render.t[0]);
                 float scale_y = 0;
                 if (max_y == min_y) {
                     scale_y = static_cast<float>(graph_height) / 1.f;
@@ -1561,18 +1561,18 @@ int main() {
                     scale_y = static_cast<float>(graph_height) / (max_y - min_y);
                 }
 
-                int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render->N, 32));
-                int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render->N, 32));
+                int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
+                int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
 
-                for (uint32_t i = 0; i < function_to_render->N; i++) {
-                    scaled_x[i] = static_cast<int>(roundf(function_to_render->t[i] * scale_x));
-                    scaled_y[i] = -(static_cast<int>(roundf(function_to_render->f_t[i] * scale_y)));
+                for (uint32_t i = 0; i < function_to_render.N; i++) {
+                    scaled_x[i] = static_cast<int>(roundf(function_to_render.t[i] * scale_x));
+                    scaled_y[i] = -(static_cast<int>(roundf(function_to_render.f_t[i] * scale_y)));
                 }
 
                 int int_min_y = std::numeric_limits<int>::max();
                 int int_max_y = std::numeric_limits<int>::lowest();
 
-                for (uint32_t i = 0; i < function_to_render->N; i++) {
+                for (uint32_t i = 0; i < function_to_render.N; i++) {
                     int_min_y = scaled_y[i] < int_min_y ? scaled_y[i] : int_min_y;
                     int_max_y = scaled_y[i] > int_max_y ? scaled_y[i] : int_max_y;
                 }
@@ -1580,10 +1580,10 @@ int main() {
                 int offset_x = scaled_x[0] * -1;
                 int offset_y = int_min_y * -1;
 
-                auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render->N, 32));
-                auto* scaled_uint_y = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render->N, 32));
+                auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render.N, 32));
+                auto* scaled_uint_y = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render.N, 32));
 
-                for (uint32_t i = 0; i < function_to_render->N; i++) {
+                for (uint32_t i = 0; i < function_to_render.N; i++) {
                     scaled_uint_x[i] = scaled_x[i] + offset_x + padding_left_x;
                     scaled_uint_y[i] = scaled_y[i] + offset_y + padding_top_y;
                 }
@@ -1680,12 +1680,12 @@ int main() {
 
                 // values on x
                 uint32_t segments_count = 8;
-                uint32_t steps_x = function_to_render->N / segments_count;
+                uint32_t steps_x = function_to_render.N / segments_count;
                 char value[32];
                 uint32_t skala_textu_value_x = values_text_scale / divider;
                 for (uint32_t i = 1; i < segments_count; i++) {
                     z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                    z_detail_no_need_to_think_about_it::float_to_engineering_7chars((function_to_render->Tc * (float)i) / (float)segments_count, value);
+                    z_detail_no_need_to_think_about_it::float_to_engineering_7chars((function_to_render.Tc * (float)i) / (float)segments_count, value);
                     value_x.add_text(value, font_color);
 
                     center = value[0] == '-' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) - (skala_textu_value_x << 1));
@@ -1708,7 +1708,7 @@ int main() {
                     }
                 }
                 z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                z_detail_no_need_to_think_about_it::float_to_engineering_7chars(function_to_render->Tc, value);
+                z_detail_no_need_to_think_about_it::float_to_engineering_7chars(function_to_render.Tc, value);
                 value_x.add_text(value, font_color);
 
                 center = value[0] == '-' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) - (skala_textu_value_x << 1));
@@ -1719,7 +1719,7 @@ int main() {
                     for (uint32_t x = 0; x < value_x.texture_width; x++) {
                         for (uint32_t sy = 0; sy < skala_textu_value_x; sy++) {
                             for (uint32_t sx = 0; sx < skala_textu_value_x; sx++) {
-                                texture[(sx + pozycja_x + scaled_uint_x[function_to_render->N-1] + ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) - center] = value_x.texture[x + (y * value_x.texture_width)];
+                                texture[(sx + pozycja_x + scaled_uint_x[function_to_render.N-1] + ((sy + pozycja_y + padding_top_y + graph_height + (64 / divider)) * picture_width[picture_size_index])) - center] = value_x.texture[x + (y * value_x.texture_width)];
                             }
                         }
                         pozycja_x += skala_textu_value_x;
@@ -1786,7 +1786,7 @@ int main() {
                 for (uint32_t i = 0; i < sub_segments_count_x; i++) {
                     z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], (sub_steps_x * i) + padding_left_x, picture_height[picture_size_index] - padding_bot_y, (sub_steps_x * i) + padding_left_x, 0 + padding_top_y, sub_segments_color, sub_segments_thickness / divider);
                 }
-                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render->N - 1],
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render.N - 1],
                           picture_height[picture_size_index] - padding_bot_y, graph_width + padding_left_x, 0 + padding_top_y,
                           sub_segments_color, sub_segments_thickness / divider);
 
@@ -1808,7 +1808,7 @@ int main() {
                 for (uint32_t i = 0; i < segments_count; i++) {
                     z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], (steps_x * i) + padding_left_x, picture_height[picture_size_index] - padding_bot_y, (steps_x * i) + padding_left_x, 0 + padding_top_y, grid_color, grid_thickness / divider);
                 }
-                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render->N - 1],
+                z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[function_to_render.N - 1],
                           picture_height[picture_size_index] - padding_bot_y, graph_width + padding_left_x, 0 + padding_top_y,
                           grid_color, grid_thickness / divider);
 
@@ -1824,13 +1824,13 @@ int main() {
                 }
                 // wykres
                 // stara oryginalna funkcja, problem dla f > bardzo dużo, oraz Bresenham dostawał zawału i czasy leciały w bardzo dużo
-                // for (uint32_t i = 0; i < function_to_render->N - 1; i++) {
+                // for (uint32_t i = 0; i < function_to_render.N - 1; i++) {
                 //     z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index], scaled_uint_x[i], scaled_uint_y[i],scaled_uint_x[i + 1], scaled_uint_y[i + 1], line_color, line_thickness / divider);
                 // }
                 // zoptymalizowane rysowanie, dla f > bardzo dużo, czasy mniejsze względem oryginału
                 uint64_t local_max_y = scaled_uint_y[0];
                 uint64_t local_min_y = scaled_uint_y[0];
-                for (uint64_t i = 0; i < function_to_render->N - 1; i++) {
+                for (uint64_t i = 0; i < function_to_render.N - 1; i++) {
                     local_max_y = scaled_uint_y[i] < local_max_y ? scaled_uint_y[i] : local_max_y;
                     local_min_y = scaled_uint_y[i] >= local_min_y ? scaled_uint_y[i] : local_min_y;
                     i = (scaled_uint_x[i] != scaled_uint_x[i + 1]) ?
@@ -1845,7 +1845,7 @@ int main() {
                         i) : i;
                 }
                 z_detail_no_need_to_think_about_it::draw_line(texture, picture_width[picture_size_index],
-                        picture_height[picture_size_index], scaled_uint_x[function_to_render->N - 1], local_max_y,scaled_uint_x[function_to_render->N - 1],
+                        picture_height[picture_size_index], scaled_uint_x[function_to_render.N - 1], local_max_y,scaled_uint_x[function_to_render.N - 1],
                         local_min_y, line_color, line_thickness / divider);
 
 
@@ -1860,9 +1860,9 @@ int main() {
         }
 
         // log scale tension: 0 == off, 1 == log2f scale, 0 < value < 1 == better low frequencies visibility, value > 1 == better higher frequencies visibility
-        Graph(const DFT* dft_to_render, const char* file_path = nullptr, bool dB_scale = false, float log_scale_tension = 0, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        Graph(const DFT& dft_to_render, const char* file_path = nullptr, bool dB_scale = false, float log_scale_tension = 0, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
-            graph_thread = std::thread([=, this]() {
+            graph_thread = std::thread([=, &dft_to_render,this]() {
 
                 //dodac podmianke, bo po narysowaniu tego ogolnie, takie dft nadaje sie do wyjebania XD i trzeba by od nowa liczyc, wiec podmieniamy wskazniki na szybko :)
                     // oraz tylko w zasadzie tablice ich elementów kopiujemy do nich :)
@@ -1870,20 +1870,20 @@ int main() {
                         float* fk_bufor = nullptr;
                 // log scale conversion
                 if (log_scale_tension > 0) {
-                    fk_bufor = (float*)_mm_malloc(sizeof(float) * dft_to_render->K, 64);
+                    fk_bufor = (float*)_mm_malloc(sizeof(float) * dft_to_render.K, 64);
 
-                    for (uint64_t k = 0; k < dft_to_render->K; k++) {
+                    for (uint64_t k = 0; k < dft_to_render.K; k++) {
                         fk_bufor[k] = 0;
-                        dft_to_render->fk[k] > 1.f ? fk_bufor[k] = powf(log2f(dft_to_render->fk[k]), log_scale_tension) : 0;
+                        dft_to_render.fk[k] > 1.f ? fk_bufor[k] = powf(log2f(dft_to_render.fk[k]), log_scale_tension) : 0;
                     }
                 }
                 // dB scale conversion
                 if (dB_scale) {
-                    modz_bufor = (float*)_mm_malloc(sizeof(float) * dft_to_render->K, 64);
+                    modz_bufor = (float*)_mm_malloc(sizeof(float) * dft_to_render.K, 64);
 
-                    for (uint64_t k = 1; k < dft_to_render->K; k++) {
+                    for (uint64_t k = 1; k < dft_to_render.K; k++) {
                         modz_bufor[k] = 0;
-                        dft_to_render->mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(dft_to_render->mod_z[k]) : 0;
+                        dft_to_render.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(dft_to_render.mod_z[k]) : 0;
                     }
                 }
 
@@ -1892,7 +1892,7 @@ int main() {
                 uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
                 uint32_t divider = picture_size_index * 2;
                 if (divider == 0) divider = 1;
-                uint32_t K_render = (dft_to_render->K / 2) + 1;
+                uint32_t K_render = (dft_to_render.K / 2) + 1;
 
 
                 texture = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * picture_size, 32));
@@ -1904,8 +1904,8 @@ int main() {
                 float max_y = std::numeric_limits<float>::lowest();
 
                 for (uint32_t i = 0; i < K_render; i++) {
-                    dB_scale ? (max_y = modz_bufor[i] > max_y ? modz_bufor[i] : max_y) : (max_y = dft_to_render->mod_z[i] > max_y ? dft_to_render->mod_z[i] : max_y);
-                    dB_scale ? (min_y = modz_bufor[i] < min_y ? modz_bufor[i] : min_y) : (min_y = dft_to_render->mod_z[i] < min_y ? dft_to_render->mod_z[i] : min_y);
+                    dB_scale ? (max_y = modz_bufor[i] > max_y ? modz_bufor[i] : max_y) : (max_y = dft_to_render.mod_z[i] > max_y ? dft_to_render.mod_z[i] : max_y);
+                    dB_scale ? (min_y = modz_bufor[i] < min_y ? modz_bufor[i] : min_y) : (min_y = dft_to_render.mod_z[i] < min_y ? dft_to_render.mod_z[i] : min_y);
                 }
                 dB_scale ? : min_y = 0.0f;
                 padding_left_x /= divider;
@@ -1919,7 +1919,7 @@ int main() {
 
 
 
-                float scale_x = log_scale_tension > 0 ? static_cast<float>(graph_width) / (fk_bufor[K_render - 1] - fk_bufor[0]) : static_cast<float>(graph_width) / (dft_to_render->fk[K_render - 1] - dft_to_render->fk[0]);
+                float scale_x = log_scale_tension > 0 ? static_cast<float>(graph_width) / (fk_bufor[K_render - 1] - fk_bufor[0]) : static_cast<float>(graph_width) / (dft_to_render.fk[K_render - 1] - dft_to_render.fk[0]);
                 float scale_y = 0;
                 if (max_y == min_y) {
                     scale_y = static_cast<float>(graph_height) / 1.f;
@@ -1932,8 +1932,8 @@ int main() {
                 int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
                 for (uint32_t i = 0; i < K_render; i++) {
-                    scaled_x[i] = log_scale_tension > 0 ? static_cast<int>(roundf(fk_bufor[i] * scale_x)) : static_cast<int>(roundf(dft_to_render->fk[i] * scale_x));
-                    scaled_y[i] = dB_scale ? -(static_cast<int>(roundf(modz_bufor[i] * scale_y))) : -(static_cast<int>(roundf(dft_to_render->mod_z[i] * scale_y)));
+                    scaled_x[i] = log_scale_tension > 0 ? static_cast<int>(roundf(fk_bufor[i] * scale_x)) : static_cast<int>(roundf(dft_to_render.fk[i] * scale_x));
+                    scaled_y[i] = dB_scale ? -(static_cast<int>(roundf(modz_bufor[i] * scale_y))) : -(static_cast<int>(roundf(dft_to_render.mod_z[i] * scale_y)));
                 }
 
                 int int_min_y = std::numeric_limits<int>::max();
@@ -2062,7 +2062,7 @@ int main() {
                 for (uint32_t i = 1; i < segments_count; i++) {
 
                     z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                    log_scale_tension > 0.0f ? z_detail_no_need_to_think_about_it::float_to_engineering_7chars(powf(2, powf(log_scale_segments_values * i, 1.f / log_scale_tension)), value) : z_detail_no_need_to_think_about_it::float_to_engineering_7chars(dft_to_render->fk[((K_render - 1) * i) / segments_count], value);
+                    log_scale_tension > 0.0f ? z_detail_no_need_to_think_about_it::float_to_engineering_7chars(powf(2, powf(log_scale_segments_values * i, 1.f / log_scale_tension)), value) : z_detail_no_need_to_think_about_it::float_to_engineering_7chars(dft_to_render.fk[((K_render - 1) * i) / segments_count], value);
                     value_x.add_text(value, font_color);
 
                     center = value[0] == '-' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) - (skala_textu_value_x << 1));
@@ -2083,7 +2083,7 @@ int main() {
                     }
                 }
                 z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                log_scale_tension > 0.0f ? z_detail_no_need_to_think_about_it::float_to_engineering_7chars(powf(2, powf(fk_bufor[(K_render - 1)], 1.f / log_scale_tension)), value) : z_detail_no_need_to_think_about_it::float_to_engineering_7chars(dft_to_render->fk[(K_render - 1)], value);
+                log_scale_tension > 0.0f ? z_detail_no_need_to_think_about_it::float_to_engineering_7chars(powf(2, powf(fk_bufor[(K_render - 1)], 1.f / log_scale_tension)), value) : z_detail_no_need_to_think_about_it::float_to_engineering_7chars(dft_to_render.fk[(K_render - 1)], value);
 
                 value_x.add_text(value, font_color);
 
@@ -2259,21 +2259,23 @@ int main() {
                 // save to file
                 z_detail_no_need_to_think_about_it::save_texture_to_file(texture, picture_width[picture_size_index], picture_height[picture_size_index], file_path);
 
+                if (dB_scale) _mm_free(modz_bufor);
+                if (log_scale_tension > 0) _mm_free(fk_bufor);
                 _mm_free(scaled_y);
                 _mm_free(scaled_x);
                 _mm_free(scaled_uint_x);
                 _mm_free(scaled_uint_y);
             });
         }
-        Graph(const FFT* fft_to_render, const char* file_path = nullptr, bool db_scale_y = false, bool log_scale_x = false, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
+        Graph(const FFT& fft_to_render, const char* file_path = nullptr, bool db_scale_y = false, bool log_scale_x = false, const char* name_label = " ", const char* x_label = " ", const char* y_label = " ", uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color, uint32_t line_color = ShiftDownFunctionsColorThemes::global_theme_Line_color, uint32_t axis_color = ShiftDownFunctionsColorThemes::global_theme_Axis_color, uint32_t grid_color = ShiftDownFunctionsColorThemes::global_theme_Grid_color, uint32_t sub_segments_color = ShiftDownFunctionsColorThemes::global_theme_SubSegments_color, uint32_t font_color = ShiftDownFunctionsColorThemes::global_theme_Font_color) {
 
-            graph_thread = std::thread([=, this]() {
+            graph_thread = std::thread([=, &fft_to_render,this]() {
 
                 //math section
                 uint64_t picture_size = picture_width[picture_size_index] * picture_height[picture_size_index];
                 uint32_t divider = picture_size_index * 2;
                 if (divider == 0) divider = 1;
-                uint32_t K_render = (fft_to_render->K / 2) + 1;
+                uint32_t K_render = (fft_to_render.K / 2) + 1;
 
                 texture = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * picture_size, 32));
                 for (uint64_t i = 0; i < picture_size; i++) {
@@ -2286,7 +2288,7 @@ int main() {
                 float max_y = std::numeric_limits<float>::lowest();
 
                 for (uint32_t i = 0; i < K_render; i++) {
-                    max_y = fft_to_render->mod_z[i] > max_y ? fft_to_render->mod_z[i] : max_y;
+                    max_y = fft_to_render.mod_z[i] > max_y ? fft_to_render.mod_z[i] : max_y;
                 }
                 min_y = 0.0f;
 
@@ -2301,7 +2303,7 @@ int main() {
 
 
 
-                float scale_x = static_cast<float>(graph_width) / (fft_to_render->fk[K_render - 1] - fft_to_render->fk[0]);
+                float scale_x = static_cast<float>(graph_width) / (fft_to_render.fk[K_render - 1] - fft_to_render.fk[0]);
                 float scale_y = 0;
                 if (max_y == min_y) {
                     scale_y = static_cast<float>(graph_height) / 1.f;
@@ -2314,8 +2316,8 @@ int main() {
                 int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
                 for (uint32_t i = 0; i < K_render; i++) {
-                    scaled_x[i] = static_cast<int>(roundf(fft_to_render->fk[i] * scale_x));
-                    scaled_y[i] = -(static_cast<int>(roundf(fft_to_render->mod_z[i] * scale_y)));
+                    scaled_x[i] = static_cast<int>(roundf(fft_to_render.fk[i] * scale_x));
+                    scaled_y[i] = -(static_cast<int>(roundf(fft_to_render.mod_z[i] * scale_y)));
                 }
 
                 int int_min_y = std::numeric_limits<int>::max();
@@ -2441,7 +2443,7 @@ int main() {
                 for (uint32_t i = 1; i < segments_count; i++) {
 
                     z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                    z_detail_no_need_to_think_about_it::float_to_engineering_7chars(fft_to_render->fk[step_x * i], value);
+                    z_detail_no_need_to_think_about_it::float_to_engineering_7chars(fft_to_render.fk[step_x * i], value);
                     value_x.add_text(value, font_color);
 
                     center = value[0] == '-' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) - (skala_textu_value_x << 1));
@@ -2462,7 +2464,7 @@ int main() {
                     }
                 }
                 z_detail_no_need_to_think_about_it::TextBox value_x(7, 1, background_color);
-                z_detail_no_need_to_think_about_it::float_to_engineering_7chars(fft_to_render->fk[step_x * segments_count], value);
+                z_detail_no_need_to_think_about_it::float_to_engineering_7chars(fft_to_render.fk[step_x * segments_count], value);
                 value_x.add_text(value, font_color);
                 center = value[0] == '-' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) - (skala_textu_value_x << 1));
                 center = value[6] != ' ' ? ((56 * skala_textu_value_x) >> 1) : (((56 * skala_textu_value_x) >> 1) + (skala_textu_value_x << 1));
@@ -2616,7 +2618,7 @@ int main() {
             _mm_free(texture);
         };
     };
-    // to samo co Graph ale pozwala nakładać na siebie wykresy. Skalowanie odbywa się względem pierwszego dodanego wykresu oddanie A, B nie wygeneruje tego samego co B, A
+    // Ability to draw, more functions on one canvas, you can keep adding them, and it will draw over the main function scaled graph
     class GraphMulti {
         // index:
         // 0 = 8k
