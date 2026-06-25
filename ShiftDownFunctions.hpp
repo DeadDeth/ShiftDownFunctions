@@ -4847,7 +4847,7 @@ namespace ShiftDownFunctions
                 // + 2 bo index 0 jest pusty oraz 0xD jako znak konca bufora
                 coded_bits = (uint8_t*)_mm_malloc(sizeof(uint8_t) * frame_size + 2, 64);
                 coded_bits[frame_size + 1] = 0xD;
-                for (uint64_t i = 1; coded_bits[i] != 0xD; i++) coded_bits[i] = 0;
+                for (uint64_t i = 1; i <= frame_size; i++) coded_bits[i] = 0;
                 coded_bits[0] = n - m;
             }
 
@@ -4859,11 +4859,8 @@ namespace ShiftDownFunctions
                 uint64_t offset = n * j;
                 uint64_t parity_bits_count = 0;
                 for (uint64_t i = 1; i <= n; i++) {
-                    coded_bits[i + offset] = (i & (1 << (parity_bits_count))) == 0
-                        ? (bits_to_code_index++, bits_to_code[bits_to_code_index - 1])
-                        : (parity_bits_count++, 0);
+                    coded_bits[i + offset] = (i & (1 << (parity_bits_count))) == 0 ? (bits_to_code_index++, (bits_to_code_index - 1 < size) ? bits_to_code[bits_to_code_index - 1] : 0) : (parity_bits_count++, 0);
                 }
-
                 for (uint64_t k = 0; k < coded_bits[0]; k++) {
                     for (uint64_t d = 1; d <= n; d++) {
                         coded_bits[offset + (1 << k)] = ((d & (1 << k)) != 0)
