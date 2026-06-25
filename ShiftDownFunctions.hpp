@@ -3183,10 +3183,6 @@ namespace ShiftDownFunctions
 
 
     public:
-        // funckja dla center po x w razie w.
-        // for (uint64_t l = 0; value[l] != '\0'; l++) {
-        //     center = (l + 1) * 4 * skala_textu_value_x;
-        // }
         MultiGraph(const Function& function_to_render, const char* file_path = nullptr, const char* name_label = " ",
                    const char* x_label = " ", const char* y_label = " ",
                    uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color,
