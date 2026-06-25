@@ -4882,10 +4882,9 @@ namespace ShiftDownFunctions
 
 #pragma endregion
 
-
 #pragma region Analazing functions
 
-    inline float BandwitchEstimation(const FFT& fte, float dB_value) {
+    inline float BandwidthEstimation(const FFT& fte, float dB_value) {
 
         auto* modz_bufor = (float*)_mm_malloc(sizeof(float) * fte.K, 64);
         modz_bufor[0] = 0;
@@ -4918,7 +4917,7 @@ namespace ShiftDownFunctions
 
         return (float)(k_max - k_min) * delta_f;
     }
-    inline float BandwitchEstimation(const DFT& dte, float dB_value) {
+    inline float BandwidthWidthEstimation(const DFT& dte, float dB_value) {
 
         auto* modz_bufor = (float*)_mm_malloc(sizeof(float) * dte.K, 64);
         modz_bufor[0] = 0;
@@ -4952,7 +4951,7 @@ namespace ShiftDownFunctions
         return (float)(k_max - k_min) * delta_f;
     }
 
-    inline float BandwitchEnergy(const FFT& fte, float fn) {
+    inline float BandwidthEnergy(const FFT& fte, float fn) {
         uint32_t K_render = (fte.K / 2) + 1;
         float E_total = 0;
         float delta_f = fte.fs / (float)fte.K;
@@ -4978,7 +4977,7 @@ namespace ShiftDownFunctions
 
         return 2.f * (float)alpha * delta_f;
     }
-    inline float BandwitchEnergy(const DFT& dte, float fn) {
+    inline float BandwidthEnergy(const DFT& dte, float fn) {
         uint32_t K_render = (dte.K / 2) + 1;
         float E_total = 0;
         float delta_f = dte.fs / (float)dte.K;
