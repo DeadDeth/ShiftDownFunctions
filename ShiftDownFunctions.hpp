@@ -3598,7 +3598,7 @@ namespace ShiftDownFunctions
 #pragma endregion
         }
 
-        // nie dostosowane jeszcze do nowej wresjii wszystkiego XD
+        // nie dostosowane jeszcze do nowej wresjii wszystkiego XD ale to potem ja bede potrzebowac albo bede miec czas
         // a ten dla funkcji po DFT,
         MultiGraph(const DFT& dft_to_render, const char* name_label = " ", const char* x_label = " ",
                    const char* y_label = " ", const char* file_path = nullptr,
