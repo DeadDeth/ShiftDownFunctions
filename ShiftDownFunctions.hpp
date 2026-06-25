@@ -4706,6 +4706,7 @@ namespace ShiftDownFunctions
 
 #pragma region Coders & Decoders
 
+
     struct alignas(64) HammingCoder {
 
         uint64_t n = 0;
@@ -4781,7 +4782,7 @@ namespace ShiftDownFunctions
         }
         ~HammingCoder() { _mm_free(coded_bits); }
     };
-
+    // built in BER as float on first four indexes [0] -> [3],
     struct alignas(64) HammingDecoder {
 
         uint8_t* decoded_bits = nullptr;
@@ -5034,6 +5035,18 @@ namespace ShiftDownFunctions
         }
 
         return 2.f * (float)alpha * delta_f;
+    }
+
+    inline float BER(const uint8_t* in,const uint8_t* out) {
+
+        uint64_t E = 0; // errors
+        uint64_t N = 0; // number of bits
+
+        while (in[N] != 0xD && out[N] != 0xD){
+            in[N] != out[N] ? E = E+1, N++ : N++;
+        }
+
+        return (float)E/(float)N;
     }
 
 #pragma endregion
