@@ -5129,7 +5129,7 @@ namespace ShiftDownFunctions
             in[N] != out[N] ? E = E + 1, N++ : N++;
         }
 
-        return (float)E/(float)N;
+        return ((float)E * 100.f)/(float)N;
     }
 
 #pragma endregion
