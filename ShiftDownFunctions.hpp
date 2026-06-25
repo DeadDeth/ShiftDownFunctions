@@ -4637,13 +4637,13 @@ namespace ShiftDownFunctions
         return FSK;
     }
 
-    inline uint8_t* demodulate_ASK_bits(const Function& sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW) {
+    inline uint8_t* demodulate_ASK_bits(const Function& sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW, float h = 0.25f) {
         uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
         uint8_t* demod_bits = (uint8_t*)_mm_malloc(bit_count + 1, 64);
 
-        float threshold = 0.25f * (A_HIGH + A_LOW) * static_cast<float>(samples_per_bit);
+        float threshold = h * (A_HIGH + A_LOW) * static_cast<float>(samples_per_bit);
 
         for (uint64_t b = 0; b < bit_count; b++) {
             float sum = 0.f;
@@ -4658,7 +4658,7 @@ namespace ShiftDownFunctions
         demod_bits[bit_count] = 0xD;
         return demod_bits;
     }
-    inline uint8_t* demodulate_PSK_bits(const Function& sig, float bitrate, float f_carrier, float PHI_HIGH, float PHI_LOW) {
+    inline uint8_t* demodulate_PSK_bits(const Function& sig, float bitrate, float f_carrier, float PHI_HIGH, float PHI_LOW, float h = 0.f) {
         uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
@@ -4674,12 +4674,12 @@ namespace ShiftDownFunctions
                 sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_HIGH);
                 sum_low += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_LOW);
             }
-            demod_bits[b] = (sum_high > sum_low) ? 1 : 0;
+            demod_bits[b] = ((float)(sum_high > sum_low) > h) ? 1 : 0;
         }
         demod_bits[bit_count] = 0xD;
         return demod_bits;
     }
-    inline uint8_t* demodulate_FSK_bits(const Function& sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f) {
+    inline uint8_t* demodulate_FSK_bits(const Function& sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f, float h = 0.f) {
         uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
@@ -4695,7 +4695,7 @@ namespace ShiftDownFunctions
                 sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_HIGH * sig.t[n] + PHI);
                 sum_low += sig.f_t[n] * sinf(2.f * M_PIf * f_LOW * sig.t[n] + PHI);
             }
-            demod_bits[b] = (sum_high > sum_low) ? 1 : 0;
+            demod_bits[b] = ((float)(sum_high > sum_low) > h) ? 1 : 0;
         }
         demod_bits[bit_count] = 0xD;
         return demod_bits;
@@ -5126,7 +5126,7 @@ namespace ShiftDownFunctions
         uint64_t N = 0; // number of bits
 
         while (in[N] != 0xD && out[N] != 0xD){
-            in[N] != out[N] ? E = E+1, N++ : N++;
+            in[N] != out[N] ? E = E + 1, N++ : N++;
         }
 
         return (float)E/(float)N;
