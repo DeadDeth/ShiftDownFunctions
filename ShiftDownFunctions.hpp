@@ -4805,8 +4805,7 @@ namespace ShiftDownFunctions
     struct alignas(64) HammingCoder {
 
         uint64_t n = 0;
-        uint8_t* coded_bits =
-            nullptr; // ostatni index tablicy to 0xD i oznacza on koniec bufora, iteracja do coded_bits[i] == 0xD;
+        uint8_t* coded_bits = nullptr; // ostatni index tablicy to 0xD i oznacza on koniec bufora, iteracja do coded_bits[i] == 0xD;
 
         HammingCoder(const void* Word_to_code, uint64_t m = 4) {
 
@@ -4848,8 +4847,7 @@ namespace ShiftDownFunctions
                 // + 2 bo index 0 jest pusty oraz 0xD jako znak konca bufora
                 coded_bits = (uint8_t*)_mm_malloc(sizeof(uint8_t) * frame_size + 2, 64);
                 coded_bits[frame_size + 1] = 0xD;
-                for (uint64_t i = 1; coded_bits[i] != 0xD; i++)
-                    coded_bits[i] = 0;
+                for (uint64_t i = 1; coded_bits[i] != 0xD; i++) coded_bits[i] = 0;
                 coded_bits[0] = n - m;
             }
 
@@ -4936,7 +4934,7 @@ namespace ShiftDownFunctions
                     ? errors
                     : (decoded_bits[4 + (err_bit >> 3)] ^= 1 << (7 - (err_bit & 7)), errors + 1);
             }
-            errors = errors / (float)size;
+            errors = (errors * 100) / (float)size;
             *(reinterpret_cast<float*>(decoded_bits)) = errors;
             decoded_bits[malloc_size - 1] = '\0';
         }
