@@ -4637,9 +4637,9 @@ namespace ShiftDownFunctions
         return FSK;
     }
 
-    inline uint8_t* demodulate_ASK_bits(const Function* sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW) {
-        uint64_t bit_count = static_cast<uint64_t>(sig->Tc * bitrate + 0.1f);
-        uint64_t samples_per_bit = static_cast<uint64_t>(sig->fs / bitrate);
+    inline uint8_t* demodulate_ASK_bits(const Function& sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW) {
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+        uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
         uint8_t* demod_bits = (uint8_t*)_mm_malloc(bit_count + 1, 64);
 
@@ -4649,18 +4649,18 @@ namespace ShiftDownFunctions
             float sum = 0.f;
             for (uint64_t s = 0; s < samples_per_bit; s++) {
                 uint64_t n = b * samples_per_bit + s;
-                if (n >= sig->N)
+                if (n >= sig.N)
                     break;
-                sum += sig->f_t[n] * sinf(2.f * M_PIf * f_carrier * sig->t[n]);
+                sum += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n]);
             }
             demod_bits[b] = (sum > threshold) ? 1 : 0;
         }
         demod_bits[bit_count] = 0xD;
         return demod_bits;
     }
-    inline uint8_t* demodulate_PSK_bits(const Function* sig, float bitrate, float f_carrier, float PHI_HIGH, float PHI_LOW) {
-        uint64_t bit_count = static_cast<uint64_t>(sig->Tc * bitrate + 0.1f);
-        uint64_t samples_per_bit = static_cast<uint64_t>(sig->fs / bitrate);
+    inline uint8_t* demodulate_PSK_bits(const Function& sig, float bitrate, float f_carrier, float PHI_HIGH, float PHI_LOW) {
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+        uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
         uint8_t* demod_bits = (uint8_t*)_mm_malloc(bit_count + 1, 64);
 
@@ -4669,19 +4669,19 @@ namespace ShiftDownFunctions
             float sum_low = 0.f;
             for (uint64_t s = 0; s < samples_per_bit; s++) {
                 uint64_t n = b * samples_per_bit + s;
-                if (n >= sig->N)
+                if (n >= sig.N)
                     break;
-                sum_high += sig->f_t[n] * sinf(2.f * M_PIf * f_carrier * sig->t[n] + PHI_HIGH);
-                sum_low += sig->f_t[n] * sinf(2.f * M_PIf * f_carrier * sig->t[n] + PHI_LOW);
+                sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_HIGH);
+                sum_low += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_LOW);
             }
             demod_bits[b] = (sum_high > sum_low) ? 1 : 0;
         }
         demod_bits[bit_count] = 0xD;
         return demod_bits;
     }
-    inline uint8_t* demodulate_FSK_bits(const Function* sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f) {
-        uint64_t bit_count = static_cast<uint64_t>(sig->Tc * bitrate + 0.1f);
-        uint64_t samples_per_bit = static_cast<uint64_t>(sig->fs / bitrate);
+    inline uint8_t* demodulate_FSK_bits(const Function& sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f) {
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+        uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
         uint8_t* demod_bits = (uint8_t*)_mm_malloc(bit_count + 1, 64);
 
@@ -4690,10 +4690,10 @@ namespace ShiftDownFunctions
             float sum_low = 0.f;
             for (uint64_t s = 0; s < samples_per_bit; s++) {
                 uint64_t n = b * samples_per_bit + s;
-                if (n >= sig->N)
+                if (n >= sig.N)
                     break;
-                sum_high += sig->f_t[n] * sinf(2.f * M_PIf * f_HIGH * sig->t[n] + PHI);
-                sum_low += sig->f_t[n] * sinf(2.f * M_PIf * f_LOW * sig->t[n] + PHI);
+                sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_HIGH * sig.t[n] + PHI);
+                sum_low += sig.f_t[n] * sinf(2.f * M_PIf * f_LOW * sig.t[n] + PHI);
             }
             demod_bits[b] = (sum_high > sum_low) ? 1 : 0;
         }
