@@ -4744,7 +4744,7 @@ namespace ShiftDownFunctions
                 uint64_t n = b * samples_per_bit + s;
                 if (n >= sig.N) break;
                 // x(t)
-                float x_val = sig.f_t[n] * (sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_HIGH) + sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_LOW)) / 2.0f;
+                float x_val = sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_HIGH);
                 demodulated.x.f_t[n] = x_val;
 
                 sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_HIGH);
