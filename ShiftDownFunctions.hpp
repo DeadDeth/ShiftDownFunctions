@@ -4956,18 +4956,31 @@ namespace ShiftDownFunctions
             E_total += fte.mod_z[i] * fte.mod_z[i];
         }
 
+        if (E_total <= 0.0f) return 0.0f;
+
         uint32_t fn_idx = (uint32_t)(fn / delta_f);
         uint32_t alpha = 0;
+
         float E_alpha = 0;
+        if (fn_idx < K_render) {
+            E_alpha = fte.mod_z[fn_idx] * fte.mod_z[fn_idx];
+        }
 
         while ((E_alpha / E_total) < 0.80f) {
             alpha++;
-            E_alpha = 0;
-            uint32_t start = (fn_idx > alpha) ? fn_idx - alpha : 0;
-            uint32_t end = (fn_idx + alpha < K_render) ? fn_idx + alpha : K_render - 1;
+            bool expanded = false;
 
-            for (uint32_t i = start; i <= end; i++) {
-                E_alpha += fte.mod_z[i] * fte.mod_z[i];
+            if (fn_idx >= alpha) {
+                E_alpha += fte.mod_z[fn_idx - alpha] * fte.mod_z[fn_idx - alpha];
+                expanded = true;
+            }
+            if (fn_idx + alpha < K_render) {
+                E_alpha += fte.mod_z[fn_idx + alpha] * fte.mod_z[fn_idx + alpha];
+                expanded = true;
+            }
+
+            if (!expanded) {
+                break;
             }
         }
 
@@ -4982,18 +4995,31 @@ namespace ShiftDownFunctions
             E_total += dte.mod_z[i] * dte.mod_z[i];
         }
 
+        if (E_total <= 0.0f) return 0.0f;
+
         uint32_t fn_idx = (uint32_t)(fn / delta_f);
         uint32_t alpha = 0;
+
         float E_alpha = 0;
+        if (fn_idx < K_render) {
+            E_alpha = dte.mod_z[fn_idx] * dte.mod_z[fn_idx];
+        }
 
         while ((E_alpha / E_total) < 0.80f) {
             alpha++;
-            E_alpha = 0;
-            uint32_t start = (fn_idx > alpha) ? fn_idx - alpha : 0;
-            uint32_t end = (fn_idx + alpha < K_render) ? fn_idx + alpha : K_render - 1;
+            bool expanded = false;
 
-            for (uint32_t i = start; i <= end; i++) {
-                E_alpha += dte.mod_z[i] * dte.mod_z[i];
+            if (fn_idx >= alpha) {
+                E_alpha += dte.mod_z[fn_idx - alpha] * dte.mod_z[fn_idx - alpha];
+                expanded = true;
+            }
+            if (fn_idx + alpha < K_render) {
+                E_alpha += dte.mod_z[fn_idx + alpha] * dte.mod_z[fn_idx + alpha];
+                expanded = true;
+            }
+
+            if (!expanded) {
+                break;
             }
         }
 
