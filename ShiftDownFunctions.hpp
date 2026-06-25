@@ -4887,11 +4887,9 @@ namespace ShiftDownFunctions
     inline float BandwidthEstimation(const FFT& fte, float dB_value) {
 
         auto* modz_bufor = (float*)_mm_malloc(sizeof(float) * fte.K, 64);
-        modz_bufor[0] = 0;
 
-        for (uint64_t k = 1; k < fte.K; k++) {
-            modz_bufor[k] = 0;
-            fte.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(fte.mod_z[k]) : 0;
+        for (uint64_t k = 0; k < fte.K; k++) {
+            fte.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(fte.mod_z[k]) : -99999.f;
         }
 
         uint32_t K_render = (fte.K / 2) + 1;
@@ -4917,14 +4915,12 @@ namespace ShiftDownFunctions
 
         return (float)(k_max - k_min) * delta_f;
     }
-    inline float BandwidthWidthEstimation(const DFT& dte, float dB_value) {
+    inline float BandwidthEstimation(const DFT& dte, float dB_value) {
 
         auto* modz_bufor = (float*)_mm_malloc(sizeof(float) * dte.K, 64);
-        modz_bufor[0] = 0;
 
-        for (uint64_t k = 1; k < dte.K; k++) {
-            modz_bufor[k] = 0;
-            dte.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(dte.mod_z[k]) : 0;
+        for (uint64_t k = 0; k < dte.K; k++) {
+            dte.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(dte.mod_z[k]) : -99999.f;
         }
 
         uint32_t K_render = (dte.K / 2) + 1;
