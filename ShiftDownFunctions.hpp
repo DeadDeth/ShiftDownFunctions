@@ -4585,8 +4585,7 @@ namespace ShiftDownFunctions
 
 
     // --- MODULACJA/DEMODULACJA CYFROWA ---
-    inline Function* modulate_ASK(const uint8_t* bits, float bitrate, float A_HIGH, float A_LOW, float f, float fs,
-                                  float PHI = 0.f) {
+    inline Function* modulate_ASK(const uint8_t* bits, float bitrate, float A_HIGH, float A_LOW, float f, float fs, float PHI = 0.f) {
         uint64_t bit_count = 0;
         while (bits[bit_count] != 0xD) {
             bit_count++;
@@ -4605,8 +4604,7 @@ namespace ShiftDownFunctions
         }
         return ASK;
     }
-    inline Function* modulate_PSK(const uint8_t* bits, float bitrate, float A, float f, float fs, float PHI_HIGH,
-                                  float PHI_LOW, float PHI = 0.f) {
+    inline Function* modulate_PSK(const uint8_t* bits, float bitrate, float A, float f, float fs, float PHI_HIGH, float PHI_LOW, float PHI = 0.f) {
         uint64_t bit_count = 0;
         while (bits[bit_count] != 0xD) {
             bit_count++;
@@ -4625,8 +4623,7 @@ namespace ShiftDownFunctions
         }
         return PSK;
     }
-    inline Function* modulate_FSK(const uint8_t* bits, float bitrate, float A, float f_HIGH, float f_LOW, float fs,
-                                  float PHI = 0.f) {
+    inline Function* modulate_FSK(const uint8_t* bits, float bitrate, float A, float f_HIGH, float f_LOW, float fs, float PHI = 0.f) {
         uint64_t bit_count = 0;
         while (bits[bit_count] != 0xD) {
             bit_count++;
@@ -4645,7 +4642,6 @@ namespace ShiftDownFunctions
         }
         return FSK;
     }
-
 
     inline uint8_t* demodulate_ASK(const Function* sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW) {
         uint64_t bit_count = static_cast<uint64_t>(sig->Tc * bitrate + 0.1f);
@@ -4856,6 +4852,26 @@ namespace ShiftDownFunctions
         }
         ~HammingDecoder() { _mm_free(decoded_bits); }
     };
+
+    inline uint8_t* ASCII_to_bits(const char* word) {
+        uint64_t size = 0;
+        while (word[size] != '\0') {
+            size++;
+        }
+
+        uint8_t* bits = (uint8_t*)_mm_malloc((sizeof(uint8_t) * size * 7) + 1, 64);
+
+        for (uint64_t i = 0; i < size; i++) {
+            uint64_t offset = i * 7;
+            for (int8_t j = 6; j >= 0; j--) {
+                bits[offset + (6 - j)] = (word[i] & (1 << j)) > 0;
+            }
+        }
+
+        bits[size * 7] = 0xD;
+        return bits;
+    }
+
 #pragma endregion
 
 #pragma region Window Functions
