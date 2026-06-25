@@ -4585,60 +4585,54 @@ namespace ShiftDownFunctions
 
 
     // --- MODULACJA/DEMODULACJA CYFROWA ---
-    inline Function* modulate_ASK(const uint8_t* bits, float bitrate, float A_HIGH, float A_LOW, float f, float fs, float PHI = 0.f) {
+    inline Function modulate_ASK(const uint8_t* bits, float bitrate, float A_HIGH, float A_LOW, float f, float fs, float PHI = 0.f) {
         uint64_t bit_count = 0;
         while (bits[bit_count] != 0xD) {
             bit_count++;
         }
         float Tc = static_cast<float>(bit_count) / bitrate;
-        auto* ASK =
-            new Function(Tc, fs, f, PHI, A_HIGH,
-                         [](const Function&, uint64_t, float, void*, void*, void*, void*) -> float { return 0.f; });
+        Function ASK(Tc, fs, f, PHI, A_HIGH, [](const Function&, uint64_t, float, void*, void*, void*, void*) -> float { return 0.f; });
 
-        for (uint64_t n = 0; n < ASK->N; n++) {
-            auto current_bit = static_cast<uint64_t>(ASK->t[n] * bitrate);
+        for (uint64_t n = 0; n < ASK.N; n++) {
+            auto current_bit = static_cast<uint64_t>(ASK.t[n] * bitrate);
             if (current_bit >= bit_count)
                 current_bit = bit_count - 1;
             float bit_val = (bits[current_bit] > 0) ? A_HIGH : A_LOW;
-            ASK->f_t[n] = bit_val * sinf(2.f * M_PIf * f * ASK->t[n] + PHI);
+            ASK.f_t[n] = bit_val * sinf(2.f * M_PIf * f * ASK.t[n] + PHI);
         }
         return ASK;
     }
-    inline Function* modulate_PSK(const uint8_t* bits, float bitrate, float A, float f, float fs, float PHI_HIGH, float PHI_LOW, float PHI = 0.f) {
+    inline Function modulate_PSK(const uint8_t* bits, float bitrate, float A, float f, float fs, float PHI_HIGH, float PHI_LOW, float PHI = 0.f) {
         uint64_t bit_count = 0;
         while (bits[bit_count] != 0xD) {
             bit_count++;
         }
         float Tc = static_cast<float>(bit_count) / bitrate;
-        auto* PSK =
-            new Function(Tc, fs, f, PHI, A,
-                         [](const Function&, uint64_t, float, void*, void*, void*, void*) -> float { return 0.f; });
+        Function PSK(Tc, fs, f, PHI, A, [](const Function&, uint64_t, float, void*, void*, void*, void*) -> float { return 0.f; });
 
-        for (uint64_t n = 0; n < PSK->N; n++) {
-            auto current_bit = static_cast<uint64_t>(PSK->t[n] * bitrate);
+        for (uint64_t n = 0; n < PSK.N; n++) {
+            auto current_bit = static_cast<uint64_t>(PSK.t[n] * bitrate);
             if (current_bit >= bit_count)
                 current_bit = bit_count - 1;
             float phi_current = (bits[current_bit] > 0) ? PHI_HIGH : PHI_LOW;
-            PSK->f_t[n] = A * sinf(2.f * M_PIf * f * PSK->t[n] + phi_current);
+            PSK.f_t[n] = A * sinf(2.f * M_PIf * f * PSK.t[n] + phi_current);
         }
         return PSK;
     }
-    inline Function* modulate_FSK(const uint8_t* bits, float bitrate, float A, float f_HIGH, float f_LOW, float fs, float PHI = 0.f) {
+    inline Function modulate_FSK(const uint8_t* bits, float bitrate, float A, float f_HIGH, float f_LOW, float fs, float PHI = 0.f) {
         uint64_t bit_count = 0;
         while (bits[bit_count] != 0xD) {
             bit_count++;
         }
         float Tc = static_cast<float>(bit_count) / bitrate;
-        auto* FSK =
-            new Function(Tc, fs, f_HIGH, PHI, A,
-                         [](const Function&, uint64_t, float, void*, void*, void*, void*) -> float { return 0.f; });
+        Function FSK(Tc, fs, f_HIGH, PHI, A, [](const Function&, uint64_t, float, void*, void*, void*, void*) -> float { return 0.f; });
 
-        for (uint64_t n = 0; n < FSK->N; n++) {
-            auto current_bit = static_cast<uint64_t>(FSK->t[n] * bitrate);
+        for (uint64_t n = 0; n < FSK.N; n++) {
+            auto current_bit = static_cast<uint64_t>(FSK.t[n] * bitrate);
             if (current_bit >= bit_count)
                 current_bit = bit_count - 1;
             float f_current = (bits[current_bit] > 0) ? f_HIGH : f_LOW;
-            FSK->f_t[n] = A * sinf(2.f * M_PIf * f_current * FSK->t[n] + PHI);
+            FSK.f_t[n] = A * sinf(2.f * M_PIf * f_current * FSK.t[n] + PHI);
         }
         return FSK;
     }
