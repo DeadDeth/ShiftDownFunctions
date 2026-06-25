@@ -1574,6 +1574,7 @@ namespace ShiftDownFunctions
     // FFT, kinda funny also normalization already included
     struct DFT {
         uint64_t K{0};
+        float fs = 0;
 
         float* Re = nullptr;
         float* Im = nullptr; // część zmyślona :)
@@ -1586,6 +1587,7 @@ namespace ShiftDownFunctions
                 return;
 
             K = function.N;
+            fs = function.fs;
 
             Re = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
             Im = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
@@ -1627,6 +1629,7 @@ namespace ShiftDownFunctions
     struct FFT {
 
         uint64_t K{0};
+        float fs = 0;
 
         float* Re = nullptr;
         float* Im = nullptr;
@@ -1639,6 +1642,7 @@ namespace ShiftDownFunctions
             if (function.N == 1)
                 return;
             K = function.N;
+            fs = function.fs;
 
             uint32_t old_k = K;
             uint32_t bits_shift = 0;
@@ -4878,4 +4882,128 @@ namespace ShiftDownFunctions
 
 #pragma endregion
 
+
+#pragma region Analazing functions
+
+    inline float BandwitchEstimation(const FFT& fte, float dB_value) {
+
+        auto* modz_bufor = (float*)_mm_malloc(sizeof(float) * fte.K, 64);
+        modz_bufor[0] = 0;
+
+        for (uint64_t k = 1; k < fte.K; k++) {
+            modz_bufor[k] = 0;
+            fte.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(fte.mod_z[k]) : 0;
+        }
+
+        uint32_t K_render = (fte.K / 2) + 1;
+        float max_y = std::numeric_limits<float>::lowest();
+
+        for (uint32_t i = 0; i < K_render; i++) {
+            max_y = modz_bufor[i] > max_y ? modz_bufor[i] : max_y;
+        }
+
+        float threshold = max_y - dB_value;
+        uint32_t k_min = 0, k_max = 0;
+
+        for (uint32_t i = 0; i < K_render; i++) {
+            if (modz_bufor[i] >= threshold) { k_min = i; break; }
+        }
+        for (uint32_t i = K_render - 1; i > 0; i--) {
+            if (modz_bufor[i] >= threshold) { k_max = i; break; }
+        }
+
+        float delta_f = fte.fs / (float)fte.K;
+
+        _mm_free(modz_bufor);
+
+        return (float)(k_max - k_min) * delta_f;
+    }
+    inline float BandwitchEstimation(const DFT& dte, float dB_value) {
+
+        auto* modz_bufor = (float*)_mm_malloc(sizeof(float) * dte.K, 64);
+        modz_bufor[0] = 0;
+
+        for (uint64_t k = 1; k < dte.K; k++) {
+            modz_bufor[k] = 0;
+            dte.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(dte.mod_z[k]) : 0;
+        }
+
+        uint32_t K_render = (dte.K / 2) + 1;
+        float max_y = std::numeric_limits<float>::lowest();
+
+        for (uint32_t i = 0; i < K_render; i++) {
+            max_y = modz_bufor[i] > max_y ? modz_bufor[i] : max_y;
+        }
+
+        float threshold = max_y - dB_value;
+        uint32_t k_min = 0, k_max = 0;
+
+        for (uint32_t i = 0; i < K_render; i++) {
+            if (modz_bufor[i] >= threshold) { k_min = i; break; }
+        }
+        for (uint32_t i = K_render - 1; i > 0; i--) {
+            if (modz_bufor[i] >= threshold) { k_max = i; break; }
+        }
+
+        float delta_f = dte.fs / (float)dte.K;
+
+        _mm_free(modz_bufor);
+
+        return (float)(k_max - k_min) * delta_f;
+    }
+
+    inline float BandwitchEnergy(const FFT& fte, float fn) {
+        uint32_t K_render = (fte.K / 2) + 1;
+        float E_total = 0;
+        float delta_f = fte.fs / (float)fte.K;
+
+        for (uint32_t i = 0; i < K_render; i++) {
+            E_total += fte.mod_z[i] * fte.mod_z[i];
+        }
+
+        uint32_t fn_idx = (uint32_t)(fn / delta_f);
+        uint32_t alpha = 0;
+        float E_alpha = 0;
+
+        while ((E_alpha / E_total) < 0.80f) {
+            alpha++;
+            E_alpha = 0;
+            uint32_t start = (fn_idx > alpha) ? fn_idx - alpha : 0;
+            uint32_t end = (fn_idx + alpha < K_render) ? fn_idx + alpha : K_render - 1;
+
+            for (uint32_t i = start; i <= end; i++) {
+                E_alpha += fte.mod_z[i] * fte.mod_z[i];
+            }
+        }
+
+        return 2.f * (float)alpha * delta_f;
+    }
+    inline float BandwitchEnergy(const DFT& dte, float fn) {
+        uint32_t K_render = (dte.K / 2) + 1;
+        float E_total = 0;
+        float delta_f = dte.fs / (float)dte.K;
+
+        for (uint32_t i = 0; i < K_render; i++) {
+            E_total += dte.mod_z[i] * dte.mod_z[i];
+        }
+
+        uint32_t fn_idx = (uint32_t)(fn / delta_f);
+        uint32_t alpha = 0;
+        float E_alpha = 0;
+
+        while ((E_alpha / E_total) < 0.80f) {
+            alpha++;
+            E_alpha = 0;
+            uint32_t start = (fn_idx > alpha) ? fn_idx - alpha : 0;
+            uint32_t end = (fn_idx + alpha < K_render) ? fn_idx + alpha : K_render - 1;
+
+            for (uint32_t i = start; i <= end; i++) {
+                E_alpha += dte.mod_z[i] * dte.mod_z[i];
+            }
+        }
+
+        return 2.f * (float)alpha * delta_f;
+    }
+
+#pragma endregion
 } // namespace ShiftDownFunctions
