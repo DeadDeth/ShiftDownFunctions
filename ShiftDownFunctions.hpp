@@ -4757,11 +4757,20 @@ namespace ShiftDownFunctions
         }
         return demodulated;
     }
-    inline DigitalDemodulationFunctions demodulate_FSK_function(const Function& sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f) {
+    struct FSKDemodulationFunctions {
+        Function z;
+        Function x1;
+        Function x2;
+        Function p1;
+        Function p2;
+        Function p;
+        Function c;
+    };
+    inline FSKDemodulationFunctions demodulate_FSK_function(const Function& sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f) {
         uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
-        DigitalDemodulationFunctions demodulated = {sig, sig, sig, sig};
+        FSKDemodulationFunctions demodulated = {sig, sig, sig, sig, sig, sig, sig};
 
         for (uint64_t b = 0; b < bit_count; b++) {
             float sum_high = 0.f;
@@ -4770,15 +4779,18 @@ namespace ShiftDownFunctions
             for (uint64_t s = 0; s < samples_per_bit; s++) {
                 uint64_t n = b * samples_per_bit + s;
                 if (n >= sig.N) break;
-                // x(t)
-                float x_val = sig.f_t[n] * (sinf(2.f * M_PIf * f_HIGH * sig.t[n] + PHI) + sinf(2.f * M_PIf * f_LOW * sig.t[n] + PHI)) / 2.0f;
-                demodulated.x.f_t[n] = x_val;
 
-                sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_HIGH * sig.t[n] + PHI);
-                sum_low += sig.f_t[n] * sinf(2.f * M_PIf * f_LOW * sig.t[n] + PHI);
-                // p(t)
+                float x1_val = sig.f_t[n] * sinf(2.f * M_PIf * f_HIGH * sig.t[n] + PHI);
+                float x2_val = sig.f_t[n] * sinf(2.f * M_PIf * f_LOW * sig.t[n] + PHI);
+                demodulated.x1.f_t[n] = x1_val;
+                demodulated.x2.f_t[n] = x2_val;
+
+                sum_high += x1_val;
+                sum_low += x2_val;
+                demodulated.p1.f_t[n] = sum_high;
+                demodulated.p2.f_t[n] = sum_low;
+
                 demodulated.p.f_t[n] = sum_high - sum_low;
-                // c(t)
                 demodulated.c.f_t[n] = (sum_high > sum_low) ? 1.0f : 0.0f;
             }
         }
