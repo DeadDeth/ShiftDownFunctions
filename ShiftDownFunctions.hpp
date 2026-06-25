@@ -4637,7 +4637,7 @@ namespace ShiftDownFunctions
         return FSK;
     }
 
-    inline uint8_t* demodulate_ASK(const Function* sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW) {
+    inline uint8_t* demodulate_ASK_bits(const Function* sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW) {
         uint64_t bit_count = static_cast<uint64_t>(sig->Tc * bitrate + 0.1f);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig->fs / bitrate);
 
@@ -4658,7 +4658,7 @@ namespace ShiftDownFunctions
         demod_bits[bit_count] = 0xD;
         return demod_bits;
     }
-    inline uint8_t* demodulate_PSK(const Function* sig, float bitrate, float f_carrier, float PHI_HIGH, float PHI_LOW) {
+    inline uint8_t* demodulate_PSK_bits(const Function* sig, float bitrate, float f_carrier, float PHI_HIGH, float PHI_LOW) {
         uint64_t bit_count = static_cast<uint64_t>(sig->Tc * bitrate + 0.1f);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig->fs / bitrate);
 
@@ -4679,7 +4679,7 @@ namespace ShiftDownFunctions
         demod_bits[bit_count] = 0xD;
         return demod_bits;
     }
-    inline uint8_t* demodulate_FSK(const Function* sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f) {
+    inline uint8_t* demodulate_FSK_bits(const Function* sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f) {
         uint64_t bit_count = static_cast<uint64_t>(sig->Tc * bitrate + 0.1f);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig->fs / bitrate);
 
@@ -4701,6 +4701,89 @@ namespace ShiftDownFunctions
         return demod_bits;
     }
 
+    struct DigitalDemodulationFunctions {
+        Function x;
+        Function z;
+        Function p;
+        Function c;
+    };
+    inline DigitalDemodulationFunctions demodulate_ASK_function(const Function& sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW) {
+
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+        uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
+        float threshold = 0.25f * (A_HIGH + A_LOW) * static_cast<float>(samples_per_bit);
+        DigitalDemodulationFunctions demodulated = {sig, sig, sig, sig};
+
+        for (uint64_t b = 0; b < bit_count; b++) {
+            float sum = 0.f;
+            for (uint64_t s = 0; s < samples_per_bit; s++) {
+                uint64_t n = b * samples_per_bit + s;
+                // x(t)
+                float x_val = sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n]);
+                demodulated.x.f_t[n] = x_val;
+                // p(t)
+                sum += x_val;
+                demodulated.p.f_t[n] = sum;
+                // c(t)
+                demodulated.c.f_t[n] = (sum > threshold) ? 1.0f : 0.0f;
+            }
+        }
+        return demodulated;
+    }
+    inline DigitalDemodulationFunctions demodulate_PSK_function(const Function& sig, float bitrate, float f_carrier, float PHI_HIGH, float PHI_LOW) {
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+        uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
+
+        DigitalDemodulationFunctions demodulated = {sig, sig, sig, sig};
+
+        for (uint64_t b = 0; b < bit_count; b++) {
+            float sum_high = 0.f;
+            float sum_low = 0.f;
+
+            for (uint64_t s = 0; s < samples_per_bit; s++) {
+                uint64_t n = b * samples_per_bit + s;
+                if (n >= sig.N) break;
+                // x(t)
+                float x_val = sig.f_t[n] * (sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_HIGH) + sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_LOW)) / 2.0f;
+                demodulated.x.f_t[n] = x_val;
+
+                sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_HIGH);
+                sum_low += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_LOW);
+                // p(t)
+                demodulated.p.f_t[n] = sum_high - sum_low;
+                // c(t)
+                demodulated.c.f_t[n] = (sum_high > sum_low) ? 1.0f : 0.0f;
+            }
+        }
+        return demodulated;
+    }
+    inline DigitalDemodulationFunctions demodulate_FSK_function(const Function& sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f) {
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+        uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
+
+        DigitalDemodulationFunctions demodulated = {sig, sig, sig, sig};
+
+        for (uint64_t b = 0; b < bit_count; b++) {
+            float sum_high = 0.f;
+            float sum_low = 0.f;
+
+            for (uint64_t s = 0; s < samples_per_bit; s++) {
+                uint64_t n = b * samples_per_bit + s;
+                if (n >= sig.N) break;
+                // x(t)
+                float x_val = sig.f_t[n] * (sinf(2.f * M_PIf * f_HIGH * sig.t[n] + PHI) + sinf(2.f * M_PIf * f_LOW * sig.t[n] + PHI)) / 2.0f;
+                demodulated.x.f_t[n] = x_val;
+
+                sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_HIGH * sig.t[n] + PHI);
+                sum_low += sig.f_t[n] * sinf(2.f * M_PIf * f_LOW * sig.t[n] + PHI);
+                // p(t)
+                demodulated.p.f_t[n] = sum_high - sum_low;
+                // c(t)
+                demodulated.c.f_t[n] = (sum_high > sum_low) ? 1.0f : 0.0f;
+            }
+        }
+        return demodulated;
+    }
 
 #pragma endregion
 
