@@ -31,18 +31,18 @@
     ------------------------------------------------------ KROK 1. Tworzymy funkcje cpp dla wzoru matematycznego naszej
     funkcji --------------------------------------------------------------------------------------------------------
 
-            float nazwa_funkcji_wzoru ([stała referencja obiektu naszej funkcji], [aktualna iteracja 'n' jako
-    uint64_t]], [wartość naszego t dla f(t) albo x dla f(x) jako float]) {
+            double nazwa_funkcji_wzoru ([stała referencja obiektu naszej funkcji], [aktualna iteracja 'n' jako
+    uint64_t]], [wartość naszego t dla f(t) albo x dla f(x) jako double]) {
                 ---ciało funkcji---
                 zwracamy po prostu nasz wzór matematyczny, wykorzystując wskaźnik na obiekt funkcji:
                 return [tutaj podajemy wzór]
             }
                                                                                     ---- PRZYKŁAD ----
 
-            float sinus_formula (const Function& function_object, uint64_t n, float t) {
+            double sinus_formula (const Function& function_object, uint64_t n, double t) {
                 // n jest zazwyczaj niepotrzebne dla prostych funkcji, przyda się w tych bardziej złożonych lub gdy
-    potrzebny jest index naszego t zamiast wartości return function_object.A * sinf(2.f * M_PIf * function_object.f * t
-    + function_object.PHI); //M_PIf to jest wartość liczby PI jako float
+    potrzebny jest index naszego t zamiast wartości return function_object.A * sin(2. * M_PI * function_object.f * t
+    + function_object.PHI); //M_PI to jest wartość liczby PI jako double
             }
 
     ------------------------------------------------------ KROK 2. Tworzymy obiekt Function w main albo gdzie tam się
@@ -55,10 +55,10 @@
                                                             ---- różne obiekty mogą dostawać ten sam wzór, nie jest to
     problemem ----
 
-            Function funkcja_sinus(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
-            Function funkcja_sinus_saw(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
-            Function funkcja_sinus_rec(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
-            Function funkcja_sinus_tri(2.f, 8000.f, 4.f, 0.f, 1.f, sinus_formula);
+            Function funkcja_sinus(2., 8000., 4., 0., 1., sinus_formula);
+            Function funkcja_sinus_saw(2., 8000., 4., 0., 1., sinus_formula);
+            Function funkcja_sinus_rec(2., 8000., 4., 0., 1., sinus_formula);
+            Function funkcja_sinus_tri(2., 8000., 4., 0., 1., sinus_formula);
 
     ------------------------------------------------------ KROK 3. Modulujemy, liczmy DFT albo Rysujemy przygotowane
     funkcje --------------------------------------------------------------------------------------------------------
@@ -84,10 +84,10 @@
 
                                                                                     ---- PRZYKŁAD ----
 
-            Function* sin_modulacja_AM_sin = modulate_AM_sin(&funkcja_sinus, 5.0f, 120.0f, 0.f);
-            Function* sin_modulacja_PM_saw = modulate_PM_saw(&funkcja_sinus, 5.0f, 120.0f, 0.f);
-            Function* sin_modulacja_FM_rec = modulate_FM_rec(&funkcja_sinus, 5.0f, 120.0f, 0.f);
-            Function* sin_modulacja_FM_tri = modulate_FM_tri(&funkcja_sinus, 5.0f, 120.0f, 0.f);
+            Function* sin_modulacja_AM_sin = modulate_AM_sin(&funkcja_sinus, 5.0, 120.0, 0.);
+            Function* sin_modulacja_PM_saw = modulate_PM_saw(&funkcja_sinus, 5.0, 120.0, 0.);
+            Function* sin_modulacja_FM_rec = modulate_FM_rec(&funkcja_sinus, 5.0, 120.0, 0.);
+            Function* sin_modulacja_FM_tri = modulate_FM_tri(&funkcja_sinus, 5.0, 120.0, 0.);
 
                                                                                        ---- DFT ----
                                                                                 --- Tworzymy obiekt DFT ---
@@ -137,24 +137,24 @@
 
 
     //KROK 1 - tworzenie wzoru funkcji
-    float sinus_formula (const ShiftDownFunctions::Function& function_object, uint64_t n, float t) {
-        return function_object.A * sinf(2.f * M_PIf * function_object.f * t + function_object.PHI); //M_PIf to jest
-    wartość liczby PI jako float
+    double sinus_formula (const ShiftDownFunctions::Function& function_object, uint64_t n, double t) {
+        return function_object.A * sin(2. * M_PI * function_object.f * t + function_object.PHI); //M_PI to jest
+    wartość liczby PI jako double
     }
 
     int main() {
 
         //KROK 2 - tworzenie obiektów funkcji
-        ShiftDownFunctions::Function funkcja_sinus(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
-        ShiftDownFunctions::Function funkcja_sinus_saw(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
-        ShiftDownFunctions::Function funkcja_sinus_rec(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
-        ShiftDownFunctions::Function funkcja_sinus_tri(1.0f, 44100.f, 2.0f, 0.f, 1.0f, sinus_formula);
+        ShiftDownFunctions::Function funkcja_sinus(1.0, 44100., 2.0, 0., 1.0, sinus_formula);
+        ShiftDownFunctions::Function funkcja_sinus_saw(1.0, 44100., 2.0, 0., 1.0, sinus_formula);
+        ShiftDownFunctions::Function funkcja_sinus_rec(1.0, 44100., 2.0, 0., 1.0, sinus_formula);
+        ShiftDownFunctions::Function funkcja_sinus_tri(1.0, 44100., 2.0, 0., 1.0, sinus_formula);
 
         //KROK 3 - modulacja funkcji
-        ShiftDownFunctions::Function* sin_modulacja_AM_sin = modulate_AM_sin(&funkcja_sinus, 2.0f, 40.0f, 0.f);
-        ShiftDownFunctions::Function* sin_modulacja_PM_saw = modulate_PM_saw(&funkcja_sinus, 1.0f, 30.0f, 0.f);
-        ShiftDownFunctions::Function* sin_modulacja_FM_rec = modulate_FM_rec(&funkcja_sinus, 1.0f, 50.0f, 0.f);
-        ShiftDownFunctions::Function* sin_modulacja_FM_tri = modulate_FM_tri(&funkcja_sinus, 1.0f, 50.0f, 0.f);
+        ShiftDownFunctions::Function* sin_modulacja_AM_sin = modulate_AM_sin(&funkcja_sinus, 2.0, 40.0, 0.);
+        ShiftDownFunctions::Function* sin_modulacja_PM_saw = modulate_PM_saw(&funkcja_sinus, 1.0, 30.0, 0.);
+        ShiftDownFunctions::Function* sin_modulacja_FM_rec = modulate_FM_rec(&funkcja_sinus, 1.0, 50.0, 0.);
+        ShiftDownFunctions::Function* sin_modulacja_FM_tri = modulate_FM_tri(&funkcja_sinus, 1.0, 50.0, 0.);
 
         //KROK 3 - tworzenie dft
 
@@ -212,7 +212,7 @@
             Wartości na wykresach, czasem Amplituda jest w zakresie od np 1 do -0.984 albo coś około tego, wynika to
     niestety z akumulacji błędu zmiennoprzecinkowego (IEEE 754, Metody Numeryczne) pewnie da się to ręcznie zabezpieczyć
             ale nie miałem na to ochoty, więc jeśli komuś przeszkadza można w funkcji rysującej Graph, sekcja values on
-    x i values on y, dodać bramke przed wysłaniem wartości do funkcji detail::float_to_char, która wyrówna wartości do
+    x i values on y, dodać bramke przed wysłaniem wartości do funkcji detail::double_to_char, która wyrówna wartości do
     tego co powinno być, problem nie pojawia się zawsze ale czasem, i jest to specyfika działania tego tworu, ja mówie
     że to funkcjonalność, może kiedyś sam poprawie w wolnym czasie.
 
@@ -223,10 +223,10 @@
     rezultatów, gotowe zdjęcie można już skalować do woli. Pliki .png nie są tragiczne w rozmiarach, wahają się w
     zależności od wyglądu wykresu, .bmp natomiast to sztywne około 130MB, i uwaga tutaj mówię o miejscu na dysku, w
     ramie i procesie tworzenia, przekraczamy te 130MB na funkcje, prosty wzór na obliczenia ile to zajmie (mniej
-    wiecej), sama funkcja w sobie to Tc * fs * rozmiar_float (32bity) * 2, bo mamy oś x i y, potem modulacje, dft i inne
+    wiecej), sama funkcja w sobie to Tc * fs * rozmiar_double (64bity) * 2, bo mamy oś x i y, potem modulacje, dft i inne
     jako że to osobne obiekty zasada ta sama, renderowanie grafu to zawsze 8K, szerokość * wysokość * rozmiar uint32_t
-    (32bity) co daje około 130MB wiec dla funkcji o czasie Tc = 2 sekundy i fs = 32k mamy 2 * 32k * 2 czyli 128k * 32 co
-    daje 4 096 000 bitów czyli około 0.5MB, dla czasu 4s to już 1MB dla, 10s mamy 5MB i tak dalej, wiec przy
+    (32bity) co daje około 130MB wiec dla funkcji o czasie Tc = 2 sekundy i fs = 32k mamy 2 * 32k * 2 czyli 128k * 64 co
+    daje 8 192 000 bitów czyli około 1MB, dla czasu 4s to już 2MB dla, 10s mamy 5MB i tak dalej, wiec przy
     renderowaniu kilku funkcji i zdjęć łatwo pójść w gigabajty pamięci RAM, tylko ostrzegam, i przypominam o magicznych
     delete albo robieniu każdego wykresu w osobnych funkcjach by obiekty ginęły automatycznie, wraz z jej końcem (za
     wyjątkiem modulacji tam zawsze delete), wycieków pamięci nie widziałem ale gwarancji też nie dam więc warto mieć to
@@ -266,12 +266,12 @@
 #include <sys/stat.h>
 #endif
 
-#ifndef M_PIf
-#define M_PIf 3.14159265358979323846f
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
 #endif
 
-#define pi2 (2.0f * M_PIf)
-#define pi (M_PIf)
+#define pi2 (2.0 * M_PI)
+#define pi (M_PI)
 
 #pragma region misc
 // predefiniowane kolory jako ARGB
@@ -322,7 +322,7 @@ namespace Colors
     constexpr ARGB SLATE_GRAY = {112, 128, 144}; // #708090
     constexpr ARGB NAVY = {0, 0, 128}; // #000080
     constexpr ARGB MIDNIGHT_BLUE = {25, 25, 112}; // #191970
-    constexpr ARGB CHARCOAL = {54, 69, 79}; // #36454F
+    constexpr ARGB CHARCOAL = {54, 69, 79}; // #36454
     constexpr ARGB MATTE_BLACK = {28, 28, 28}; // #1C1C1C
     constexpr ARGB DARK_PURPLE = {42, 0, 77}; // #2A004D
     constexpr ARGB BLOOD_RED = {138, 3, 3}; // #8A0303
@@ -812,13 +812,13 @@ namespace ShiftDownFunctions
             }
         }
 
-        // float to char, returns char* with set precision, also works with negative numbers,
-        static char* float_to_char(float number, char* buffer, uint32_t precision = 3) {
+        // double to char, returns char* with set precision, also works with negative numbers,
+        static char* double_to_char(double number, char* buffer, uint32_t precision = 3) {
 
             for (int k = 0; k < 32; k++)
                 buffer[k] = '\0';
 
-            if (number == 0.0f) {
+            if (number == 0.0) {
                 buffer[0] = '0';
                 buffer[1] = '.';
                 for (uint32_t p = 0; p < precision; p++)
@@ -827,8 +827,8 @@ namespace ShiftDownFunctions
                 return buffer;
             }
 
-            uint32_t float_bits = *reinterpret_cast<uint32_t*>(&number);
-            bool is_negative = (float_bits >> 31) != 0;
+            uint64_t double_bits = *reinterpret_cast<uint64_t*>(&number);
+            bool is_negative = (double_bits >> 63) != 0;
             if (is_negative)
                 number = -number;
 
@@ -836,7 +836,7 @@ namespace ShiftDownFunctions
             for (uint32_t p = 0; p < precision; p++)
                 multiplier *= 10;
 
-            auto total_val = static_cast<uint64_t>(number * static_cast<float>(multiplier) + 0.5f);
+            auto total_val = static_cast<uint64_t>(number * static_cast<double>(multiplier) + 0.5);
             if (total_val == 0)
                 is_negative = false;
 
@@ -886,99 +886,99 @@ namespace ShiftDownFunctions
         }
 
         // converts number into a something more human friendly
-        static void float_to_engineering_7chars_y(float value, char* buffer) {
-            if (value == 0.0f || (value > -1e-10f && value < 1e-10f)) {
+        static void double_to_engineering_7chars_y(double value, char* buffer) {
+            if (value == 0.0 || (value > -1e-10 && value < 1e-10)) {
                 snprintf(buffer, 8, " 0.000 ");
                 return;
             }
 
             char sign = value < 0 ? '-' : ' ';
-            value = fabsf(value);
+            value = fabs(value);
 
             char prefix = ' ';
 
-            if (value >= 999.999f * 1e9f) {
-                value /= 1e12f;
+            if (value >= 999.999 * 1e9) {
+                value /= 1e12;
                 prefix = 'T';
             }
-            else if (value >= 999.999f * 1e6f) {
-                value /= 1e9f;
+            else if (value >= 999.999 * 1e6) {
+                value /= 1e9;
                 prefix = 'G';
             }
-            else if (value >= 999.999f * 1e3f) {
-                value /= 1e6f;
+            else if (value >= 999.999 * 1e3) {
+                value /= 1e6;
                 prefix = 'M';
             }
-            else if (value >= 999.999f) {
-                value /= 1e3f;
+            else if (value >= 999.999) {
+                value /= 1e3;
                 prefix = 'k';
             }
-            else if (value >= 0.000999f) {
+            else if (value >= 0.000999) {
                 prefix = ' ';
             }
-            else if (value >= 0.999999f * 1e-6f) {
-                value *= 1e6f;
+            else if (value >= 0.999999 * 1e-6) {
+                value *= 1e6;
                 prefix = 'u';
             }
-            else if (value >= 0.999999f * 1e-9f) {
-                value *= 1e9f;
+            else if (value >= 0.999999 * 1e-9) {
+                value *= 1e9;
                 prefix = 'n';
             }
 
-            if (value >= 99.995f) {
+            if (value >= 99.995) {
                 snprintf(buffer, 8, "%c%5.1f%c", sign, value, prefix);
             }
-            else if (value >= 9.9995f) {
+            else if (value >= 9.9995) {
                 snprintf(buffer, 8, "%c%5.2f%c", sign, value, prefix);
             }
             else {
                 snprintf(buffer, 8, "%c%5.3f%c", sign, value, prefix);
             }
         } // y axis values
-        static void float_to_engineering_7chars_x(float value, char* buffer) {
-            if (value == 0.0f || (value > -1e-10f && value < 1e-10f)) {
+        static void double_to_engineering_7chars_x(double value, char* buffer) {
+            if (value == 0.0 || (value > -1e-10 && value < 1e-10)) {
                 snprintf(buffer, 8, "0");
                 return;
             }
 
             char sign = value < 0 ? '-' : '\0';
-            value = fabsf(value);
+            value = fabs(value);
 
             char prefix = '\0';
 
-            if (value >= 999.999f * 1e9f) {
-                value /= 1e12f;
+            if (value >= 999.999 * 1e9) {
+                value /= 1e12;
                 prefix = 'T';
             }
-            else if (value >= 999.999f * 1e6f) {
-                value /= 1e9f;
+            else if (value >= 999.999 * 1e6) {
+                value /= 1e9;
                 prefix = 'G';
             }
-            else if (value >= 999.999f * 1e3f) {
-                value /= 1e6f;
+            else if (value >= 999.999 * 1e3) {
+                value /= 1e6;
                 prefix = 'M';
             }
-            else if (value >= 999.999f) {
-                value /= 1e3f;
+            else if (value >= 999.999) {
+                value /= 1e3;
                 prefix = 'k';
             }
-            else if (value >= 0.000999f) {
+            else if (value >= 0.000999) {
                 prefix = '\0';
             }
-            else if (value >= 0.999999f * 1e-6f) {
-                value *= 1e6f;
+            else if (value >= 0.999999 * 1e-6) {
+                value *= 1e6;
                 prefix = 'u';
             }
-            else if (value >= 0.999999f * 1e-9f) {
-                value *= 1e9f;
+            else if (value >= 0.999999 * 1e-9) {
+                value *= 1e9;
                 prefix = 'n';
             }
 
             char temp[16];
-            if (value >= 99.995f) {
+            if (value >= 99.995) {
                 snprintf(temp, sizeof(temp), "%.1f", value);
             }
-            else if (value >= 9.9995f) {
+            else if (value >= 9.9995) {
                 snprintf(temp, sizeof(temp), "%.2f", value);
             }
             else {
@@ -1498,45 +1498,45 @@ namespace ShiftDownFunctions
     // this is main structure, use it to create function objects to use later on in the engine, almost everything uses
     // it as default input object
     struct Function {
-        float Tc{0.f}; // total time / czas całkowity [s]
-        float fs{0.f}; // sampling rate / czestotliwosc probkowania [Hz]
-        float f{0.f}; // frequency / czestotliwosc [Hz]
-        float PHI{0.f}; // initial phase / faza_poczatkowa [rad]
-        float A{0.f}; // amplitude / amplituda [A], [V], [dB]
-        float Ts{0.f}; // sampling interval(step on x) / krok_czasu [s]
+        double Tc{0.}; // total time / czas całkowity [s]
+        double fs{0.}; // sampling rate / czestotliwosc probkowania [Hz]
+        double f{0.}; // frequency / czestotliwosc [Hz]
+        double PHI{0.}; // initial phase / faza_poczatkowa [rad]
+        double A{0.}; // amplitude / amplituda [A], [V], [dB]
+        double Ts{0.}; // sampling interval(step on x) / krok_czasu [s]
         uint64_t N{0}; // samples count / ilosc probek
 
         // those void* are for extra data if needed, instead of merging 2 functions by counting the other one again,
         // just put it in as a void pointer and then cast to what you need, you can insert extra variables also just
-        // cast them to what type is needed, like float arrays, other functions or just whatever you may need
+        // cast them to what type is needed, like double arrays, other functions or just whatever you may need
         void* evj = nullptr;
         void* evd = nullptr;
         void* evt = nullptr;
         void* evc = nullptr;
 
-        float* t = nullptr; // time value of given sample number, (values on x axis) / wartosci t dla próbki n
-        float* f_t = nullptr; // function value for given t of the same n index (values on y axis) / wartosci funkcji
+        double* t = nullptr; // time value of given sample number, (values on x axis) / wartosci t dla próbki n
+        double* f_t = nullptr; // function value for given t of the same n index (values on y axis) / wartosci funkcji
                               // dla t tej samej próbki n
 
-        typedef float (*FormulaPtr)(const Function&, uint64_t, float, void*, void*, void*, void*);
+        typedef double (*FormulaPtr)(const Function&, uint64_t, double, void*, void*, void*, void*);
         FormulaPtr function_formula =
             nullptr; // formula pointer, for the object to use its own variables in calculations
 
-        Function(float Tc, float fs, float f, float PHI, float A, FormulaPtr formula,
+        Function(double Tc, double fs, double f, double PHI, double A, FormulaPtr formula,
                  void* extra_variable_one = nullptr, void* extra_variable_two = nullptr,
                  void* extra_variable_three = nullptr, void* extra_variable_four = nullptr) :
-            Tc(Tc), fs(fs), f(f), PHI(PHI), A(A), Ts(1.f / fs), N(static_cast<uint64_t>(Tc * fs)),
+            Tc(Tc), fs(fs), f(f), PHI(PHI), A(A), Ts(1. / fs), N(static_cast<uint64_t>(Tc * fs)),
             evj(extra_variable_one), evd(extra_variable_two), evt(extra_variable_three), evc(extra_variable_four) {
 
             if (N == 0)
                 return; // well no point in counting anything for N == 0
 
             function_formula = formula;
-            t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
-            f_t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
+            t = static_cast<double*>(_mm_malloc(sizeof(double) * N, 64));
+            f_t = static_cast<double*>(_mm_malloc(sizeof(double) * N, 64));
 
             for (uint64_t n = 0; n < N; n++)
-                t[n] = static_cast<float>(n) * Ts;
+                t[n] = static_cast<double>(n) * Ts;
             for (uint64_t n = 0; n < N; n++)
                 f_t[n] = formula(*this, n, t[n], evj, evd, evt, evc);
         }
@@ -1557,8 +1557,8 @@ namespace ShiftDownFunctions
 
             this->function_formula = function.function_formula;
 
-            this->t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
-            this->f_t = static_cast<float*>(_mm_malloc(sizeof(float) * N, 64));
+            this->t = static_cast<double*>(_mm_malloc(sizeof(double) * N, 64));
+            this->f_t = static_cast<double*>(_mm_malloc(sizeof(double) * N, 64));
 
             for (uint64_t n = 0; n < N; n++)
                 this->t[n] = function.t[n];
@@ -1574,13 +1574,13 @@ namespace ShiftDownFunctions
     // FFT, kinda funny also normalization already included
     struct DFT {
         uint64_t K{0};
-        float fs = 0;
+        double fs = 0;
 
-        float* Re = nullptr;
-        float* Im = nullptr; // część zmyślona :)
+        double* Re = nullptr;
+        double* Im = nullptr; // część zmyślona :)
 
-        float* fk = nullptr;
-        float* mod_z = nullptr;
+        double* fk = nullptr;
+        double* mod_z = nullptr;
 
         DFT(const Function& function) {
             if (function.N == 1)
@@ -1589,30 +1589,30 @@ namespace ShiftDownFunctions
             K = function.N;
             fs = function.fs;
 
-            Re = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-            Im = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+            Re = static_cast<double*>(_mm_malloc(sizeof(double) * K, 32));
+            Im = static_cast<double*>(_mm_malloc(sizeof(double) * K, 32));
 
-            mod_z = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-            fk = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+            mod_z = static_cast<double*>(_mm_malloc(sizeof(double) * K, 32));
+            fk = static_cast<double*>(_mm_malloc(sizeof(double) * K, 32));
 
             for (uint64_t k = 0; k < K; k++) {
                 Re[k] = 0;
                 Im[k] = 0;
                 for (uint64_t n = 0; n < K; n++) {
                     Re[k] += function.f_t[n] *
-                        cosf((-2.f * M_PIf * static_cast<float>(n) * static_cast<float>(k)) / static_cast<float>(K));
+                        cos((-2. * M_PI * static_cast<double>(n) * static_cast<double>(k)) / static_cast<double>(K));
                     Im[k] += function.f_t[n] *
-                        sinf((-2.f * M_PIf * static_cast<float>(n) * static_cast<float>(k)) / static_cast<float>(K));
+                        sin((-2. * M_PI * static_cast<double>(n) * static_cast<double>(k)) / static_cast<double>(K));
                 }
             }
 
             for (uint64_t k = 0; k < K; k++) {
-                mod_z[k] = sqrtf((Re[k] * Re[k]) + (Im[k] * Im[k]));
-                fk[k] = static_cast<float>(k) * function.fs / static_cast<float>(K);
+                mod_z[k] = sqrt((Re[k] * Re[k]) + (Im[k] * Im[k]));
+                fk[k] = static_cast<double>(k) * function.fs / static_cast<double>(K);
             }
-            mod_z[0] /= static_cast<float>(function.N);
+            mod_z[0] /= static_cast<double>(function.N);
             for (uint64_t k = 1; k < K; k++) {
-                mod_z[k] /= static_cast<float>(K) / 2.f;
+                mod_z[k] /= static_cast<double>(K) / 2.;
             }
         }
         ~DFT() {
@@ -1629,13 +1629,13 @@ namespace ShiftDownFunctions
     struct FFT {
 
         uint64_t K{0};
-        float fs = 0;
+        double fs = 0;
 
-        float* Re = nullptr;
-        float* Im = nullptr;
+        double* Re = nullptr;
+        double* Im = nullptr;
 
-        float* fk = nullptr;
-        float* mod_z = nullptr;
+        double* fk = nullptr;
+        double* mod_z = nullptr;
 
         FFT(const Function& function) {
 
@@ -1653,11 +1653,11 @@ namespace ShiftDownFunctions
             K = K << bits_shift;
             K = K << (old_k > K);
 
-            Re = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-            Im = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+            Re = static_cast<double*>(_mm_malloc(sizeof(double) * K, 32));
+            Im = static_cast<double*>(_mm_malloc(sizeof(double) * K, 32));
 
-            mod_z = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
-            fk = static_cast<float*>(_mm_malloc(sizeof(float) * K, 32));
+            mod_z = static_cast<double*>(_mm_malloc(sizeof(double) * K, 32));
+            fk = static_cast<double*>(_mm_malloc(sizeof(double) * K, 32));
 
             uint64_t i = 0;
             for (i = 0; i < old_k; i++) {
@@ -1673,7 +1673,7 @@ namespace ShiftDownFunctions
             uint64_t j = 0;
             for (; i < K - 1; i++) {
                 if (i < j) {
-                    float temp = Re[i];
+                    double temp = Re[i];
                     Re[i] = Re[j];
                     Re[j] = temp;
                 }
@@ -1685,22 +1685,22 @@ namespace ShiftDownFunctions
                 j += m;
             }
 
-            float angle_def = -2.0f * M_PIf;
+            double angle_def = -2.0 * M_PI;
             for (uint64_t size = 2; size <= K; size = size << 1) {
 
-                float angle = angle_def / static_cast<float>(size);
-                float w_step_re = cosf(angle);
-                float w_step_im = sinf(angle);
+                double angle = angle_def / static_cast<double>(size);
+                double w_step_re = cos(angle);
+                double w_step_im = sin(angle);
 
                 for (uint64_t b = 0; b < K; b += size) {
-                    float w_re = 1.0f;
-                    float w_im = 0.0f;
+                    double w_re = 1.0;
+                    double w_im = 0.0;
 
                     for (uint64_t k = b; k < b + (size >> 1); k++) {
                         uint64_t pair_idx = k + (size >> 1);
 
-                        float t_re = Re[pair_idx] * w_re - Im[pair_idx] * w_im;
-                        float t_im = Re[pair_idx] * w_im + Im[pair_idx] * w_re;
+                        double t_re = Re[pair_idx] * w_re - Im[pair_idx] * w_im;
+                        double t_im = Re[pair_idx] * w_im + Im[pair_idx] * w_re;
 
                         Re[pair_idx] = Re[k] - t_re;
                         Im[pair_idx] = Im[k] - t_im;
@@ -1708,19 +1708,19 @@ namespace ShiftDownFunctions
                         Re[k] += t_re;
                         Im[k] += t_im;
 
-                        float next_w_re = w_re * w_step_re - w_im * w_step_im;
+                        double next_w_re = w_re * w_step_re - w_im * w_step_im;
                         w_im = w_re * w_step_im + w_im * w_step_re;
                         w_re = next_w_re;
                     }
                 }
             }
             for (uint64_t k = 0; k <= K / 2; k++) {
-                mod_z[k] = sqrtf((Re[k] * Re[k]) + (Im[k] * Im[k]));
-                fk[k] = static_cast<float>(k) * function.fs / static_cast<float>(K);
+                mod_z[k] = sqrt((Re[k] * Re[k]) + (Im[k] * Im[k]));
+                fk[k] = static_cast<double>(k) * function.fs / static_cast<double>(K);
             }
-            mod_z[0] /= static_cast<float>(function.N);
+            mod_z[0] /= static_cast<double>(function.N);
             for (uint64_t k = 1; k <= K / 2; k++) {
-                mod_z[k] /= static_cast<float>(K) / 2.f;
+                mod_z[k] /= static_cast<double>(K) / 2.;
             }
         }
         ~FFT() {
@@ -1788,8 +1788,8 @@ namespace ShiftDownFunctions
                     texture[i] = background_color;
                 }
 
-                float min_y = std::numeric_limits<float>::max();
-                float max_y = std::numeric_limits<float>::lowest();
+                double min_y = std::numeric_limits<double>::max();
+                double max_y = std::numeric_limits<double>::lowest();
 
                 for (uint32_t i = 0; i < function_to_render.N; i++) {
                     min_y = function_to_render.f_t[i] < min_y ? function_to_render.f_t[i] : min_y;
@@ -1805,22 +1805,22 @@ namespace ShiftDownFunctions
                 uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
                 uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
-                float scale_x = static_cast<float>(graph_width) /
+                double scale_x = static_cast<double>(graph_width) /
                     (function_to_render.t[function_to_render.N - 1] - function_to_render.t[0]);
-                float scale_y = 0;
+                double scale_y = 0;
                 if (max_y == min_y) {
-                    scale_y = static_cast<float>(graph_height) / 1.f;
+                    scale_y = static_cast<double>(graph_height) / 1.;
                 }
                 else {
-                    scale_y = static_cast<float>(graph_height) / (max_y - min_y);
+                    scale_y = static_cast<double>(graph_height) / (max_y - min_y);
                 }
 
                 int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
                 int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
 
                 for (uint32_t i = 0; i < function_to_render.N; i++) {
-                    scaled_x[i] = static_cast<int>(roundf(function_to_render.t[i] * scale_x));
-                    scaled_y[i] = -(static_cast<int>(roundf(function_to_render.f_t[i] * scale_y)));
+                    scaled_x[i] = static_cast<int>(round(function_to_render.t[i] * scale_x));
+                    scaled_y[i] = -(static_cast<int>(round(function_to_render.f_t[i] * scale_y)));
                 }
 
                 int int_min_y = std::numeric_limits<int>::max();
@@ -1953,7 +1953,7 @@ namespace ShiftDownFunctions
                 uint32_t skala_textu_value_x = values_text_scale / divider;
                 for (uint32_t i = 1; i < segments_count; i++) {
                     detail::TextBox value_x(7, 1, background_color);
-                    detail::float_to_engineering_7chars_x((function_to_render.Tc * (float)i) / (float)segments_count,
+                    detail::double_to_engineering_7chars_x((function_to_render.Tc * (double)i) / (double)segments_count,
                                                           value);
                     value_x.add_text(value, font_color);
                     pozycja_y = 0;
@@ -1977,7 +1977,7 @@ namespace ShiftDownFunctions
                     }
                 }
                 detail::TextBox value_x(7, 1, background_color);
-                detail::float_to_engineering_7chars_x(function_to_render.Tc, value);
+                detail::double_to_engineering_7chars_x(function_to_render.Tc, value);
                 value_x.add_text(value, font_color);
                 for (uint64_t l = 0; value[l] != '\0'; l++) {
                     center = (l + 1) * 4 * skala_textu_value_x;
@@ -2005,11 +2005,11 @@ namespace ShiftDownFunctions
                 // values y
                 uint32_t kurwa_zmienna = graph_height / segments_count;
                 uint32_t skala_textu_value_y = values_text_scale / divider;
-                float step_y = (max_y - min_y) / static_cast<float>(segments_count);
+                double step_y = (max_y - min_y) / static_cast<double>(segments_count);
 
                 for (uint32_t i = 0; i < segments_count; i++) {
                     detail::TextBox value_y(7, 1, background_color);
-                    detail::float_to_engineering_7chars_y(max_y - step_y * static_cast<float>(i), value);
+                    detail::double_to_engineering_7chars_y(max_y - step_y * static_cast<double>(i), value);
                     value_y.add_text(value, font_color);
 
                     center = (7 * 8 * skala_textu_value_y);
@@ -2033,7 +2033,7 @@ namespace ShiftDownFunctions
                     }
                 }
                 detail::TextBox value_y(7, 1, background_color);
-                detail::float_to_engineering_7chars_y(max_y - step_y * static_cast<float>(segments_count), value);
+                detail::double_to_engineering_7chars_y(max_y - step_y * static_cast<double>(segments_count), value);
                 value_y.add_text(value, font_color);
 
                 center = (7 * 8 * skala_textu_value_y);
@@ -2113,7 +2113,7 @@ namespace ShiftDownFunctions
 #pragma endregion
 
 #pragma region axis x
-                if (min_y <= 0.0f && max_y >= 0.0f) {
+                if (min_y <= 0.0 && max_y >= 0.0) {
                     uint32_t zero_y_pixel = offset_y + padding_top_y;
                     detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                       padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x,
@@ -2173,9 +2173,9 @@ namespace ShiftDownFunctions
             });
         }
 
-        // log scale tension: 0 == off, 1 == log2f scale, 0 < value < 1 == better low frequencies visibility, value > 1
+        // log scale tension: 0 == off, 1 == log2 scale, 0 < value < 1 == better low frequencies visibility, value > 1
         // == better higher frequencies visibility
-        Graph(const DFT& dft_to_render, bool dB_scale = false, float log_scale_tension = 0,
+        Graph(const DFT& dft_to_render, bool dB_scale = false, double log_scale_tension = 0,
               const char* file_path = nullptr, const char* name_label = " ", const char* x_label = " ",
               const char* y_label = " ",
               uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color,
@@ -2187,25 +2187,25 @@ namespace ShiftDownFunctions
             graph_thread = std::thread([=, &dft_to_render, this]() {
 
 #pragma region math section
-                float* modz_bufor = nullptr; // in case of dB scale
-                float* fk_bufor = nullptr; // in case of log scale
+                double* modz_bufor = nullptr; // in case of dB scale
+                double* fk_bufor = nullptr; // in case of log scale
                 // log scale conversion
                 if (log_scale_tension > 0) {
-                    fk_bufor = (float*)_mm_malloc(sizeof(float) * dft_to_render.K, 64);
+                    fk_bufor = (double*)_mm_malloc(sizeof(double) * dft_to_render.K, 64);
 
                     for (uint64_t k = 0; k < dft_to_render.K; k++) {
                         fk_bufor[k] = 0;
-                        dft_to_render.fk[k] > 1.f ? fk_bufor[k] = powf(log2f(dft_to_render.fk[k]), log_scale_tension)
+                        dft_to_render.fk[k] > 1. ? fk_bufor[k] = pow(log2(dft_to_render.fk[k]), log_scale_tension)
                                                   : 0;
                     }
                 }
                 // dB scale conversion
                 if (dB_scale) {
-                    modz_bufor = (float*)_mm_malloc(sizeof(float) * dft_to_render.K, 64);
+                    modz_bufor = (double*)_mm_malloc(sizeof(double) * dft_to_render.K, 64);
 
                     for (uint64_t k = 1; k < dft_to_render.K; k++) {
                         modz_bufor[k] = 0;
-                        dft_to_render.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(dft_to_render.mod_z[k]) : 0;
+                        dft_to_render.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10(dft_to_render.mod_z[k]) : 0;
                     }
                 }
 
@@ -2221,8 +2221,8 @@ namespace ShiftDownFunctions
                     texture[i] = background_color;
                 }
 
-                float min_y = std::numeric_limits<float>::max();
-                float max_y = std::numeric_limits<float>::lowest();
+                double min_y = std::numeric_limits<double>::max();
+                double max_y = std::numeric_limits<double>::lowest();
 
                 for (uint32_t i = 0; i < K_render; i++) {
                     dB_scale ? (max_y = modz_bufor[i] > max_y ? modz_bufor[i] : max_y)
@@ -2230,7 +2230,7 @@ namespace ShiftDownFunctions
                     dB_scale ? (min_y = modz_bufor[i] < min_y ? modz_bufor[i] : min_y)
                              : (min_y = dft_to_render.mod_z[i] < min_y ? dft_to_render.mod_z[i] : min_y);
                 }
-                min_y = dB_scale ? min_y : 0.0f;
+                min_y = dB_scale ? min_y : 0.0;
 
                 padding_left_x /= divider;
                 padding_right_x /= divider;
@@ -2241,25 +2241,25 @@ namespace ShiftDownFunctions
                 uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
                 uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
-                float scale_x = log_scale_tension > 0
-                    ? static_cast<float>(graph_width) / (fk_bufor[K_render - 1] - fk_bufor[0])
-                    : static_cast<float>(graph_width) / (dft_to_render.fk[K_render - 1] - dft_to_render.fk[0]);
-                float scale_y = 0;
+                double scale_x = log_scale_tension > 0
+                    ? static_cast<double>(graph_width) / (fk_bufor[K_render - 1] - fk_bufor[0])
+                    : static_cast<double>(graph_width) / (dft_to_render.fk[K_render - 1] - dft_to_render.fk[0]);
+                double scale_y = 0;
                 if (max_y == min_y) {
-                    scale_y = static_cast<float>(graph_height) / 1.f;
+                    scale_y = static_cast<double>(graph_height) / 1.;
                 }
                 else {
-                    scale_y = static_cast<float>(graph_height) / (max_y - min_y);
+                    scale_y = static_cast<double>(graph_height) / (max_y - min_y);
                 }
 
                 int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
                 int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
                 for (uint32_t i = 0; i < K_render; i++) {
-                    scaled_x[i] = log_scale_tension > 0 ? static_cast<int>(roundf(fk_bufor[i] * scale_x))
-                                                        : static_cast<int>(roundf(dft_to_render.fk[i] * scale_x));
-                    scaled_y[i] = dB_scale ? -(static_cast<int>(roundf(modz_bufor[i] * scale_y)))
-                                           : -(static_cast<int>(roundf(dft_to_render.mod_z[i] * scale_y)));
+                    scaled_x[i] = log_scale_tension > 0 ? static_cast<int>(round(fk_bufor[i] * scale_x))
+                                                        : static_cast<int>(round(dft_to_render.fk[i] * scale_x));
+                    scaled_y[i] = dB_scale ? -(static_cast<int>(round(modz_bufor[i] * scale_y)))
+                                           : -(static_cast<int>(round(dft_to_render.mod_z[i] * scale_y)));
                 }
 
                 int int_min_y = std::numeric_limits<int>::max();
@@ -2387,17 +2387,17 @@ namespace ShiftDownFunctions
 #pragma region values on x
                 uint32_t segments_count = 8;
                 uint32_t grid_cords = graph_width / segments_count;
-                float log_scale_segments_values = 0;
-                log_scale_tension > 0.0f ? log_scale_segments_values = fk_bufor[(K_render - 1)] / segments_count : 0;
+                double log_scale_segments_values = 0;
+                log_scale_tension > 0.0 ? log_scale_segments_values = fk_bufor[(K_render - 1)] / segments_count : 0;
                 char value[32];
                 uint32_t skala_textu_value_x = values_text_scale / divider;
                 for (uint32_t i = 1; i < segments_count; i++) {
 
                     detail::TextBox value_x(7, 1, background_color);
-                    log_scale_tension > 0.0f
-                        ? detail::float_to_engineering_7chars_x(
-                              powf(2, powf(log_scale_segments_values * i, 1.f / log_scale_tension)), value)
-                        : detail::float_to_engineering_7chars_x(dft_to_render.fk[((K_render - 1) * i) / segments_count],
+                    log_scale_tension > 0.0
+                        ? detail::double_to_engineering_7chars_x(
+                              pow(2, pow(log_scale_segments_values * i, 1. / log_scale_tension)), value)
+                        : detail::double_to_engineering_7chars_x(dft_to_render.fk[((K_render - 1) * i) / segments_count],
                                                                 value);
                     value_x.add_text(value, font_color);
 
@@ -2423,10 +2423,10 @@ namespace ShiftDownFunctions
                     }
                 }
                 detail::TextBox value_x(7, 1, background_color);
-                log_scale_tension > 0.0f
-                    ? detail::float_to_engineering_7chars_x(
-                          powf(2, powf(fk_bufor[(K_render - 1)], 1.f / log_scale_tension)), value)
-                    : detail::float_to_engineering_7chars_x(dft_to_render.fk[(K_render - 1)], value);
+                log_scale_tension > 0.0
+                    ? detail::double_to_engineering_7chars_x(
+                          pow(2, pow(fk_bufor[(K_render - 1)], 1. / log_scale_tension)), value)
+                    : detail::double_to_engineering_7chars_x(dft_to_render.fk[(K_render - 1)], value);
 
                 value_x.add_text(value, font_color);
 
@@ -2455,11 +2455,11 @@ namespace ShiftDownFunctions
                 uint32_t kurwa_zmienna = graph_height / segments_count;
 
                 uint32_t skala_textu_value_y = values_text_scale / divider;
-                float step_y = (max_y - min_y) / static_cast<float>(segments_count);
+                double step_y = (max_y - min_y) / static_cast<double>(segments_count);
 
                 for (uint32_t i = 0; i < segments_count; i++) {
                     detail::TextBox value_y(7, 1, background_color);
-                    detail::float_to_engineering_7chars_y(max_y - step_y * static_cast<float>(i), value);
+                    detail::double_to_engineering_7chars_y(max_y - step_y * static_cast<double>(i), value);
                     value_y.add_text(value, font_color);
 
                     center = (7 * 8 * skala_textu_value_y);
@@ -2483,7 +2483,7 @@ namespace ShiftDownFunctions
                     }
                 }
                 detail::TextBox value_y(7, 1, background_color);
-                detail::float_to_engineering_7chars_y(max_y - step_y * static_cast<float>(segments_count), value);
+                detail::double_to_engineering_7chars_y(max_y - step_y * static_cast<double>(segments_count), value);
                 value_y.add_text(value, font_color);
 
                 center = (7 * 8 * skala_textu_value_y);
@@ -2559,7 +2559,7 @@ namespace ShiftDownFunctions
 #pragma endregion
 
 #pragma region os x
-                if (min_y <= 0.0f && max_y >= 0.0f) {
+                if (min_y <= 0.0 && max_y >= 0.0) {
                     uint32_t zero_y_pixel = offset_y + padding_top_y;
                     detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                       padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x,
@@ -2647,9 +2647,9 @@ namespace ShiftDownFunctions
             });
         }
 
-        // log scale tension: 0 == off, 1 == log2f scale, 0 < value < 1 == better low frequencies visibility, value > 1
+        // log scale tension: 0 == off, 1 == log2 scale, 0 < value < 1 == better low frequencies visibility, value > 1
         // == better higher frequencies visibility
-        Graph(const FFT& fft_to_render, bool dB_scale = false, float log_scale_tension = 0,
+        Graph(const FFT& fft_to_render, bool dB_scale = false, double log_scale_tension = 0,
               const char* file_path = nullptr, const char* name_label = " ", const char* x_label = " ",
               const char* y_label = " ",
               uint32_t background_color = ShiftDownFunctionsColorThemes::global_theme_BackGround_color,
@@ -2661,25 +2661,25 @@ namespace ShiftDownFunctions
 
             graph_thread = std::thread([=, &fft_to_render, this]() {
 #pragma region math section
-                float* modz_bufor = nullptr; // in case of dB scale
-                float* fk_bufor = nullptr; // in case of log scale
+                double* modz_bufor = nullptr; // in case of dB scale
+                double* fk_bufor = nullptr; // in case of log scale
                 // log scale conversion
                 if (log_scale_tension > 0) {
-                    fk_bufor = (float*)_mm_malloc(sizeof(float) * fft_to_render.K, 64);
+                    fk_bufor = (double*)_mm_malloc(sizeof(double) * fft_to_render.K, 64);
 
                     for (uint64_t k = 0; k < fft_to_render.K; k++) {
                         fk_bufor[k] = 0;
-                        fft_to_render.fk[k] > 1.f ? fk_bufor[k] = powf(log2f(fft_to_render.fk[k]), log_scale_tension)
+                        fft_to_render.fk[k] > 1. ? fk_bufor[k] = pow(log2(fft_to_render.fk[k]), log_scale_tension)
                                                   : 0;
                     }
                 }
                 // dB scale conversion
                 if (dB_scale) {
-                    modz_bufor = (float*)_mm_malloc(sizeof(float) * fft_to_render.K, 64);
+                    modz_bufor = (double*)_mm_malloc(sizeof(double) * fft_to_render.K, 64);
 
                     for (uint64_t k = 1; k < fft_to_render.K; k++) {
                         modz_bufor[k] = 0;
-                        fft_to_render.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(fft_to_render.mod_z[k]) : 0;
+                        fft_to_render.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10(fft_to_render.mod_z[k]) : 0;
                     }
                 }
 
@@ -2696,8 +2696,8 @@ namespace ShiftDownFunctions
                     texture[i] = background_color;
                 }
 
-                float min_y = std::numeric_limits<float>::max();
-                float max_y = std::numeric_limits<float>::lowest();
+                double min_y = std::numeric_limits<double>::max();
+                double max_y = std::numeric_limits<double>::lowest();
 
                 for (uint32_t i = 0; i < K_render; i++) {
                     dB_scale ? (max_y = modz_bufor[i] > max_y ? modz_bufor[i] : max_y)
@@ -2705,7 +2705,7 @@ namespace ShiftDownFunctions
                     dB_scale ? (min_y = modz_bufor[i] < min_y ? modz_bufor[i] : min_y)
                              : (min_y = fft_to_render.mod_z[i] < min_y ? fft_to_render.mod_z[i] : min_y);
                 }
-                min_y = dB_scale ? min_y : 0.0f;
+                min_y = dB_scale ? min_y : 0.0;
 
                 padding_left_x /= divider;
                 padding_right_x /= divider;
@@ -2716,25 +2716,25 @@ namespace ShiftDownFunctions
                 uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
                 uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
-                float scale_x = log_scale_tension > 0
-                    ? static_cast<float>(graph_width) / (fk_bufor[K_render - 1] - fk_bufor[0])
-                    : static_cast<float>(graph_width) / (fft_to_render.fk[K_render - 1] - fft_to_render.fk[0]);
-                float scale_y = 0;
+                double scale_x = log_scale_tension > 0
+                    ? static_cast<double>(graph_width) / (fk_bufor[K_render - 1] - fk_bufor[0])
+                    : static_cast<double>(graph_width) / (fft_to_render.fk[K_render - 1] - fft_to_render.fk[0]);
+                double scale_y = 0;
                 if (max_y == min_y) {
-                    scale_y = static_cast<float>(graph_height) / 1.f;
+                    scale_y = static_cast<double>(graph_height) / 1.;
                 }
                 else {
-                    scale_y = static_cast<float>(graph_height) / (max_y - min_y);
+                    scale_y = static_cast<double>(graph_height) / (max_y - min_y);
                 }
 
                 int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
                 int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
                 for (uint32_t i = 0; i < K_render; i++) {
-                    scaled_x[i] = log_scale_tension > 0 ? static_cast<int>(roundf(fk_bufor[i] * scale_x))
-                                                        : static_cast<int>(roundf(fft_to_render.fk[i] * scale_x));
-                    scaled_y[i] = dB_scale ? -(static_cast<int>(roundf(modz_bufor[i] * scale_y)))
-                                           : -(static_cast<int>(roundf(fft_to_render.mod_z[i] * scale_y)));
+                    scaled_x[i] = log_scale_tension > 0 ? static_cast<int>(round(fk_bufor[i] * scale_x))
+                                                        : static_cast<int>(round(fft_to_render.fk[i] * scale_x));
+                    scaled_y[i] = dB_scale ? -(static_cast<int>(round(modz_bufor[i] * scale_y)))
+                                           : -(static_cast<int>(round(fft_to_render.mod_z[i] * scale_y)));
                 }
 
                 int int_min_y = std::numeric_limits<int>::max();
@@ -2864,17 +2864,17 @@ namespace ShiftDownFunctions
 #pragma region values on x
                 uint32_t segments_count = 8;
                 uint32_t grid_cords = graph_width / segments_count;
-                float log_scale_segments_values = 0;
-                log_scale_tension > 0.0f ? log_scale_segments_values = fk_bufor[(K_render - 1)] / segments_count : 0;
+                double log_scale_segments_values = 0;
+                log_scale_tension > 0.0 ? log_scale_segments_values = fk_bufor[(K_render - 1)] / segments_count : 0;
                 char value[32];
                 uint32_t skala_textu_value_x = values_text_scale / divider;
                 for (uint32_t i = 1; i < segments_count; i++) {
 
                     detail::TextBox value_x(7, 1, background_color);
-                    log_scale_tension > 0.0f
-                        ? detail::float_to_engineering_7chars_x(
-                              powf(2, powf(log_scale_segments_values * i, 1.f / log_scale_tension)), value)
-                        : detail::float_to_engineering_7chars_x(fft_to_render.fk[((K_render - 1) * i) / segments_count],
+                    log_scale_tension > 0.0
+                        ? detail::double_to_engineering_7chars_x(
+                              pow(2, pow(log_scale_segments_values * i, 1. / log_scale_tension)), value)
+                        : detail::double_to_engineering_7chars_x(fft_to_render.fk[((K_render - 1) * i) / segments_count],
                                                                 value);
                     value_x.add_text(value, font_color);
 
@@ -2901,10 +2901,10 @@ namespace ShiftDownFunctions
                     }
                 }
                 detail::TextBox value_x(7, 1, background_color);
-                log_scale_tension > 0.0f
-                    ? detail::float_to_engineering_7chars_x(
-                          powf(2, powf(fk_bufor[(K_render - 1)], 1.f / log_scale_tension)), value)
-                    : detail::float_to_engineering_7chars_x(fft_to_render.fk[(K_render - 1)], value);
+                log_scale_tension > 0.0
+                    ? detail::double_to_engineering_7chars_x(
+                          pow(2, pow(fk_bufor[(K_render - 1)], 1. / log_scale_tension)), value)
+                    : detail::double_to_engineering_7chars_x(fft_to_render.fk[(K_render - 1)], value);
 
                 value_x.add_text(value, font_color);
 
@@ -2935,11 +2935,11 @@ namespace ShiftDownFunctions
                 uint32_t kurwa_zmienna = graph_height / segments_count;
 
                 uint32_t skala_textu_value_y = values_text_scale / divider;
-                float step_y = (max_y - min_y) / static_cast<float>(segments_count);
+                double step_y = (max_y - min_y) / static_cast<double>(segments_count);
 
                 for (uint32_t i = 0; i < segments_count; i++) {
                     detail::TextBox value_y(7, 1, background_color);
-                    detail::float_to_engineering_7chars_y(max_y - step_y * static_cast<float>(i), value);
+                    detail::double_to_engineering_7chars_y(max_y - step_y * static_cast<double>(i), value);
                     value_y.add_text(value, font_color);
 
                     center = (7 * 8 * skala_textu_value_y);
@@ -2963,7 +2963,7 @@ namespace ShiftDownFunctions
                     }
                 }
                 detail::TextBox value_y(7, 1, background_color);
-                detail::float_to_engineering_7chars_y(max_y - step_y * static_cast<float>(segments_count), value);
+                detail::double_to_engineering_7chars_y(max_y - step_y * static_cast<double>(segments_count), value);
                 value_y.add_text(value, font_color);
 
                 center = (7 * 8 * skala_textu_value_y);
@@ -3039,7 +3039,7 @@ namespace ShiftDownFunctions
 #pragma endregion
 
 #pragma region os x
-                if (min_y <= 0.0f && max_y >= 0.0f) {
+                if (min_y <= 0.0 && max_y >= 0.0) {
                     uint32_t zero_y_pixel = offset_y + padding_top_y;
                     detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                       padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x,
@@ -3148,8 +3148,8 @@ namespace ShiftDownFunctions
         const char* file_path = nullptr;
         const char* name_label = nullptr;
 
-        float scale_x = 0;
-        float scale_y = 0;
+        double scale_x = 0;
+        double scale_y = 0;
 
         // paddings for manual tweaking
         uint32_t padding_left_x = 516;
@@ -3214,8 +3214,8 @@ namespace ShiftDownFunctions
                 texture[i] = background_color;
             }
 
-            float min_y = std::numeric_limits<float>::max();
-            float max_y = std::numeric_limits<float>::lowest();
+            double min_y = std::numeric_limits<double>::max();
+            double max_y = std::numeric_limits<double>::lowest();
 
             for (uint32_t i = 0; i < function_to_render.N; i++) {
                 min_y = function_to_render.f_t[i] < min_y ? function_to_render.f_t[i] : min_y;
@@ -3231,22 +3231,22 @@ namespace ShiftDownFunctions
             uint32_t graph_width = picture_width[picture_size_index] - padding_left_x - padding_right_x; // 7168px
             uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
-            scale_x = static_cast<float>(graph_width) /
+            scale_x = static_cast<double>(graph_width) /
                 (function_to_render.t[function_to_render.N - 1] - function_to_render.t[0]);
             scale_y = 0;
             if (max_y == min_y) {
-                scale_y = static_cast<float>(graph_height) / 1.f;
+                scale_y = static_cast<double>(graph_height) / 1.;
             }
             else {
-                scale_y = static_cast<float>(graph_height) / (max_y - min_y);
+                scale_y = static_cast<double>(graph_height) / (max_y - min_y);
             }
 
             int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
             int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
 
             for (uint32_t i = 0; i < function_to_render.N; i++) {
-                scaled_x[i] = static_cast<int>(roundf(function_to_render.t[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(function_to_render.f_t[i] * scale_y)));
+                scaled_x[i] = static_cast<int>(round(function_to_render.t[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(round(function_to_render.f_t[i] * scale_y)));
             }
 
             int int_min_y = std::numeric_limits<int>::max();
@@ -3377,7 +3377,7 @@ namespace ShiftDownFunctions
             uint32_t skala_textu_value_x = values_text_scale / divider;
             for (uint32_t i = 1; i < segments_count; i++) {
                 detail::TextBox value_x(7, 1, background_color);
-                detail::float_to_engineering_7chars_x((function_to_render.Tc * (float)i) / (float)segments_count,
+                detail::double_to_engineering_7chars_x((function_to_render.Tc * (double)i) / (double)segments_count,
                                                       value);
                 value_x.add_text(value, font_color);
 
@@ -3402,7 +3402,7 @@ namespace ShiftDownFunctions
                 }
             }
             detail::TextBox value_x(7, 1, background_color);
-            detail::float_to_engineering_7chars_x(function_to_render.Tc, value);
+            detail::double_to_engineering_7chars_x(function_to_render.Tc, value);
             value_x.add_text(value, font_color);
 
             for (uint64_t l = 0; value[l] != '\0'; l++) {
@@ -3429,11 +3429,11 @@ namespace ShiftDownFunctions
 #pragma region values y
             uint32_t kurwa_zmienna = graph_height / segments_count;
             uint32_t skala_textu_value_y = values_text_scale / divider;
-            float step_y = (max_y - min_y) / static_cast<float>(segments_count);
+            double step_y = (max_y - min_y) / static_cast<double>(segments_count);
 
             for (uint32_t i = 0; i < segments_count; i++) {
                 detail::TextBox value_y(7, 1, background_color);
-                detail::float_to_engineering_7chars_y(max_y - step_y * static_cast<float>(i), value);
+                detail::double_to_engineering_7chars_y(max_y - step_y * static_cast<double>(i), value);
                 value_y.add_text(value, font_color);
 
                 center = (7 * 8 * skala_textu_value_y);
@@ -3457,7 +3457,7 @@ namespace ShiftDownFunctions
                 }
             }
             detail::TextBox value_y(7, 1, background_color);
-            detail::float_to_engineering_7chars_y(max_y - step_y * static_cast<float>(segments_count), value);
+            detail::double_to_engineering_7chars_y(max_y - step_y * static_cast<double>(segments_count), value);
             value_y.add_text(value, font_color);
 
             center = (7 * 8 * skala_textu_value_y);
@@ -3537,7 +3537,7 @@ namespace ShiftDownFunctions
 #pragma endregion
 
 #pragma region os x
-            if (min_y <= 0.0f && max_y >= 0.0f) {
+            if (min_y <= 0.0 && max_y >= 0.0) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x,
@@ -3623,8 +3623,8 @@ namespace ShiftDownFunctions
                 texture[i] = background_color;
             }
 
-            float min_y = std::numeric_limits<float>::max();
-            float max_y = std::numeric_limits<float>::lowest();
+            double min_y = std::numeric_limits<double>::max();
+            double max_y = std::numeric_limits<double>::lowest();
 
             for (uint32_t i = 0; i < K_render; i++) {
                 min_y = dft_to_render.mod_z[i] < min_y ? dft_to_render.mod_z[i] : min_y;
@@ -3641,21 +3641,21 @@ namespace ShiftDownFunctions
             uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
 
-            scale_x = static_cast<float>(graph_width) / (dft_to_render.fk[K_render - 1] - dft_to_render.fk[0]);
+            scale_x = static_cast<double>(graph_width) / (dft_to_render.fk[K_render - 1] - dft_to_render.fk[0]);
             scale_y = 0;
             if (max_y == min_y) {
-                scale_y = static_cast<float>(graph_height) / 1.f;
+                scale_y = static_cast<double>(graph_height) / 1.;
             }
             else {
-                scale_y = static_cast<float>(graph_height) / (max_y - min_y);
+                scale_y = static_cast<double>(graph_height) / (max_y - min_y);
             }
 
             int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
             int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
             for (uint32_t i = 0; i < K_render; i++) {
-                scaled_x[i] = static_cast<int>(roundf(dft_to_render.fk[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(dft_to_render.mod_z[i] * scale_y)));
+                scaled_x[i] = static_cast<int>(round(dft_to_render.fk[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(round(dft_to_render.mod_z[i] * scale_y)));
             }
 
             int int_min_y = std::numeric_limits<int>::max();
@@ -3788,7 +3788,7 @@ namespace ShiftDownFunctions
             uint32_t step_x = (K_render - 1) / segments_count;
             for (uint32_t i = 1; i < segments_count; i++) {
                 detail::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail::float_to_char(dft_to_render.fk[step_x * i], value, 3), font_color);
+                value_x.add_text(detail::double_to_char(dft_to_render.fk[step_x * i], value, 3), font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -3821,7 +3821,7 @@ namespace ShiftDownFunctions
                 }
             }
             detail::TextBox value_x(7, 1, background_color);
-            value_x.add_text(detail::float_to_char(dft_to_render.fk[step_x * segments_count], value, 3), font_color);
+            value_x.add_text(detail::double_to_char(dft_to_render.fk[step_x * segments_count], value, 3), font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
                 if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -3857,11 +3857,11 @@ namespace ShiftDownFunctions
             uint32_t kurwa_zmienna = graph_height / segments_count;
 
             uint32_t skala_textu_value_y = 8 / divider;
-            float step_y = (max_y - min_y) / static_cast<float>(segments_count);
+            double step_y = (max_y - min_y) / static_cast<double>(segments_count);
 
             for (uint32_t i = 0; i < segments_count; i++) {
                 detail::TextBox value_y(7, 1, background_color);
-                value_y.add_text(detail::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
+                value_y.add_text(detail::double_to_char(max_y - step_y * static_cast<double>(i), value, 3), font_color);
                 length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -3895,7 +3895,7 @@ namespace ShiftDownFunctions
                 }
             }
             detail::TextBox value_y(7, 1, background_color);
-            value_y.add_text(detail::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
+            value_y.add_text(detail::double_to_char(max_y - step_y * static_cast<double>(segments_count), value, 3),
                              font_color);
             length_value = 0;
             while (value[length_value] != '\n') {
@@ -3956,7 +3956,7 @@ namespace ShiftDownFunctions
 #pragma endregion
 
 #pragma region os x
-            if (min_y <= 0.0f && max_y >= 0.0f) {
+            if (min_y <= 0.0 && max_y >= 0.0) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x,
@@ -4012,8 +4012,8 @@ namespace ShiftDownFunctions
                 texture[i] = background_color;
             }
 
-            float min_y = std::numeric_limits<float>::max();
-            float max_y = std::numeric_limits<float>::lowest();
+            double min_y = std::numeric_limits<double>::max();
+            double max_y = std::numeric_limits<double>::lowest();
 
             for (uint32_t i = 0; i < K_render; i++) {
                 min_y = fft_to_render.mod_z[i] < min_y ? fft_to_render.mod_z[i] : min_y;
@@ -4030,21 +4030,21 @@ namespace ShiftDownFunctions
             uint32_t graph_height = picture_height[picture_size_index] - padding_top_y - padding_bot_y; // 3552px
 
 
-            scale_x = static_cast<float>(graph_width) / (fft_to_render.fk[K_render - 1] - fft_to_render.fk[0]);
+            scale_x = static_cast<double>(graph_width) / (fft_to_render.fk[K_render - 1] - fft_to_render.fk[0]);
             scale_y = 0;
             if (max_y == min_y) {
-                scale_y = static_cast<float>(graph_height) / 1.f;
+                scale_y = static_cast<double>(graph_height) / 1.;
             }
             else {
-                scale_y = static_cast<float>(graph_height) / (max_y - min_y);
+                scale_y = static_cast<double>(graph_height) / (max_y - min_y);
             }
 
             int* scaled_x = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
             int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
             for (uint32_t i = 0; i < K_render; i++) {
-                scaled_x[i] = static_cast<int>(roundf(fft_to_render.fk[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(fft_to_render.mod_z[i] * scale_y)));
+                scaled_x[i] = static_cast<int>(round(fft_to_render.fk[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(round(fft_to_render.mod_z[i] * scale_y)));
             }
 
             int int_min_y = std::numeric_limits<int>::max();
@@ -4179,7 +4179,7 @@ namespace ShiftDownFunctions
             uint32_t step_x = ((K_render - 1) / segments_count);
             for (uint32_t i = 1; i < segments_count; i++) {
                 detail::TextBox value_x(7, 1, background_color);
-                value_x.add_text(detail::float_to_char(fft_to_render.fk[step_x * i], value, 3), font_color);
+                value_x.add_text(detail::double_to_char(fft_to_render.fk[step_x * i], value, 3), font_color);
                 uint32_t length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -4212,7 +4212,7 @@ namespace ShiftDownFunctions
                 }
             }
             detail::TextBox value_x(7, 1, background_color);
-            value_x.add_text(detail::float_to_char(fft_to_render.fk[step_x * segments_count], value, 3), font_color);
+            value_x.add_text(detail::double_to_char(fft_to_render.fk[step_x * segments_count], value, 3), font_color);
             uint32_t length_value = 0;
             while (value[length_value] != '\n') {
                 if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -4248,11 +4248,11 @@ namespace ShiftDownFunctions
             uint32_t kurwa_zmienna = graph_height / segments_count;
 
             uint32_t skala_textu_value_y = 8 / divider;
-            float step_y = (max_y - min_y) / static_cast<float>(segments_count);
+            double step_y = (max_y - min_y) / static_cast<double>(segments_count);
 
             for (uint32_t i = 0; i < segments_count; i++) {
                 detail::TextBox value_y(7, 1, background_color);
-                value_y.add_text(detail::float_to_char(max_y - step_y * static_cast<float>(i), value, 3), font_color);
+                value_y.add_text(detail::double_to_char(max_y - step_y * static_cast<double>(i), value, 3), font_color);
                 length_value = 0;
                 while (value[length_value] != '\n') {
                     if (value[length_value] == '.' || value[length_value] == '-' || value[length_value] == '0' ||
@@ -4286,7 +4286,7 @@ namespace ShiftDownFunctions
                 }
             }
             detail::TextBox value_y(7, 1, background_color);
-            value_y.add_text(detail::float_to_char(max_y - step_y * static_cast<float>(segments_count), value, 3),
+            value_y.add_text(detail::double_to_char(max_y - step_y * static_cast<double>(segments_count), value, 3),
                              font_color);
             length_value = 0;
             while (value[length_value] != '\n') {
@@ -4347,7 +4347,7 @@ namespace ShiftDownFunctions
 #pragma endregion
 
 #pragma region os x
-            if (min_y <= 0.0f && max_y >= 0.0f) {
+            if (min_y <= 0.0 && max_y >= 0.0) {
                 uint32_t zero_y_pixel = offset_y + padding_top_y;
                 detail::draw_line(texture, picture_width[picture_size_index], picture_height[picture_size_index],
                                   padding_left_x, zero_y_pixel, picture_width[picture_size_index] - padding_right_x,
@@ -4394,8 +4394,8 @@ namespace ShiftDownFunctions
             int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * function_to_render.N, 32));
 
             for (uint32_t i = 0; i < function_to_render.N; i++) {
-                scaled_x[i] = static_cast<int>(roundf(function_to_render.t[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(function_to_render.f_t[i] * scale_y)));
+                scaled_x[i] = static_cast<int>(round(function_to_render.t[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(round(function_to_render.f_t[i] * scale_y)));
             }
 
             auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * function_to_render.N, 32));
@@ -4452,8 +4452,8 @@ namespace ShiftDownFunctions
             int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
             for (uint32_t i = 0; i < K_render; i++) {
-                scaled_x[i] = static_cast<int>(roundf(dft_to_render.fk[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(dft_to_render.mod_z[i] * scale_y)));
+                scaled_x[i] = static_cast<int>(round(dft_to_render.fk[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(round(dft_to_render.mod_z[i] * scale_y)));
             }
 
             auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * K_render, 32));
@@ -4489,8 +4489,8 @@ namespace ShiftDownFunctions
             int* scaled_y = static_cast<int*>(_mm_malloc(sizeof(int) * K_render, 32));
 
             for (uint32_t i = 0; i < K_render; i++) {
-                scaled_x[i] = static_cast<int>(roundf(fft_to_render.fk[i] * scale_x));
-                scaled_y[i] = -(static_cast<int>(roundf(fft_to_render.mod_z[i] * scale_y)));
+                scaled_x[i] = static_cast<int>(round(fft_to_render.fk[i] * scale_x));
+                scaled_y[i] = -(static_cast<int>(round(fft_to_render.mod_z[i] * scale_y)));
             }
 
             auto* scaled_uint_x = static_cast<uint32_t*>(_mm_malloc(sizeof(uint32_t) * K_render, 32));
@@ -4552,150 +4552,150 @@ namespace ShiftDownFunctions
      */
 
     // --- AM MODULATION ---
-    inline Function AM_modulation(const Function* ftm, float f, float kA) {
+    inline Function AM_modulation(const Function* ftm, double f, double kA) {
         Function AM = *ftm;
         AM.f = f;
-        float const_cos = pi2 * AM.f;
+        double const_cos = pi2 * AM.f;
         for (uint64_t t = 0; t < AM.N; t++) {
-            AM.f_t[t] = (kA * ftm->f_t[t] + 1) * cosf(const_cos * AM.t[t]);
+            AM.f_t[t] = (kA * ftm->f_t[t] + 1) * cos(const_cos * AM.t[t]);
         }
         return AM;
     }
     // --- PM MODULATION ---
-    inline Function PM_modulation(const Function* ftm, float f, float kPHI) {
+    inline Function PM_modulation(const Function* ftm, double f, double kPHI) {
         Function PM = *ftm;
         PM.f = f;
-        float const_cos = pi2 * PM.f;
+        double const_cos = pi2 * PM.f;
         for (uint64_t t = 0; t < PM.N; t++) {
-            PM.f_t[t] = cosf(const_cos * PM.t[t] + kPHI * ftm->f_t[t]);
+            PM.f_t[t] = cos(const_cos * PM.t[t] + kPHI * ftm->f_t[t]);
         }
         return PM;
     }
     // --- FM MODULATION ---
-    inline Function FM_modulation(const Function* ftm, float f, float kf) {
+    inline Function FM_modulation(const Function* ftm, double f, double kf) {
         Function FM = *ftm;
         FM.f = f;
-        float const_cos = pi2 * FM.f;
-        float second_const = kf / ftm->f;
+        double const_cos = pi2 * FM.f;
+        double second_const = kf / ftm->f;
         for (uint64_t t = 0; t < FM.N; t++) {
-            FM.f_t[t] = cosf(const_cos * FM.t[t] + second_const * ftm->f_t[t]);
+            FM.f_t[t] = cos(const_cos * FM.t[t] + second_const * ftm->f_t[t]);
         }
         return FM;
     }
 
 
     // --- MODULACJA/DEMODULACJA CYFROWA ---
-    inline Function modulate_ASK(const uint8_t* bits, float bitrate, float A_HIGH, float A_LOW, float f, float fs, float PHI = 0.f) {
+    inline Function modulate_ASK(const uint8_t* bits, double bitrate, double A_HIGH, double A_LOW, double f, double fs, double PHI = 0.) {
         uint64_t bit_count = 0;
         while (bits[bit_count] != 0xD) {
             bit_count++;
         }
-        float Tc = static_cast<float>(bit_count) / bitrate;
-        Function ASK(Tc, fs, f, PHI, A_HIGH, [](const Function&, uint64_t, float, void*, void*, void*, void*) -> float { return 0.f; });
+        double Tc = static_cast<double>(bit_count) / bitrate;
+        Function ASK(Tc, fs, f, PHI, A_HIGH, [](const Function&, uint64_t, double, void*, void*, void*, void*) -> double { return 0.; });
 
         for (uint64_t n = 0; n < ASK.N; n++) {
             auto current_bit = static_cast<uint64_t>(ASK.t[n] * bitrate);
             if (current_bit >= bit_count)
                 current_bit = bit_count - 1;
-            float bit_val = (bits[current_bit] > 0) ? A_HIGH : A_LOW;
-            ASK.f_t[n] = bit_val * sinf(2.f * M_PIf * f * ASK.t[n] + PHI);
+            double bit_val = (bits[current_bit] > 0) ? A_HIGH : A_LOW;
+            ASK.f_t[n] = bit_val * sin(2. * M_PI * f * ASK.t[n] + PHI);
         }
         return ASK;
     }
-    inline Function modulate_PSK(const uint8_t* bits, float bitrate, float A, float f, float fs, float PHI_HIGH, float PHI_LOW, float PHI = 0.f) {
+    inline Function modulate_PSK(const uint8_t* bits, double bitrate, double A, double f, double fs, double PHI_HIGH, double PHI_LOW, double PHI = 0.) {
         uint64_t bit_count = 0;
         while (bits[bit_count] != 0xD) {
             bit_count++;
         }
-        float Tc = static_cast<float>(bit_count) / bitrate;
-        Function PSK(Tc, fs, f, PHI, A, [](const Function&, uint64_t, float, void*, void*, void*, void*) -> float { return 0.f; });
+        double Tc = static_cast<double>(bit_count) / bitrate;
+        Function PSK(Tc, fs, f, PHI, A, [](const Function&, uint64_t, double, void*, void*, void*, void*) -> double { return 0.; });
 
         for (uint64_t n = 0; n < PSK.N; n++) {
             auto current_bit = static_cast<uint64_t>(PSK.t[n] * bitrate);
             if (current_bit >= bit_count)
                 current_bit = bit_count - 1;
-            float phi_current = (bits[current_bit] > 0) ? PHI_HIGH : PHI_LOW;
-            PSK.f_t[n] = A * sinf(2.f * M_PIf * f * PSK.t[n] + phi_current);
+            double phi_current = (bits[current_bit] > 0) ? PHI_HIGH : PHI_LOW;
+            PSK.f_t[n] = A * sin(2. * M_PI * f * PSK.t[n] + phi_current);
         }
         return PSK;
     }
-    inline Function modulate_FSK(const uint8_t* bits, float bitrate, float A, float f_HIGH, float f_LOW, float fs, float PHI = 0.f) {
+    inline Function modulate_FSK(const uint8_t* bits, double bitrate, double A, double f_HIGH, double f_LOW, double fs, double PHI = 0.) {
         uint64_t bit_count = 0;
         while (bits[bit_count] != 0xD) {
             bit_count++;
         }
-        float Tc = static_cast<float>(bit_count) / bitrate;
-        Function FSK(Tc, fs, f_HIGH, PHI, A, [](const Function&, uint64_t, float, void*, void*, void*, void*) -> float { return 0.f; });
+        double Tc = static_cast<double>(bit_count) / bitrate;
+        Function FSK(Tc, fs, f_HIGH, PHI, A, [](const Function&, uint64_t, double, void*, void*, void*, void*) -> double { return 0.; });
 
         for (uint64_t n = 0; n < FSK.N; n++) {
             auto current_bit = static_cast<uint64_t>(FSK.t[n] * bitrate);
             if (current_bit >= bit_count)
                 current_bit = bit_count - 1;
-            float f_current = (bits[current_bit] > 0) ? f_HIGH : f_LOW;
-            FSK.f_t[n] = A * sinf(2.f * M_PIf * f_current * FSK.t[n] + PHI);
+            double f_current = (bits[current_bit] > 0) ? f_HIGH : f_LOW;
+            FSK.f_t[n] = A * sin(2. * M_PI * f_current * FSK.t[n] + PHI);
         }
         return FSK;
     }
 
-    inline uint8_t* demodulate_ASK_bits(const Function& sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW, float h = 0.25f) {
-        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+    inline uint8_t* demodulate_ASK_bits(const Function& sig, double bitrate, double f_carrier, double A_HIGH, double A_LOW, double h = 0.25) {
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
         uint8_t* demod_bits = (uint8_t*)_mm_malloc(bit_count + 1, 64);
 
-        float threshold = h * (A_HIGH + A_LOW) * static_cast<float>(samples_per_bit);
+        double threshold = h * (A_HIGH + A_LOW) * static_cast<double>(samples_per_bit);
 
         for (uint64_t b = 0; b < bit_count; b++) {
-            float sum = 0.f;
+            double sum = 0.;
             for (uint64_t s = 0; s < samples_per_bit; s++) {
                 uint64_t n = b * samples_per_bit + s;
                 if (n >= sig.N)
                     break;
-                sum += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n]);
+                sum += sig.f_t[n] * sin(2. * M_PI * f_carrier * sig.t[n]);
             }
             demod_bits[b] = (sum > threshold) ? 1 : 0;
         }
         demod_bits[bit_count] = 0xD;
         return demod_bits;
     }
-    inline uint8_t* demodulate_PSK_bits(const Function& sig, float bitrate, float f_carrier, float PHI_HIGH, float PHI_LOW, float h = 0.f) {
-        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+    inline uint8_t* demodulate_PSK_bits(const Function& sig, double bitrate, double f_carrier, double PHI_HIGH, double PHI_LOW, double h = 0.) {
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
         uint8_t* demod_bits = (uint8_t*)_mm_malloc(bit_count + 1, 64);
 
         for (uint64_t b = 0; b < bit_count; b++) {
-            float sum_high = 0.f;
-            float sum_low = 0.f;
+            double sum_high = 0.;
+            double sum_low = 0.;
             for (uint64_t s = 0; s < samples_per_bit; s++) {
                 uint64_t n = b * samples_per_bit + s;
                 if (n >= sig.N)
                     break;
-                sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_HIGH);
-                sum_low += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_LOW);
+                sum_high += sig.f_t[n] * sin(2. * M_PI * f_carrier * sig.t[n] + PHI_HIGH);
+                sum_low += sig.f_t[n] * sin(2. * M_PI * f_carrier * sig.t[n] + PHI_LOW);
             }
-            demod_bits[b] = ((float)(sum_high > sum_low) > h) ? 1 : 0;
+            demod_bits[b] = ((double)(sum_high > sum_low) > h) ? 1 : 0;
         }
         demod_bits[bit_count] = 0xD;
         return demod_bits;
     }
-    inline uint8_t* demodulate_FSK_bits(const Function& sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f, float h = 0.f) {
-        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+    inline uint8_t* demodulate_FSK_bits(const Function& sig, double bitrate, double f_HIGH, double f_LOW, double PHI = 0., double h = 0.) {
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
         uint8_t* demod_bits = (uint8_t*)_mm_malloc(bit_count + 1, 64);
 
         for (uint64_t b = 0; b < bit_count; b++) {
-            float sum_high = 0.f;
-            float sum_low = 0.f;
+            double sum_high = 0.;
+            double sum_low = 0.;
             for (uint64_t s = 0; s < samples_per_bit; s++) {
                 uint64_t n = b * samples_per_bit + s;
                 if (n >= sig.N)
                     break;
-                sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_HIGH * sig.t[n] + PHI);
-                sum_low += sig.f_t[n] * sinf(2.f * M_PIf * f_LOW * sig.t[n] + PHI);
+                sum_high += sig.f_t[n] * sin(2. * M_PI * f_HIGH * sig.t[n] + PHI);
+                sum_low += sig.f_t[n] * sin(2. * M_PI * f_LOW * sig.t[n] + PHI);
             }
-            demod_bits[b] = ((float)(sum_high > sum_low) > h) ? 1 : 0;
+            demod_bits[b] = ((double)(sum_high > sum_low) > h) ? 1 : 0;
         }
         demod_bits[bit_count] = 0xD;
         return demod_bits;
@@ -4707,52 +4707,52 @@ namespace ShiftDownFunctions
         Function p;
         Function c;
     };
-    inline DigitalDemodulationFunctions demodulate_ASK_function(const Function& sig, float bitrate, float f_carrier, float A_HIGH, float A_LOW) {
+    inline DigitalDemodulationFunctions demodulate_ASK_function(const Function& sig, double bitrate, double f_carrier, double A_HIGH, double A_LOW) {
 
-        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
-        float threshold = 0.25f * (A_HIGH + A_LOW) * static_cast<float>(samples_per_bit);
+        double threshold = 0.25 * (A_HIGH + A_LOW) * static_cast<double>(samples_per_bit);
         DigitalDemodulationFunctions demodulated = {sig, sig, sig, sig};
 
         for (uint64_t b = 0; b < bit_count; b++) {
-            float sum = 0.f;
+            double sum = 0.;
             for (uint64_t s = 0; s < samples_per_bit; s++) {
                 uint64_t n = b * samples_per_bit + s;
                 // x(t)
-                float x_val = sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n]);
+                double x_val = sig.f_t[n] * sin(2. * M_PI * f_carrier * sig.t[n]);
                 demodulated.x.f_t[n] = x_val;
                 // p(t)
                 sum += x_val;
                 demodulated.p.f_t[n] = sum;
                 // c(t)
-                demodulated.c.f_t[n] = (sum > threshold) ? 1.0f : 0.0f;
+                demodulated.c.f_t[n] = (sum > threshold) ? 1.0 : 0.0;
             }
         }
         return demodulated;
     }
-    inline DigitalDemodulationFunctions demodulate_PSK_function(const Function& sig, float bitrate, float f_carrier, float PHI_HIGH, float PHI_LOW) {
-        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+    inline DigitalDemodulationFunctions demodulate_PSK_function(const Function& sig, double bitrate, double f_carrier, double PHI_HIGH, double PHI_LOW) {
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
         DigitalDemodulationFunctions demodulated = {sig, sig, sig, sig};
 
         for (uint64_t b = 0; b < bit_count; b++) {
-            float sum_high = 0.f;
-            float sum_low = 0.f;
+            double sum_high = 0.;
+            double sum_low = 0.;
 
             for (uint64_t s = 0; s < samples_per_bit; s++) {
                 uint64_t n = b * samples_per_bit + s;
                 if (n >= sig.N) break;
                 // x(t)
-                float x_val = sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_HIGH);
+                double x_val = sig.f_t[n] * sin(2. * M_PI * f_carrier * sig.t[n] + PHI_HIGH);
                 demodulated.x.f_t[n] = x_val;
 
-                sum_high += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_HIGH);
-                sum_low += sig.f_t[n] * sinf(2.f * M_PIf * f_carrier * sig.t[n] + PHI_LOW);
+                sum_high += sig.f_t[n] * sin(2. * M_PI * f_carrier * sig.t[n] + PHI_HIGH);
+                sum_low += sig.f_t[n] * sin(2. * M_PI * f_carrier * sig.t[n] + PHI_LOW);
                 // p(t)
                 demodulated.p.f_t[n] = sum_high - sum_low;
                 // c(t)
-                demodulated.c.f_t[n] = (sum_high > sum_low) ? 1.0f : 0.0f;
+                demodulated.c.f_t[n] = (sum_high > sum_low) ? 1.0 : 0.0;
             }
         }
         return demodulated;
@@ -4766,22 +4766,22 @@ namespace ShiftDownFunctions
         Function p;
         Function c;
     };
-    inline FSKDemodulationFunctions demodulate_FSK_function(const Function& sig, float bitrate, float f_HIGH, float f_LOW, float PHI = 0.f) {
-        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1f);
+    inline FSKDemodulationFunctions demodulate_FSK_function(const Function& sig, double bitrate, double f_HIGH, double f_LOW, double PHI = 0.) {
+        uint64_t bit_count = static_cast<uint64_t>(sig.Tc * bitrate + 0.1);
         uint64_t samples_per_bit = static_cast<uint64_t>(sig.fs / bitrate);
 
         FSKDemodulationFunctions demodulated = {sig, sig, sig, sig, sig, sig, sig};
 
         for (uint64_t b = 0; b < bit_count; b++) {
-            float sum_high = 0.f;
-            float sum_low = 0.f;
+            double sum_high = 0.;
+            double sum_low = 0.;
 
             for (uint64_t s = 0; s < samples_per_bit; s++) {
                 uint64_t n = b * samples_per_bit + s;
                 if (n >= sig.N) break;
 
-                float x1_val = sig.f_t[n] * sinf(2.f * M_PIf * f_HIGH * sig.t[n] + PHI);
-                float x2_val = sig.f_t[n] * sinf(2.f * M_PIf * f_LOW * sig.t[n] + PHI);
+                double x1_val = sig.f_t[n] * sin(2. * M_PI * f_HIGH * sig.t[n] + PHI);
+                double x2_val = sig.f_t[n] * sin(2. * M_PI * f_LOW * sig.t[n] + PHI);
                 demodulated.x1.f_t[n] = x1_val;
                 demodulated.x2.f_t[n] = x2_val;
 
@@ -4791,7 +4791,7 @@ namespace ShiftDownFunctions
                 demodulated.p2.f_t[n] = sum_low;
 
                 demodulated.p.f_t[n] = sum_high - sum_low;
-                demodulated.c.f_t[n] = (sum_high > sum_low) ? 1.0f : 0.0f;
+                demodulated.c.f_t[n] = (sum_high > sum_low) ? 1.0 : 0.0;
             }
         }
         return demodulated;
@@ -4872,7 +4872,7 @@ namespace ShiftDownFunctions
         }
         ~HammingCoder() { _mm_free(coded_bits); }
     };
-    // built in BER as float on first four indexes [0] -> [3],
+    // built in BER as double on first eight indexes [0] -> [7],
     struct alignas(64) HammingDecoder {
 
         uint8_t* decoded_bits = nullptr;
@@ -4897,7 +4897,7 @@ namespace ShiftDownFunctions
             // alokuje pamiec dla ilosci tego ile mam bajtow, do tego dodaje jeszcze telemetrie, 8 bajtow, i do tego
             // dodaje jeszcze 1 bajt znaku konca
             uint64_t frame_count = (size + n - 1) / n;
-            uint64_t malloc_size = ((frame_count * m) / 8) + 6;
+            uint64_t malloc_size = ((frame_count * m) / 8) + 10;
             decoded_bits = (uint8_t*)_mm_malloc(sizeof(uint8_t) * malloc_size, 64);
             for (uint64_t i = 0; i < malloc_size; i++) {
                 decoded_bits[i] = 0;
@@ -4907,9 +4907,9 @@ namespace ShiftDownFunctions
 
             // dekodowanie
 
-            uint64_t decoded_bits_index_global = 4;
+            uint64_t decoded_bits_index_global = 8;
             uint64_t decoded_bits_index_local = 0;
-            float errors = 0;
+            double errors = 0;
 
             for (uint64_t j = 0; j < frame_count; j++) {
                 uint64_t offset = n * j;
@@ -4927,12 +4927,10 @@ namespace ShiftDownFunctions
                 }
                 // naprawa zepsutego bitu
                 uint64_t err_bit = m * j + Z - 2 - (63 - __builtin_clzll(Z));
-                errors = ((Z & (Z - 1)) == 0)
-                    ? errors
-                    : (decoded_bits[4 + (err_bit >> 3)] ^= 1 << (7 - (err_bit & 7)), errors + 1);
+                errors = ((Z & (Z - 1)) == 0) ? errors : (decoded_bits[8 + (err_bit >> 3)] ^= 1 << (7 - (err_bit & 7)), errors + 1);
             }
-            errors = (errors * 100) / (float)size;
-            *(reinterpret_cast<float*>(decoded_bits)) = errors;
+            errors = (errors * 100) / (double)size;
+            *(reinterpret_cast<double*>(decoded_bits)) = errors;
             decoded_bits[malloc_size - 1] = '\0';
         }
         ~HammingDecoder() { _mm_free(decoded_bits); }
@@ -4962,18 +4960,18 @@ namespace ShiftDownFunctions
 #pragma region Window Functions
 
     inline Function HammingWindow(const Function* function_to_window_function, bool compensate = true) {
-        float coherent_gain = 1.f / 0.54f;
+        double coherent_gain = 1. / 0.54;
         Function after_window = *function_to_window_function;
 
         if (compensate) {
             for (uint64_t n = 0; n < after_window.N; n++) {
-                float w_n = 0.54f - 0.46f * cosf((2.0f * M_PIf * n) / (after_window.N - 1));
+                double w_n = 0.54 - 0.46 * cos((2.0 * M_PI * n) / (after_window.N - 1));
                 after_window.f_t[n] = after_window.f_t[n] * w_n * coherent_gain;
             }
         }
         if (!compensate) {
             for (uint64_t n = 0; n < after_window.N; n++) {
-                float w_n = 0.54f - 0.46f * cosf((2.0f * M_PIf * n) / (after_window.N - 1));
+                double w_n = 0.54 - 0.46 * cos((2.0 * M_PI * n) / (after_window.N - 1));
                 after_window.f_t[n] = after_window.f_t[n] * w_n;
             }
         }
@@ -4985,22 +4983,22 @@ namespace ShiftDownFunctions
 
 #pragma region Analazing functions
 
-    inline float BandwidthEstimation(const FFT& fte, float dB_value) {
+    inline double BandwidthEstimation(const FFT& fte, double dB_value) {
 
-        auto* modz_bufor = (float*)_mm_malloc(sizeof(float) * fte.K, 64);
+        auto* modz_bufor = (double*)_mm_malloc(sizeof(double) * fte.K, 64);
 
         for (uint64_t k = 0; k < fte.K; k++) {
-            fte.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(fte.mod_z[k]) : -99999.f;
+            fte.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10(fte.mod_z[k]) : -99999.;
         }
 
         uint32_t K_render = (fte.K / 2) + 1;
-        float max_y = std::numeric_limits<float>::lowest();
+        double max_y = std::numeric_limits<double>::lowest();
 
         for (uint32_t i = 0; i < K_render; i++) {
             max_y = modz_bufor[i] > max_y ? modz_bufor[i] : max_y;
         }
 
-        float threshold = max_y - dB_value;
+        double threshold = max_y - dB_value;
         uint32_t k_min = 0, k_max = 0;
 
         for (uint32_t i = 0; i < K_render; i++) {
@@ -5010,28 +5008,28 @@ namespace ShiftDownFunctions
             if (modz_bufor[i] >= threshold) { k_max = i; break; }
         }
 
-        float delta_f = fte.fs / (float)fte.K;
+        double delta_f = fte.fs / (double)fte.K;
 
         _mm_free(modz_bufor);
 
-        return (float)(k_max - k_min) * delta_f;
+        return (double)(k_max - k_min) * delta_f;
     }
-    inline float BandwidthEstimation(const DFT& dte, float dB_value) {
+    inline double BandwidthEstimation(const DFT& dte, double dB_value) {
 
-        auto* modz_bufor = (float*)_mm_malloc(sizeof(float) * dte.K, 64);
+        auto* modz_bufor = (double*)_mm_malloc(sizeof(double) * dte.K, 64);
 
         for (uint64_t k = 0; k < dte.K; k++) {
-            dte.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10f(dte.mod_z[k]) : -99999.f;
+            dte.mod_z[k] > 0 ? modz_bufor[k] = 20 * log10(dte.mod_z[k]) : -99999.;
         }
 
         uint32_t K_render = (dte.K / 2) + 1;
-        float max_y = std::numeric_limits<float>::lowest();
+        double max_y = std::numeric_limits<double>::lowest();
 
         for (uint32_t i = 0; i < K_render; i++) {
             max_y = modz_bufor[i] > max_y ? modz_bufor[i] : max_y;
         }
 
-        float threshold = max_y - dB_value;
+        double threshold = max_y - dB_value;
         uint32_t k_min = 0, k_max = 0;
 
         for (uint32_t i = 0; i < K_render; i++) {
@@ -5041,33 +5039,33 @@ namespace ShiftDownFunctions
             if (modz_bufor[i] >= threshold) { k_max = i; break; }
         }
 
-        float delta_f = dte.fs / (float)dte.K;
+        double delta_f = dte.fs / (double)dte.K;
 
         _mm_free(modz_bufor);
 
-        return (float)(k_max - k_min) * delta_f;
+        return (double)(k_max - k_min) * delta_f;
     }
 
-    inline float BandwidthEnergy(const FFT& fte, float fn) {
+    inline double BandwidthEnergy(const FFT& fte, double fn) {
         uint32_t K_render = (fte.K / 2) + 1;
-        float E_total = 0;
-        float delta_f = fte.fs / (float)fte.K;
+        double E_total = 0;
+        double delta_f = fte.fs / (double)fte.K;
 
         for (uint32_t i = 0; i < K_render; i++) {
             E_total += fte.mod_z[i] * fte.mod_z[i];
         }
 
-        if (E_total <= 0.0f) return 0.0f;
+        if (E_total <= 0.0) return 0.0;
 
         uint32_t fn_idx = (uint32_t)(fn / delta_f);
         uint32_t alpha = 0;
 
-        float E_alpha = 0;
+        double E_alpha = 0;
         if (fn_idx < K_render) {
             E_alpha = fte.mod_z[fn_idx] * fte.mod_z[fn_idx];
         }
 
-        while ((E_alpha / E_total) < 0.80f) {
+        while ((E_alpha / E_total) < 0.80) {
             alpha++;
             bool expanded = false;
 
@@ -5085,28 +5083,28 @@ namespace ShiftDownFunctions
             }
         }
 
-        return 2.f * (float)alpha * delta_f;
+        return 2. * (double)alpha * delta_f;
     }
-    inline float BandwidthEnergy(const DFT& dte, float fn) {
+    inline double BandwidthEnergy(const DFT& dte, double fn) {
         uint32_t K_render = (dte.K / 2) + 1;
-        float E_total = 0;
-        float delta_f = dte.fs / (float)dte.K;
+        double E_total = 0;
+        double delta_f = dte.fs / (double)dte.K;
 
         for (uint32_t i = 0; i < K_render; i++) {
             E_total += dte.mod_z[i] * dte.mod_z[i];
         }
 
-        if (E_total <= 0.0f) return 0.0f;
+        if (E_total <= 0.0) return 0.0;
 
         uint32_t fn_idx = (uint32_t)(fn / delta_f);
         uint32_t alpha = 0;
 
-        float E_alpha = 0;
+        double E_alpha = 0;
         if (fn_idx < K_render) {
             E_alpha = dte.mod_z[fn_idx] * dte.mod_z[fn_idx];
         }
 
-        while ((E_alpha / E_total) < 0.80f) {
+        while ((E_alpha / E_total) < 0.80) {
             alpha++;
             bool expanded = false;
 
@@ -5124,10 +5122,10 @@ namespace ShiftDownFunctions
             }
         }
 
-        return 2.f * (float)alpha * delta_f;
+        return 2. * (double)alpha * delta_f;
     }
 
-    inline float BER(const uint8_t* in,const uint8_t* out) {
+    inline double BER(const uint8_t* in,const uint8_t* out) {
 
         uint64_t E = 0; // errors
         uint64_t N = 0; // number of bits
@@ -5136,7 +5134,7 @@ namespace ShiftDownFunctions
             in[N] != out[N] ? E = E + 1, N++ : N++;
         }
 
-        return ((float)E * 100.f)/(float)N;
+        return ((double)E * 100.)/(double)N;
     }
 
 #pragma endregion
